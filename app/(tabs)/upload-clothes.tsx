@@ -1,6 +1,7 @@
+import { getToken } from "@/utils/token";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
-import { getToken, getUserId } from "@/utils/token";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 
 // Backend URL
 const API_BASE_URL = "http://localhost:8080/api/v1";
@@ -45,6 +47,15 @@ export default function UploadWardrobeScreen() {
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<DetectedClothingItem | null>(null);
   const [error, setError] = useState<string | null>(null);
+  useFocusEffect(
+  useCallback(() => {
+  
+    setImageUri(null);
+    setResult(null);
+    setError(null);
+  }, [])
+);
+
 
   const requestMediaPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
