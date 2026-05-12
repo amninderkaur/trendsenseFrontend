@@ -3,28 +3,34 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  useWindowDimensions,
 } from "react-native";
+
 import { register } from "../../api/auth";
+import { colors, globalStyles } from "../../constants/globalStyles";
 import { saveToken } from "../../utils/token";
+
 export default function RegisterScreen() {
   const router = useRouter();
+
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 768;
+
+    const circleSize = Math.max(width * 0.60, 180);
+const smallCircleSize = Math.max(width * 0.45, 140);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ----------------------------
-  // HANDLE REGISTER
-  // ----------------------------
   const handleRegister = async () => {
     if (!email.trim() || !password.trim() || !confirm.trim()) {
-      alert("Please fiill out all fields.");
+      alert("Please fill out all fields.");
       return;
     }
 
@@ -36,173 +42,139 @@ export default function RegisterScreen() {
     setLoading(true);
 
     try {
-       const data = await register(email, password);
-      saveToken(data.token);
+      const data = await register(email, password);
+      await saveToken(data.token);
       router.replace("/(auth)/login");
     } catch (err) {
       console.error(err);
-      alert("Registration failed (waiting for backend).");
+      alert("Registration failed.");
+    } finally {
       setLoading(false);
     }
   };
 
- return (
-    <View style={styles.container}>
-      {/* Background circles */}
-      <View style={styles.circleOne} />
-      <View style={styles.circleTwo} />
+  return (
+    <View style={globalStyles.screen}>
+      <View
+        style={[
+          globalStyles.topRightCircle,
+          {
+            width: circleSize,
+            height: circleSize,
+            borderRadius: circleSize / 2,
+            top: -circleSize * 0.45,
+            right: -circleSize * 0.45,
+          },
+        ]}
+      />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.title}>Create an Account</Text>
-        <Text style={styles.subtitle}>Join us to explore your wardrobe</Text>
+      <View
+        style={[
+          globalStyles.bottomLeftCircle,
+          {
+            width: smallCircleSize,
+            height: smallCircleSize,
+            borderRadius: smallCircleSize / 2,
+            bottom: -smallCircleSize * 0.45,
+            left: -smallCircleSize * 0.45,
+          },
+        ]}
+      />
 
-        {/* Email */}
-        <TextInput
-          placeholder="Email"
-          placeholderTextColor="#7a8fa1"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-        />
-
-        {/* Password */}
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="#7a8fa1"
-          style={styles.input}
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        {/* Confirm Password */}
-        <TextInput
-          placeholder="Confirm Password"
-          placeholderTextColor="#7a8fa1"
-          style={styles.input}
-          secureTextEntry
-          value={confirm}
-          onChangeText={setConfirm}
-        />
-
-        {/* Register Button */}
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          {loading ? (
-            <ActivityIndicator color="#233443" />
-          ) : (
-            <Text style={styles.buttonText}>Register</Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Back to login */}
-        <TouchableOpacity
-          style={styles.loginLink}
-          onPress={() => router.push("/(auth)/login")}
+      <ScrollView contentContainerStyle={globalStyles.scrollContainer}>
+        <View
+          style={[
+            globalStyles.formCard,
+            isLargeScreen && globalStyles.largeFormCard,
+          ]}
         >
-          <Text style={styles.loginLinkText}>Already have an account? Login</Text>
-        </TouchableOpacity>
+          <Text
+            style={[
+              globalStyles.pageTitle,
+              isLargeScreen && globalStyles.largePageTitle,
+            ]}
+          >
+            Create an Account
+          </Text>
+
+          <Text style={globalStyles.subtitle}>
+            Join us to explore your wardrobe
+          </Text>
+
+          <TextInput
+            placeholder="email@domain.com"
+            placeholderTextColor={colors.muted}
+            style={[
+              globalStyles.input,
+              isLargeScreen && globalStyles.largeInput,
+            ]}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <TextInput
+            placeholder="Password"
+            placeholderTextColor={colors.muted}
+            style={[
+              globalStyles.input,
+              isLargeScreen && globalStyles.largeInput,
+            ]}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          <TextInput
+            placeholder="Confirm Password"
+            placeholderTextColor={colors.muted}
+            style={[
+              globalStyles.input,
+              isLargeScreen && globalStyles.largeInput,
+            ]}
+            secureTextEntry
+            value={confirm}
+            onChangeText={setConfirm}
+          />
+
+          <TouchableOpacity
+            style={[
+              globalStyles.primaryButton,
+              isLargeScreen && globalStyles.largePrimaryButton,
+            ]}
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text
+                style={[
+                  globalStyles.primaryButtonText,
+                  isLargeScreen && globalStyles.largePrimaryButtonText,
+                ]}
+              >
+                Register
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={globalStyles.centeredLink}
+            onPress={() => router.push("/(auth)/login")}
+          >
+            <Text
+              style={[
+                globalStyles.linkText,
+                isLargeScreen && globalStyles.largeLinkText,
+              ]}
+            >
+              Already have an account? Login
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
 }
-
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#eeede8",  // Background
-    position: "relative",
-    paddingHorizontal: 20,
-  },
-
-  // Decorative circles replaced with PRIMARY + SECONDARY
-  circleOne: {
-    position: "absolute",
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: "#c0d1bf",  // Primary
-    top: -50,
-    right: -50,
-    opacity: 0.35,
-  },
-
-  circleTwo: {
-    position: "absolute",
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#b9d6da", // Secondary
-    bottom: -30,
-    left: -30,
-    opacity: 0.30,
-  },
-
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    paddingVertical: 60,
-  },
-
-  // Title (ON BACKGROUND)
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#233443",  // On Background
-    textAlign: "center",
-    marginBottom: 6,
-  },
-
-  subtitle: {
-    fontSize: 16,
-    color: "#96b7bc", // Secondary Variant (nice muted look)
-    textAlign: "center",
-    marginBottom: 20,
-  },
-
-  // Inputs
-  input: {
-    borderWidth: 1,
-    borderColor: "#a3bfa9", // Primary Variant border
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#233443",       // On Background (text color)
-    marginBottom: 15,
-    backgroundColor: "#ffffff",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-
-  button: {
-    backgroundColor: "#c0d1bf", // Primary Button
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 15,
-  },
-
-  buttonText: {
-    color: "#233443",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  loginLink: {
-    alignItems: "center",
-    marginTop: 10,
-  },
-
-  loginLinkText: {
-    color: "#96b7bc",   // Secondary Variant
-    fontSize: 14,
-    fontWeight: "600",
-  },
-});
-

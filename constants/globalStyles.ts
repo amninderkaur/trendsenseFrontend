@@ -1,0 +1,261 @@
+// constants/globalStyles.js
+
+import { StyleSheet } from "react-native";
+
+export const colors = {
+  bg: "#c1d1bf",
+  bgDark: "#a3bea9",
+  card: "#eeede8",
+  input: "#dae4e2",
+  blue: "#b9d6da",
+  blueDark: "#96b7bc",
+  text: "#000000",
+  muted: "#4B5563",
+  accent: "#FF6B4A",
+  white: "#FFFFFF",
+};
+
+export const globalStyles = StyleSheet.create({
+
+  // =========================
+  // LAYOUT
+  // =========================
+
+  screen: {
+    flex: 1,
+    backgroundColor: colors.bg,
+    position: "relative",
+  },
+
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+
+  centeredContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  // =========================
+  // AUTH PAGES
+  // Login / Register shared
+  // =========================
+
+  formCard: {
+    width: "100%",
+    maxWidth: 340,
+    minHeight: 500,
+    backgroundColor: colors.card,
+    padding: 28,
+    borderRadius: 32,
+    justifyContent: "center",
+
+    shadowColor: colors.text,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    elevation: 5,
+  },
+
+  largeFormCard: {
+    maxWidth: 900,
+    minHeight: 520,
+    padding: 60,
+    borderRadius: 40,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: colors.input,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    fontSize: 16,
+    color: colors.text,
+    marginBottom: 18,
+    backgroundColor: colors.input,
+
+    shadowColor: colors.text,
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+
+  largeInput: {
+    paddingHorizontal: 28,
+    paddingVertical: 24,
+    fontSize: 22,
+    borderRadius: 20,
+  },
+
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  passwordInput: {
+    flex: 1,
+    color: colors.text,
+    fontSize: 16,
+  },
+
+  largePasswordInput: {
+    fontSize: 22,
+  },
+
+  showText: {
+    paddingHorizontal: 12,
+    fontWeight: "600",
+    color: colors.accent,
+  },
+
+  largeShowText: {
+    fontSize: 18,
+  },
+
+  // =========================
+  // BUTTONS
+  // =========================
+
+  primaryButton: {
+    backgroundColor: colors.bgDark,
+    paddingVertical: 18,
+    borderRadius: 32,
+    alignItems: "center",
+    marginTop: 12,
+    marginBottom: 20,
+  },
+
+  largePrimaryButton: {
+    paddingVertical: 24,
+    borderRadius: 40,
+  },
+
+  primaryButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  largePrimaryButtonText: {
+    fontSize: 22,
+  },
+
+  // =========================
+  // TYPOGRAPHY
+  // =========================
+
+  pageTitle: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: 10,
+  },
+
+  largePageTitle: {
+    fontSize: 56,
+    marginBottom: 20,
+  },
+
+  subtitle: {
+    fontSize: 16,
+    color: colors.blueDark,
+    marginBottom: 24,
+  },
+
+  bodyText: {
+    fontSize: 14,
+    color: colors.muted,
+  },
+
+  errorText: {
+    color: colors.accent,
+    marginBottom: 12,
+    fontSize: 14,
+  },
+
+  largeErrorText: {
+    fontSize: 18,
+  },
+
+  // =========================
+  // LINKS
+  // =========================
+
+  centeredLink: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  linkText: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  largeLinkText: {
+    fontSize: 18,
+  },
+
+  // =========================
+  // DECORATIVE ELEMENTS
+  // =========================
+
+  topRightCircle: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: colors.blueDark,
+    top: -80,
+    right: -80,
+    opacity: 0.47,
+  },
+
+  bottomLeftCircle: {
+    position: "absolute",
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: colors.blue,
+    bottom: -60,
+    left: -60,
+    opacity: 0.56,
+  },
+
+  // =========================
+  // CARDS
+  // =========================
+
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+
+    shadowColor: colors.text,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    elevation: 3,
+  },
+
+});
