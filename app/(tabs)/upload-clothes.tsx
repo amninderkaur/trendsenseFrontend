@@ -14,8 +14,7 @@ import {
 } from "react-native";
 
 
-// Backend URL
-const API_BASE_URL = "http://localhost:8080/api/v1";
+import { BASE_URL as API_BASE_URL } from "@/api/axios";
 
 type DetectedClothingItem = {
   id: string;
@@ -118,7 +117,10 @@ export default function UploadWardrobeScreen() {
     const fileName = uriParts[uriParts.length - 1];
     const ext = fileName.split(".").pop()?.toLowerCase();
     const mimeType =
-      ext === "jpg" || ext === "jpeg" ? "image/jpeg" : `image/${ext}`;
+      ext === "jpg" || ext === "jpeg" ? "image/jpeg" :
+      ext === "png" ? "image/png" :
+      ext === "webp" ? "image/webp" :
+      "image/jpeg";
 
     const formData = new FormData();
 
@@ -138,7 +140,7 @@ export default function UploadWardrobeScreen() {
     const uploadResult = await new Promise<string>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
-      xhr.open("POST", `${API_BASE_URL}/wardrobe/upload`);
+      xhr.open("POST", `${API_BASE_URL}/api/wardrobe/add`);
       xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
       xhr.onload = () => {

@@ -64,6 +64,20 @@ export default function Dashboard() {
           </Pressable>
         </Link>
 
+        <Link href="/upload-clothes" asChild>
+          <Pressable style={styles.menuItem}>
+            <MaterialIcons name="add-a-photo" size={20} color="#00A6A6" style={styles.icon} />
+            <Text>Upload Clothes</Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/upload-outfit" asChild>
+          <Pressable style={styles.menuItem}>
+            <MaterialIcons name="checkroom" size={20} color="#00A6A6" style={styles.icon} />
+            <Text>Outfit Suggestion</Text>
+          </Pressable>
+        </Link>
+
         <Link href="/trends" asChild>
           <Pressable style={styles.menuItem}>
             <FontAwesome5 name="chart-line" size={20} color="#00A6A6" style={styles.icon} />

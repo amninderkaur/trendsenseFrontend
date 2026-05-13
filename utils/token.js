@@ -1,23 +1,28 @@
+// In-memory auth store — replaces localStorage for sandbox environments.
+// Values live for the lifetime of the JS module (i.e. the app session).
+let _token = null;
+let _userId = null;
+
 export const saveToken = (token) => {
-  localStorage.setItem("jwtToken", token);
+  _token = token;
 };
 
 export const getToken = () => {
-  return localStorage.getItem("jwtToken");
+  return _token;
 };
 
 export const removeToken = () => {
-  localStorage.removeItem("jwtToken");
+  _token = null;
 };
 
 export const saveUserId = (userId) => {
-  localStorage.setItem("userId", userId);
+  _userId = userId;
 };
 
 export const getUserId = () => {
-  return localStorage.getItem("userId");
+  return _userId;
 };
 
 export const removeUserId = () => {
-  localStorage.removeItem("userId");
+  _userId = null;
 };

@@ -62,8 +62,8 @@ export default function LoginScreen() {
 
             console.log("Login response:", data);
 
-            await saveToken(data.token);
-            await saveUserId(data.userId);
+            saveToken(data.token);
+            saveUserId(data.userId);
 
             router.replace('/(tabs)/mainMenu');
 

@@ -43,7 +43,7 @@ const smallCircleSize = Math.max(width * 0.45, 140);
 
     try {
       const data = await register(email, password);
-      await saveToken(data.token);
+      saveToken(data.token);
       router.replace("/(auth)/login");
     } catch (err) {
       console.error(err);

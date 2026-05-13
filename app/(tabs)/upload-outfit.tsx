@@ -1,206 +1,152 @@
-
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import { getToken } from "@/utils/token";
+import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-//to connect to backend
-//const API_BASE_URL = '????'; 
-const API_BASE_URL = '';
+import { BASE_URL as API_BASE_URL } from "@/api/axios";
 
-
-type OutfitRecommendation = {
-  id: string;
-  title: string;
-  description: string;
-  score?: number; // confidence / rating
+type SelectedItem = {
+  itemId: string;
+  type: string;
+  color: string;
+  imageBase64: string;
 };
 
-export default function UploadOutfitScreen() {
-  const colorScheme = useColorScheme();
-  const themeColors = Colors[colorScheme ?? 'light'];
+type OutfitSuggestionResponse = {
+  selectedItems: SelectedItem[];
+  reasoning: string;
+  weatherSummary: string;
+};
 
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [recommendations, setRecommendations] = useState<OutfitRecommendation[]>([]);
+export default function OutfitSuggestionScreen() {
+  const [occasion, setOccasion] = useState("");
+  const [city, setCity] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<OutfitSuggestionResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const requestMediaPermissions = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'We need access to your photos to upload outfits.');
-      return false;
-    }
-    return true;
-  };
-
-  const requestCameraPermissions = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'We need access to your camera to take outfit photos.');
-      return false;
-    }
-    return true;
-  };
-
-  const handlePickImage = async () => {
-    const ok = await requestMediaPermissions();
-    if (!ok) return;
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
-      setRecommendations([]);
-      setError(null);
-    }
-  };
-
-  const handleTakePhoto = async () => {
-    const ok = await requestCameraPermissions();
-    if (!ok) return;
-
-    const result = await ImagePicker.launchCameraAsync({
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
-      setRecommendations([]);
-      setError(null);
-    }
-  };
-
-  const handleAnalyzeOutfit = async () => {
-    if (!imageUri) {
-      Alert.alert('No image', 'Please select or capture an outfit photo first.');
+  const handleSuggest = async () => {
+    if (!occasion.trim() || !city.trim()) {
+      setError("Please enter both occasion and city.");
       return;
     }
 
     try {
-      setIsAnalyzing(true);
+      setLoading(true);
       setError(null);
-      setRecommendations([]);
+      setResult(null);
 
-      // Build FormData for multipart upload
-      const formData = new FormData();
+      const token = await getToken();
+      if (!token) throw new Error("Not authenticated. Please log in again.");
 
-      const filename = imageUri.split('/').pop() ?? 'outfit.jpg';
-      const fileTypeMatch = /\.(\w+)$/.exec(filename);
-      const fileType = fileTypeMatch ? `image/${fileTypeMatch[1]}` : 'image/jpeg';
-
-      formData.append('file', {
-        uri: imageUri,
-        name: filename,
-        type: fileType,
-      } as any);
-
-      // make sure Spring Boot endpoint matches this route
-     const response = await fetch(`${API_BASE_URL}/api/v1/outfits/analyze`, {
-        method: 'POST',
+      const response = await fetch(`${API_BASE_URL}/api/outfit/suggest`, {
+        method: "POST",
         headers: {
-          // Don't set Content-Type manually; let fetch + FormData handle it
-          // 'Content-Type': 'multipart/form-data',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: formData,
+        body: JSON.stringify({ occasion: occasion.trim(), city: city.trim() }),
       });
 
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(text || 'Failed to analyze outfit');
+        throw new Error(text || `Error ${response.status}`);
       }
 
-      // backend response should be: { recommendations: OutfitRecommendation[] }
-      const data = (await response.json()) as { recommendations: OutfitRecommendation[] };
-
-      setRecommendations(data.recommendations ?? []);
+      const data: OutfitSuggestionResponse = await response.json();
+      setResult(data);
     } catch (err: any) {
-      console.error('Analyze outfit error:', err);
-      setError(err.message ?? 'Something went wrong analyzing your outfit.');
+      setError(err.message ?? "Something went wrong. Please try again.");
     } finally {
-      setIsAnalyzing(false);
+      setLoading(false);
     }
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <Text style={[styles.title, { color: themeColors.text }]}>
-        Upload your outfit
-      </Text>
-      <Text style={[styles.subtitle, { color: '#9ca3af' }]}>
-        Take a photo or choose one from your gallery. We’ll analyze what you’re wearing
-        and suggest ways to upgrade or style it.
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <Text style={styles.title}>Outfit Suggestion</Text>
+      <Text style={styles.subtitle}>
+        Tell us your occasion and location — we'll pick the best outfit from
+        your wardrobe based on the weather.
       </Text>
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={handlePickImage}>
-          <Text style={styles.buttonText}>Choose from gallery</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonOutline} onPress={handleTakePhoto}>
-          <Text style={styles.buttonOutlineText}>Take a photo</Text>
-        </TouchableOpacity>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Occasion</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. casual, work, gym, date night"
+          placeholderTextColor="#96b7bc"
+          value={occasion}
+          onChangeText={setOccasion}
+        />
       </View>
 
-      {imageUri && (
-        <View style={styles.previewContainer}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-            Preview
-          </Text>
-          <Image source={{ uri: imageUri }} style={styles.previewImage} />
-        </View>
-      )}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>City</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. Toronto"
+          placeholderTextColor="#96b7bc"
+          value={city}
+          onChangeText={setCity}
+        />
+      </View>
 
       <TouchableOpacity
-        style={[
-          styles.analyzeButton,
-          (!imageUri || isAnalyzing) && styles.analyzeButtonDisabled,
-        ]}
-        onPress={handleAnalyzeOutfit}
-        disabled={!imageUri || isAnalyzing}
+        style={[styles.button, loading && { opacity: 0.6 }]}
+        onPress={handleSuggest}
+        disabled={loading}
       >
-        {isAnalyzing ? (
-          <ActivityIndicator />
+        {loading ? (
+          <ActivityIndicator color="#233443" />
         ) : (
-          <Text style={styles.analyzeButtonText}>Analyze outfit</Text>
+          <Text style={styles.buttonText}>Suggest Outfit</Text>
         )}
       </TouchableOpacity>
 
-      {error && (
-        <Text style={styles.errorText}>{error}</Text>
-      )}
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {recommendations.length > 0 && (
-        <View style={styles.recommendationsContainer}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-            Recommendations
-          </Text>
-          {recommendations.map((rec) => (
-            <View key={rec.id} style={styles.recommendationCard}>
-              <Text style={styles.recTitle}>{rec.title}</Text>
-              <Text style={styles.recDescription}>{rec.description}</Text>
-              {typeof rec.score === 'number' && (
-                <Text style={styles.recScore}>
-                  Confidence: {(rec.score * 100).toFixed(0)}%
-                </Text>
-              )}
+      {result && (
+        <View style={styles.resultContainer}>
+          {result.weatherSummary && (
+            <View style={styles.infoCard}>
+              <Text style={styles.infoLabel}>Weather</Text>
+              <Text style={styles.infoValue}>{result.weatherSummary}</Text>
             </View>
-          ))}
+          )}
+
+          {result.reasoning && (
+            <View style={styles.infoCard}>
+              <Text style={styles.infoLabel}>Why this outfit?</Text>
+              <Text style={styles.infoValue}>{result.reasoning}</Text>
+            </View>
+          )}
+
+          {result.selectedItems && result.selectedItems.length > 0 && (
+            <View>
+              <Text style={styles.sectionTitle}>Your Outfit</Text>
+              <View style={styles.itemsGrid}>
+                {result.selectedItems.map((item) => (
+                  <View key={item.itemId} style={styles.itemCard}>
+                    <Image
+                      source={{ uri: `data:image/png;base64,${item.imageBase64}` }}
+                      style={styles.itemImage}
+                    />
+                    <Text style={styles.itemType}>{item.type}</Text>
+                    <Text style={styles.itemColor}>{item.color}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
       )}
     </ScrollView>
@@ -208,134 +154,117 @@ export default function UploadOutfitScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 24,
-    paddingBottom: 32,
+    paddingBottom: 40,
     gap: 16,
-    backgroundColor: "#eeede8", 
+    backgroundColor: "#eeede8",
   },
-
-  
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#233443", 
+    color: "#233443",
   },
   subtitle: {
     fontSize: 14,
-    marginTop: 4,
-    color: "#96b7bc", 
+    color: "#96b7bc",
   },
-
-  
-  buttonRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 16,
+  inputGroup: {
+    gap: 6,
   },
-
-  
-  button: {
-    flex: 1,
-    backgroundColor: "#c0d1bf", 
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#233443",
+  },
+  input: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingHorizontal: 16,
     paddingVertical: 12,
+    fontSize: 14,
+    color: "#233443",
+    borderWidth: 1,
+    borderColor: "#a3bfa9",
+  },
+  button: {
+    backgroundColor: "#b9d6da",
+    paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
+    marginTop: 8,
   },
   buttonText: {
     color: "#233443",
-    fontWeight: "600",
-    fontSize: 14,
+    fontWeight: "700",
+    fontSize: 15,
   },
-
- 
-  buttonOutline: {
-    flex: 1,
-    borderRadius: 999,
+  errorText: {
+    color: "#d0685f",
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 4,
+  },
+  resultContainer: {
+    gap: 16,
+    marginTop: 8,
+  },
+  infoCard: {
+    backgroundColor: "#c0d1bf",
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: "#a3bfa9",
-    paddingVertical: 12,
-    alignItems: "center",
+    gap: 4,
   },
-  buttonOutlineText: {
+  infoLabel: {
+    fontSize: 12,
+    fontWeight: "700",
     color: "#233443",
-    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  infoValue: {
     fontSize: 14,
-  },
-
- 
-  previewContainer: {
-    marginTop: 24,
-  },
-  previewImage: {
-    width: "100%",
-    aspectRatio: 3 / 4,
-    borderRadius: 16,
-    marginTop: 8,
-    borderWidth: 2,
-    borderColor: "#a3bfa9", 
+    color: "#233443",
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
     color: "#233443",
+    marginBottom: 12,
   },
-
-
-  analyzeButton: {
-    marginTop: 24,
-    backgroundColor: "#b9d6da", 
-    paddingVertical: 14,
-    borderRadius: 999,
-    alignItems: "center",
-  },
-  analyzeButtonDisabled: {
-    opacity: 0.5,
-  },
-  analyzeButtonText: {
-    color: "#233443",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-
-
-  errorText: {
-    marginTop: 12,
-    color: "#d0685f", 
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
- //just for example added 
-  recommendationsContainer: {
-    marginTop: 24,
+  itemsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
-  recommendationCard: {
-    backgroundColor: "#c0d1bf", 
+  itemCard: {
+    width: "47%",
+    backgroundColor: "#fff",
     borderRadius: 14,
-    padding: 14,
+    padding: 10,
     borderWidth: 1,
-    borderColor: "#a3bfa9", 
+    borderColor: "#a3bfa9",
+    alignItems: "center",
+    gap: 6,
   },
-  recTitle: {
-    color: "#233443",
-    fontWeight: "700",
-    marginBottom: 4,
-    fontSize: 15,
+  itemImage: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    resizeMode: "cover",
   },
-  recDescription: {
-    color: "#233443",
+  itemType: {
     fontSize: 13,
+    fontWeight: "600",
+    color: "#233443",
+    textTransform: "capitalize",
   },
-  recScore: {
-    marginTop: 6,
+  itemColor: {
     fontSize: 12,
     color: "#96b7bc",
+    textTransform: "capitalize",
   },
 });
