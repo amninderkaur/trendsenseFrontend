@@ -412,4 +412,192 @@ export const globalStyles = StyleSheet.create({
   largeMenuText: {
     fontSize: 20,
   },
+  //==========================
+  // CHATBOT PAGE
+  //==========================
+  // =========================
+  // CHATBOT
+  // =========================
+
+  chatScreen: {
+    flex: 1,
+    backgroundColor: colors.bg,
+    paddingTop: 56,
+  },
+
+  chatContent: {
+    flex: 1,
+    width: "100%",
+    maxWidth: 900,
+    alignSelf: "center",
+  },
+
+  chatHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    gap: 12,
+  },
+
+  largeChatHeader: {
+    paddingHorizontal: 40,
+    paddingBottom: 24,
+  },
+
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  largeIconButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+
+  chatContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    gap: 12,
+  },
+
+  largeChatContainer: {
+    paddingHorizontal: 40,
+    gap: 16,
+  },
+
+  botBubble: {
+    alignSelf: "flex-start",
+    maxWidth: "86%",
+    backgroundColor: colors.card,
+    borderRadius: 18,
+    borderBottomLeftRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+
+  userBubble: {
+    alignSelf: "flex-end",
+    maxWidth: "86%",
+    backgroundColor: colors.blueDark,
+    borderRadius: 18,
+    borderBottomRightRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+
+  largeChatBubble: {
+    maxWidth: "75%",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+  },
+
+  botText: {
+    color: colors.text,
+    fontSize: 15,
+    lineHeight: 21,
+  },
+
+  userText: {
+    color: colors.white,
+    fontSize: 15,
+    lineHeight: 21,
+  },
+
+  largeChatText: {
+    fontSize: 20,
+    lineHeight: 28,
+  },
+
+  quickPromptRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    paddingTop: 8,
+  },
+
+  quickPrompt: {
+    backgroundColor: colors.card,
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+
+  largeQuickPrompt: {
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+  },
+
+  quickPromptText: {
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: "600",
+  },
+
+  largeQuickPromptText: {
+    fontSize: 17,
+  },
+
+  chatInputBar: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 10,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
+
+  largeChatInputBar: {
+    paddingHorizontal: 40,
+    paddingBottom: 36,
+    gap: 16,
+  },
+
+  chatInput: {
+    flex: 1,
+    minHeight: 50,
+    maxHeight: 120,
+    backgroundColor: colors.card,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: colors.text,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: colors.blueDark,
+  },
+
+  largeChatInput: {
+    minHeight: 70,
+    maxHeight: 160,
+    borderRadius: 24,
+    paddingHorizontal: 22,
+    paddingVertical: 18,
+    fontSize: 20,
+  },
+
+  sendButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: colors.blueDark,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  largeSendButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+  },
+
+  disabledButton: {
+    opacity: 0.5,
+  },
 });

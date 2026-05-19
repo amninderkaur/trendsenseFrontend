@@ -1,18 +1,19 @@
+import { BASE_URL } from "@/api/axios";
+import { getToken } from "@/utils/token";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { 
-  ActivityIndicator, 
-  Alert, 
-  Image, 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View 
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { getToken } from "@/utils/token";
 
-const API_BASE_URL = "http://localhost:8080/api/v1";
+const API_BASE_URL = `${BASE_URL}/api/v1`;
 
 type WardrobeItemDetail = {
   id: string;
@@ -36,7 +37,7 @@ export default function HistoryDetails() {
   const loadItemDetails = async () => {
     try {
       const token = await getToken();
-      
+
       if (!token) {
         Alert.alert("Error", "Please login to view item details");
         router.back();
@@ -59,10 +60,10 @@ export default function HistoryDetails() {
       }
 
       const allItems: WardrobeItemDetail[] = await response.json();
-      
+
       // Find the specific item
-      const foundItem = allItems.find(i => i.id === clothingId);
-      
+      const foundItem = allItems.find((i) => i.id === clothingId);
+
       if (!foundItem) {
         Alert.alert("Error", "Item not found");
         router.back();
@@ -71,7 +72,6 @@ export default function HistoryDetails() {
 
       setItem(foundItem);
       console.log("Item loaded:", foundItem);
-
     } catch (error: any) {
       console.error("Failed to load item:", error);
       Alert.alert("Error", error.message || "Failed to load item details");
@@ -118,17 +118,17 @@ export default function HistoryDetails() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Image 
-        source={{ 
-          uri: `${API_BASE_URL.replace('/api/v1', '')}${item.imageUrl}` 
-        }} 
+      <Image
+        source={{
+          uri: `${BASE_URL}${item.imageUrl}`,
+        }}
         style={styles.mainImage}
         resizeMode="cover"
       />
 
       <View style={styles.detailsSection}>
         <Text style={styles.title}>{item.tag}</Text>
-        
+
         <View style={styles.dateContainer}>
           <Text style={styles.dateLabel}>Added on</Text>
           <Text style={styles.date}>{formatDate(item.uploadDate)}</Text>
@@ -150,7 +150,7 @@ export default function HistoryDetails() {
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Details</Text>
-          
+
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Item ID:</Text>
             <Text style={styles.infoValue}>{item.id}</Text>
@@ -169,7 +169,7 @@ export default function HistoryDetails() {
           </View>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >

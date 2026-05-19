@@ -1,3 +1,5 @@
+import { BASE_URL } from "@/api/axios";
+import { getToken } from "@/utils/token";
 import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -11,9 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { getToken } from "@/utils/token";
 
-const API_BASE_URL = "http://localhost:8080/api/v1";
+const API_BASE_URL = `${BASE_URL}/api/v1`;
 
 type WardrobeItem = {
   id: string;
@@ -33,14 +34,12 @@ export default function HistoryIndex() {
   const loadWardrobeItems = async () => {
     try {
       const token = await getToken();
-      
+
       if (!token) {
         Alert.alert("Error", "Please login to view your wardrobe");
         setLoading(false);
         return;
       }
-
-      
 
       const response = await fetch(`${API_BASE_URL}/wardrobe`, {
         method: "GET",
@@ -58,8 +57,9 @@ export default function HistoryIndex() {
       console.log("Wardrobe items:", data);
 
       // Sort by upload date (newest first)
-      const sortedItems = data.sort((a: WardrobeItem, b: WardrobeItem) => 
-        new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+      const sortedItems = data.sort(
+        (a: WardrobeItem, b: WardrobeItem) =>
+          new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime(),
       );
 
       setItems(sortedItems);
@@ -93,7 +93,10 @@ export default function HistoryIndex() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <ActivityIndicator size="large" color="#233443" />
@@ -105,7 +108,10 @@ export default function HistoryIndex() {
   if (items.length === 0) {
     return (
       <View style={styles.center}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.emptyTitle}>Your wardrobe is empty</Text>
@@ -128,32 +134,30 @@ export default function HistoryIndex() {
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
       <Text style={styles.title}>My Wardrobe</Text>
-      <Text style={styles.subtitle}>{items.length} item{items.length !== 1 ? 's' : ''}</Text>
+      <Text style={styles.subtitle}>
+        {items.length} item{items.length !== 1 ? "s" : ""}
+      </Text>
 
       {items.map((item) => (
-        <Link 
-          key={item.id} 
-          href={`/history/${item.id}`} 
-          asChild
-        >
+        <Link key={item.id} href={`/history/${item.id}`} asChild>
           <TouchableOpacity style={styles.card}>
-            <Image 
-              source={{ 
-                uri: `http://localhost:8080${item.imageUrl}`
-              }} 
+            <Image
+              source={{
+                uri: `${API_BASE_URL.replace("/api/v1", "")}${item.imageUrl}`,
+              }}
               style={styles.image}
               resizeMode="cover"
             />
 
             <View style={styles.cardInfo}>
               <Text style={styles.cardTitle}>{item.tag}</Text>
-              
+
               {item.detectedItems && item.detectedItems.length > 0 && (
                 <Text style={styles.detectedItems}>
                   {item.detectedItems.join(", ")}
                 </Text>
               )}
-              
+
               <Text style={styles.cardDate}>{formatDate(item.uploadDate)}</Text>
             </View>
           </TouchableOpacity>
@@ -238,6 +242,13 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 12,
   },
-  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
+  backButton: {
+    alignSelf: "flex-start",
+    backgroundColor: "#c0d1bf",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
   backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 });
