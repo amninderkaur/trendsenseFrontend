@@ -1,11 +1,25 @@
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+
+import { colors, globalStyles } from "../../constants/globalStyles";
 import { getToken, removeToken, removeUserId } from "../../utils/token";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+
+  const isLargeScreen = width >= 768;
   const isLoggedIn = !!getToken();
+
+  const iconSize = isLargeScreen ? 28 : 20;
 
   const handleSignOut = () => {
     removeToken();
@@ -14,191 +28,469 @@ export default function Dashboard() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 20 }}>
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Dashboard</Text>
-        <Text style={styles.timeText}>09:00 AM</Text>
-      </View>
+    <ScrollView
+      style={globalStyles.screen}
+      contentContainerStyle={[
+        globalStyles.dashboardContainer,
+        isLargeScreen && globalStyles.largeDashboardContainer,
+      ]}
+    >
+      <View style={globalStyles.dashboardContent}>
+        <View style={styles.header}>
+          <Text
+            style={[
+              globalStyles.pageTitle,
+              isLargeScreen && globalStyles.largePageTitle,
+            ]}
+          >
+            Dashboard
+          </Text>
 
-      {/* Overview Card */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Overview</Text>
-        <Text style={styles.infoText}>Here’s a quick summary of your dashboard.</Text>
-
-        
-        <Link href="/wardrobe" asChild>
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Go to Wardrobe</Text>
-          </Pressable>
-        </Link>
-        <Link href="/history" asChild>
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Go to History</Text>
-          </Pressable>
-        </Link>
-      </View>
-
-      {/* Slideshow */}
-      <View style={styles.slideshow}>
-        <Text style={styles.slideshowText}>Slideshow Placeholder</Text>
-      </View>
-
-      {/* Tiles */}
-      <View style={styles.tilesContainer}>
-        <View style={styles.tile}>
-          <Text style={styles.tileNumber}>120</Text>
-          <Text style={styles.tileLabel}>Orders</Text>
+          <Text
+            style={[
+              globalStyles.bodyText,
+              isLargeScreen && styles.largeTimeText,
+            ]}
+          >
+            09:00 AM
+          </Text>
         </View>
 
-        <View style={styles.tile}>
-          <Text style={styles.tileNumber}>24</Text>
-          <Text style={styles.tileLabel}>New Customers</Text>
+        <View
+          style={[
+            globalStyles.dashboardCard,
+            isLargeScreen && globalStyles.largeDashboardCard,
+          ]}
+        >
+          <Text
+            style={[
+              globalStyles.cardTitle,
+              isLargeScreen && globalStyles.largeCardTitle,
+            ]}
+          >
+            Overview
+          </Text>
+
+          <Text
+            style={[
+              globalStyles.cardText,
+              isLargeScreen && globalStyles.largeCardText,
+            ]}
+          >
+            Here’s a quick summary of your dashboard.
+          </Text>
+
+          <Link href="/wardrobe" asChild>
+            <Pressable
+              style={[
+                globalStyles.primaryButton,
+                isLargeScreen && globalStyles.largePrimaryButton,
+              ]}
+            >
+              <Text
+                style={[
+                  globalStyles.primaryButtonText,
+                  isLargeScreen && globalStyles.largePrimaryButtonText,
+                ]}
+              >
+                Go to Wardrobe
+              </Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/history" asChild>
+            <Pressable
+              style={[
+                globalStyles.primaryButton,
+                styles.secondButton,
+                isLargeScreen && globalStyles.largePrimaryButton,
+              ]}
+            >
+              <Text
+                style={[
+                  globalStyles.primaryButtonText,
+                  isLargeScreen && globalStyles.largePrimaryButtonText,
+                ]}
+              >
+                Go to History
+              </Text>
+            </Pressable>
+          </Link>
         </View>
 
-        <View style={styles.tile}>
-          <Text style={styles.tileNumber}>8</Text>
-          <Text style={styles.tileLabel}>Pending</Text>
+        <View
+          style={[styles.slideshow, isLargeScreen && styles.largeSlideshow]}
+        >
+          <Text
+            style={[
+              styles.slideshowText,
+              isLargeScreen && styles.largeSlideshowText,
+            ]}
+          >
+            Slideshow Placeholder
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.tilesContainer,
+            isLargeScreen && styles.largeTilesContainer,
+          ]}
+        >
+          <View style={[styles.tile, isLargeScreen && styles.largeTile]}>
+            <Text
+              style={[
+                styles.tileNumber,
+                isLargeScreen && styles.largeTileNumber,
+              ]}
+            >
+              120
+            </Text>
+            <Text
+              style={[styles.tileLabel, isLargeScreen && styles.largeTileLabel]}
+            >
+              Orders
+            </Text>
+          </View>
+
+          <View style={[styles.tile, isLargeScreen && styles.largeTile]}>
+            <Text
+              style={[
+                styles.tileNumber,
+                isLargeScreen && styles.largeTileNumber,
+              ]}
+            >
+              24
+            </Text>
+            <Text
+              style={[styles.tileLabel, isLargeScreen && styles.largeTileLabel]}
+            >
+              New Customers
+            </Text>
+          </View>
+
+          <View style={[styles.tile, isLargeScreen && styles.largeTile]}>
+            <Text
+              style={[
+                styles.tileNumber,
+                isLargeScreen && styles.largeTileNumber,
+              ]}
+            >
+              8
+            </Text>
+            <Text
+              style={[styles.tileLabel, isLargeScreen && styles.largeTileLabel]}
+            >
+              Pending
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.menu}>
+          <Text
+            style={[
+              globalStyles.sectionTitle,
+              isLargeScreen && globalStyles.largeSectionTitle,
+            ]}
+          >
+            Menu
+          </Text>
+
+          <Link href="/" asChild>
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+              ]}
+            >
+              <MaterialIcons
+                name="dashboard"
+                size={iconSize}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                ]}
+              >
+                Dashboard
+              </Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/upload-clothes" asChild>
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+              ]}
+            >
+              <MaterialIcons
+                name="add-a-photo"
+                size={iconSize}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                ]}
+              >
+                Upload Clothes
+              </Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/upload-outfit" asChild>
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+              ]}
+            >
+              <MaterialIcons
+                name="checkroom"
+                size={iconSize}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                ]}
+              >
+                Outfit Suggestion
+              </Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/trends" asChild>
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+              ]}
+            >
+              <FontAwesome5
+                name="chart-line"
+                size={iconSize}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                ]}
+              >
+                Trends
+              </Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/profile" asChild>
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+              ]}
+            >
+              <MaterialIcons
+                name="person"
+                size={iconSize}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                ]}
+              >
+                Account Profile
+              </Text>
+            </Pressable>
+          </Link>
+
+          {isLoggedIn ? (
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+              ]}
+              onPress={handleSignOut}
+            >
+              <MaterialIcons
+                name="logout"
+                size={iconSize}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                ]}
+              >
+                Sign Out
+              </Text>
+            </Pressable>
+          ) : (
+            <>
+              <Link href="/login" asChild>
+                <Pressable
+                  style={[
+                    globalStyles.menuItem,
+                    isLargeScreen && globalStyles.largeMenuItem,
+                  ]}
+                >
+                  <MaterialIcons
+                    name="login"
+                    size={iconSize}
+                    color={colors.blueDark}
+                    style={styles.icon}
+                  />
+                  <Text
+                    style={[
+                      globalStyles.menuText,
+                      isLargeScreen && globalStyles.largeMenuText,
+                    ]}
+                  >
+                    Login
+                  </Text>
+                </Pressable>
+              </Link>
+
+              <Link href="/register" asChild>
+                <Pressable
+                  style={[
+                    globalStyles.menuItem,
+                    isLargeScreen && globalStyles.largeMenuItem,
+                  ]}
+                >
+                  <MaterialIcons
+                    name="person-add"
+                    size={iconSize}
+                    color={colors.blueDark}
+                    style={styles.icon}
+                  />
+                  <Text
+                    style={[
+                      globalStyles.menuText,
+                      isLargeScreen && globalStyles.largeMenuText,
+                    ]}
+                  >
+                    Signup
+                  </Text>
+                </Pressable>
+              </Link>
+            </>
+          )}
         </View>
       </View>
-
-      {/* Menu */}
-      <View style={styles.menu}>
-        <Text style={styles.menuTitle}>Menu</Text>
-
-        <Link href="/" asChild>
-          <Pressable style={styles.menuItem}>
-            <MaterialIcons name="dashboard" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Dashboard</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/upload-clothes" asChild>
-          <Pressable style={styles.menuItem}>
-            <MaterialIcons name="add-a-photo" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Upload Clothes</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/upload-outfit" asChild>
-          <Pressable style={styles.menuItem}>
-            <MaterialIcons name="checkroom" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Outfit Suggestion</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/trends" asChild>
-          <Pressable style={styles.menuItem}>
-            <FontAwesome5 name="chart-line" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Trends</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/profile" asChild>
-          <Pressable style={styles.menuItem}>
-            <MaterialIcons name="person" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Account Profile</Text>
-          </Pressable>
-        </Link>
-
-        {isLoggedIn ? (
-          <Pressable style={styles.menuItem} onPress={handleSignOut}>
-            <MaterialIcons name="logout" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Sign Out</Text>
-          </Pressable>
-        ) : (
-          <>
-            <Link href="/login" asChild>
-              <Pressable style={styles.menuItem}>
-                <MaterialIcons name="login" size={20} color="#00A6A6" style={styles.icon} />
-                <Text>Login</Text>
-              </Pressable>
-            </Link>
-
-            <Link href="/register" asChild>
-              <Pressable style={styles.menuItem}>
-                <MaterialIcons name="person-add" size={20} color="#00A6A6" style={styles.icon} />
-                <Text>Signup</Text>
-              </Pressable>
-            </Link>
-          </>
-        )}
-      </View>
-
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f7f6", padding: 15 },
-
-  header: { paddingVertical: 15 },
-  headerText: { fontSize: 28, fontWeight: "700", color: "#222" },
-  timeText: { fontSize: 16, color: "#666", marginTop: 4 },
-
-  infoCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginVertical: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+  header: {
+    paddingVertical: 15,
   },
-  infoTitle: { fontSize: 20, fontWeight: "700", marginBottom: 6, color: "#222" },
-  infoText: { fontSize: 14, color: "#666", marginBottom: 10 },
 
-  button: {
-    backgroundColor: "#c0d1bf",
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: "center",
-    marginTop: 10,
+  largeTimeText: {
+    fontSize: 18,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+
+  secondButton: {
+    marginTop: 0,
+  },
 
   slideshow: {
-    backgroundColor: "#b9d6da",
-    borderRadius: 16,
+    backgroundColor: colors.blue,
+    borderRadius: 20,
     height: 150,
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 10,
   },
-  slideshowText: { color: "#008080", fontWeight: "700" },
 
-  tilesContainer: { flexDirection: "row", justifyContent: "space-between", marginVertical: 10 },
+  largeSlideshow: {
+    height: 240,
+    borderRadius: 28,
+  },
+
+  slideshowText: {
+    color: colors.blueDark,
+    fontWeight: "700",
+  },
+
+  largeSlideshowText: {
+    fontSize: 22,
+  },
+
+  tilesContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+    gap: 10,
+  },
+
+  largeTilesContainer: {
+    gap: 16,
+  },
+
   tile: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 15,
     alignItems: "center",
     flex: 1,
-    marginHorizontal: 5,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  tileNumber: { fontSize: 22, fontWeight: "700", color: "#96b7bc" },
-  tileLabel: { fontSize: 14, color: "#666" },
 
-  menu: { marginTop: 20 },
-  menuTitle: { fontSize: 18, fontWeight: "700", marginBottom: 10, color: "#222" },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    marginBottom: 8,
-    shadowColor: "#000",
+    shadowColor: colors.text,
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    elevation: 2,
   },
-  icon: { marginRight: 10 },
+
+  largeTile: {
+    padding: 28,
+    borderRadius: 24,
+  },
+
+  tileNumber: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.blueDark,
+  },
+
+  largeTileNumber: {
+    fontSize: 34,
+  },
+
+  tileLabel: {
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: "center",
+  },
+
+  largeTileLabel: {
+    fontSize: 18,
+  },
+
+  menu: {
+    marginTop: 20,
+  },
+
+  icon: {
+    marginRight: 10,
+  },
 });

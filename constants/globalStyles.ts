@@ -302,4 +302,114 @@ export const globalStyles = StyleSheet.create({
     fontSize: 24,
     marginTop: 24,
   },
+
+  // =========================
+  // Main Menu
+  // =========================
+
+  dashboardContainer: {
+    flexGrow: 1,
+    padding: 20,
+    paddingBottom: 30,
+  },
+
+  largeDashboardContainer: {
+    padding: 40,
+    alignItems: "center",
+  },
+
+  dashboardContent: {
+    width: "100%",
+    maxWidth: 900,
+  },
+
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: 10,
+  },
+
+  largeSectionTitle: {
+    fontSize: 28,
+  },
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: 6,
+  },
+
+  largeCardTitle: {
+    fontSize: 28,
+  },
+
+  cardText: {
+    fontSize: 14,
+    color: colors.muted,
+    marginBottom: 10,
+  },
+
+  largeCardText: {
+    fontSize: 18,
+  },
+
+  dashboardCard: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 20,
+    marginVertical: 10,
+
+    shadowColor: colors.text,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    elevation: 3,
+  },
+
+  largeDashboardCard: {
+    padding: 32,
+    borderRadius: 28,
+  },
+
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    marginBottom: 10,
+
+    shadowColor: colors.text,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    elevation: 2,
+  },
+
+  largeMenuItem: {
+    paddingVertical: 20,
+    paddingHorizontal: 22,
+    borderRadius: 22,
+  },
+
+  menuText: {
+    fontSize: 15,
+    color: colors.text,
+    fontWeight: "500",
+  },
+
+  largeMenuText: {
+    fontSize: 20,
+  },
 });
