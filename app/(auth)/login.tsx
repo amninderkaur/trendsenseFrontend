@@ -1,80 +1,78 @@
-import { Link, useRouter } from 'expo-router';
-import React from 'react';
+import { Link, useRouter } from "expo-router";
+import React from "react";
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-    useWindowDimensions
-} from 'react-native';
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
-import { login } from '../../api/auth';
+import { login } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken, saveUserId } from '../../utils/token';
+import { saveToken, saveUserId } from "../../utils/token";
 
 export default function LoginScreen() {
+  const router = useRouter();
 
-    const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 768;
+  const circleSize = Math.max(width * 0.6, 180);
+  const smallCircleSize = Math.max(width * 0.45, 140);
 
-    const { width } = useWindowDimensions();
-    const isLargeScreen = width >= 768;
-    const circleSize = Math.max(width * 0.60, 180);
-    const smallCircleSize = Math.max(width * 0.45, 140);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [secure, setSecure] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [secure, setSecure] = React.useState(true);
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
+  const validateForm = () => {
+    if (!email.trim()) {
+      setError("Email is required");
+      return false;
+    }
 
-    const validateForm = () => {
-        if (!email.trim()) {
-            setError('Email is required');
-            return false;
-        }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError("Invalid email format");
+      return false;
+    }
 
-        if (!/^\S+@\S+\.\S+$/.test(email)) {
-            setError('Invalid email format');
-            return false;
-        }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return false;
+    }
 
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters long');
-            return false;
-        }
+    setError(null);
+    return true;
+  };
 
-        setError(null);
-        return true;
-    };
+  const onSubmit = async () => {
+    if (!validateForm()) return;
 
-    const onSubmit = async () => {
-        if (!validateForm()) return;
+    setLoading(true);
 
-        setLoading(true);
+    try {
+      const data = await login(email, password);
 
-        try {
-            const data = await login(email, password);
+      console.log("Login response:", data);
 
-            console.log("Login response:", data);
+      await saveToken(data.token);
+      await saveUserId(data.userId);
 
-            saveToken(data.token);
-            saveUserId(data.userId);
+      router.replace("/(tabs)/mainMenu");
+    } catch (err: any) {
+      setError(err.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            router.replace('/(tabs)/mainMenu');
-
-        } catch (err: any) {
-            setError(err.message || 'Login failed. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
+  return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{ flex: 1 }}

@@ -16,7 +16,6 @@ export const colors = {
 };
 
 export const globalStyles = StyleSheet.create({
-
   // =========================
   // LAYOUT
   // =========================
@@ -258,4 +257,49 @@ export const globalStyles = StyleSheet.create({
     elevation: 3,
   },
 
+  //==============================
+  // PERSONALIZATION MODAL
+  //==============================
+
+  modalContainer: {
+    backgroundColor: colors.card,
+    borderRadius: 25,
+    padding: 20,
+    maxHeight: "90%",
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
+  },
+
+  largeModalContainer: {
+    maxWidth: 700,
+    padding: 40,
+    borderRadius: 35,
+  },
+
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: colors.text,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+
+  largeModalTitle: {
+    fontSize: 40,
+    marginBottom: 30,
+  },
+
+  modalHeading: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: 10,
+    marginTop: 15,
+  },
+
+  largeModalHeading: {
+    fontSize: 24,
+    marginTop: 24,
+  },
 });

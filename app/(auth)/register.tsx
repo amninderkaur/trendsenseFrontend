@@ -13,6 +13,7 @@ import {
 import { register } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
 import { saveToken } from "../../utils/token";
+import PersonalizationModal from "./PersonalizationModal";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -20,13 +21,15 @@ export default function RegisterScreen() {
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
 
-    const circleSize = Math.max(width * 0.60, 180);
-const smallCircleSize = Math.max(width * 0.45, 140);
+  const circleSize = Math.max(width * 0.6, 180);
+  const smallCircleSize = Math.max(width * 0.45, 140);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
 
   const handleRegister = async () => {
     if (!email.trim() || !password.trim() || !confirm.trim()) {
@@ -43,8 +46,11 @@ const smallCircleSize = Math.max(width * 0.45, 140);
 
     try {
       const data = await register(email, password);
+
       saveToken(data.token);
-      router.replace("/(auth)/login");
+
+      // Show personalization modal after registration
+      setShowQuestionnaire(true);
     } catch (err) {
       console.error(err);
       alert("Registration failed.");
@@ -175,6 +181,13 @@ const smallCircleSize = Math.max(width * 0.45, 140);
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <PersonalizationModal
+        visible={showQuestionnaire}
+        onClose={() => {
+          setShowQuestionnaire(false);
+          router.replace("/(auth)/login");
+        }}
+      />
     </View>
   );
 }
