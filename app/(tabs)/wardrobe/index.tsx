@@ -1,5 +1,6 @@
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -7,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -24,6 +26,7 @@ type ClothingItem = {
 };
 
 export default function WardrobeIndex() {
+  const router = useRouter();
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +63,9 @@ export default function WardrobeIndex() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <ActivityIndicator size="large" color="#96b7bc" />
         <Text style={styles.loadingText}>Loading wardrobe...</Text>
       </View>
@@ -69,6 +75,9 @@ export default function WardrobeIndex() {
   if (error) {
     return (
       <View style={styles.loadingContainer}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.errorText}>{error}</Text>
       </View>
     );
@@ -76,6 +85,9 @@ export default function WardrobeIndex() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>My Wardrobe</Text>
 
       {items.length === 0 ? (
@@ -187,4 +199,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textTransform: "capitalize",
   },
+  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
+  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 });

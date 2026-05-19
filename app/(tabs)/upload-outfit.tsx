@@ -1,4 +1,5 @@
 import { getToken } from "@/utils/token";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -27,6 +28,7 @@ type OutfitSuggestionResponse = {
 };
 
 export default function OutfitSuggestionScreen() {
+  const router = useRouter();
   const [occasion, setOccasion] = useState("");
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
@@ -72,6 +74,9 @@ export default function OutfitSuggestionScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Outfit Suggestion</Text>
       <Text style={styles.subtitle}>
         Tell us your occasion and location — we'll pick the best outfit from
@@ -267,4 +272,6 @@ const styles = StyleSheet.create({
     color: "#96b7bc",
     textTransform: "capitalize",
   },
+  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 4 },
+  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 });

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 type WardrobeItem = {
   id: string;
@@ -12,17 +12,43 @@ type WardrobeItem = {
 
 export default function ClothingDetails() {
   const { clothingId } = useLocalSearchParams();
+  const router = useRouter();
   const [item, setItem] = useState<WardrobeItem | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadItem = async () => {
-      
       setLoading(false); // temporary
     };
 
     loadItem();
   }, [clothingId]);
+
+  return (
+    <ScrollView style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
+      {loading ? (
+        <Text style={styles.loadingText}>Loading...</Text>
+      ) : !item ? (
+        <Text style={styles.errorText}>Item not found.</Text>
+      ) : (
+        <>
+          <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
+          <Text style={styles.itemName}>{item.name}</Text>
+          <Text style={styles.sectionTitle}>Tags</Text>
+          <View style={styles.tagContainer}>
+            {item.tags.map((tag) => (
+              <View key={tag} style={styles.tag}>
+                <Text style={styles.tagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -89,5 +115,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
     fontSize: 14,
-  }
+  },
+  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 16 },
+  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 });

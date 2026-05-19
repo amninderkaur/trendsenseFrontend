@@ -1,13 +1,25 @@
 // app/profile.tsx
-import { Link } from "expo-router";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { removeToken, removeUserId } from "../../utils/token";
 
 export default function Profile() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    removeToken();
+    removeUserId();
+    router.replace("/(auth)/login");
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 30 }}>
-      
+
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.headerText}>Account Profile</Text>
       </View>
 
@@ -44,16 +56,10 @@ export default function Profile() {
         <Text style={styles.buttonText}>Edit Profile</Text>
       </Pressable>
 
-      <Pressable style={[styles.button, { backgroundColor: "#a3bfa9" }]}>
+      <Pressable style={[styles.button, { backgroundColor: "#a3bfa9" }]} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
       </Pressable>
 
-      {/* Back Link */}
-      <Link href="/" asChild>
-        <Pressable style={{ marginTop: 20 }}>
-          <Text style={{ color: "#007AFF" }}>Back to Dashboard</Text>
-        </Pressable>
-      </Link>
 
     </ScrollView>
   );
@@ -64,6 +70,15 @@ const styles = StyleSheet.create({
 
   header: { padding: 20, alignItems: "center" },
   headerText: { fontSize: 24, fontWeight: "700", color: "#222" },
+  backButton: {
+    alignSelf: "flex-start",
+    backgroundColor: "#c0d1bf",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
+  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 
   card: {
     backgroundColor: "#fff",

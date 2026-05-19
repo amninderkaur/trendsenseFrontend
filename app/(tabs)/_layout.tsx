@@ -1,34 +1,18 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
 
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarStyle: { display: 'none' },
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="mainMenu" />
+      <Stack.Screen name="profile" />
+      <Stack.Screen name="trends" />
+      <Stack.Screen name="upload-clothes" />
+      <Stack.Screen name="upload-outfit" />
+      <Stack.Screen name="wardrobe/index" />
+      <Stack.Screen name="wardrobe/[outfitId]" />
+      <Stack.Screen name="history/index" />
+      <Stack.Screen name="history/[clothingId]" />
+    </Stack>
   );
 }

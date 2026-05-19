@@ -1,15 +1,15 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { 
-  ActivityIndicator, 
-  Alert, 
-  Image, 
-  RefreshControl, 
-  ScrollView, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  View 
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { getToken } from "@/utils/token";
 
@@ -25,6 +25,7 @@ type WardrobeItem = {
 };
 
 export default function HistoryIndex() {
+  const router = useRouter();
   const [items, setItems] = useState<WardrobeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -92,6 +93,9 @@ export default function HistoryIndex() {
   if (loading) {
     return (
       <View style={styles.center}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <ActivityIndicator size="large" color="#233443" />
         <Text style={styles.loadingText}>Loading your wardrobe...</Text>
       </View>
@@ -101,6 +105,9 @@ export default function HistoryIndex() {
   if (items.length === 0) {
     return (
       <View style={styles.center}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.emptyTitle}>Your wardrobe is empty</Text>
         <Text style={styles.emptySubtitle}>
           Start adding clothing items to build your wardrobe!
@@ -110,13 +117,16 @@ export default function HistoryIndex() {
   }
 
   return (
-    <ScrollView 
-      style={styles.container} 
+    <ScrollView
+      style={styles.container}
       contentContainerStyle={styles.content}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>My Wardrobe</Text>
       <Text style={styles.subtitle}>{items.length} item{items.length !== 1 ? 's' : ''}</Text>
 
@@ -228,4 +238,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 12,
   },
+  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
+  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 });

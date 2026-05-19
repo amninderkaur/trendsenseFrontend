@@ -1,6 +1,7 @@
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -42,6 +43,7 @@ type UploadResponse = {
 };
 
 export default function UploadWardrobeScreen() {
+  const router = useRouter();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<DetectedClothingItem | null>(null);
@@ -185,6 +187,9 @@ export default function UploadWardrobeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Upload a clothing item</Text>
       <Text style={styles.subtitle}>
         Add new pieces to your wardrobe by taking a photo or selecting one from your gallery.
@@ -243,4 +248,6 @@ const styles = StyleSheet.create({
   resultBox: { backgroundColor: "#c0d1bf", marginTop: 20, borderRadius: 14, padding: 16 },
   resultItem: { color: "#233443", marginBottom: 4, fontWeight: "500" },
   errorText: { color: "#d0685f", marginTop: 12, fontSize: 14, fontWeight: "600" },
+  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
+  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
 });

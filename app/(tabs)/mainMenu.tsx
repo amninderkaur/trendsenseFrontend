@@ -1,8 +1,18 @@
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { getToken, removeToken, removeUserId } from "../../utils/token";
 
 export default function Dashboard() {
+  const router = useRouter();
+  const isLoggedIn = !!getToken();
+
+  const handleSignOut = () => {
+    removeToken();
+    removeUserId();
+    router.replace("/(auth)/login");
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 20 }}>
       
@@ -92,19 +102,28 @@ export default function Dashboard() {
           </Pressable>
         </Link>
 
-        <Link href="/login" asChild>
-          <Pressable style={styles.menuItem}>
-            <MaterialIcons name="login" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Login</Text>
+        {isLoggedIn ? (
+          <Pressable style={styles.menuItem} onPress={handleSignOut}>
+            <MaterialIcons name="logout" size={20} color="#00A6A6" style={styles.icon} />
+            <Text>Sign Out</Text>
           </Pressable>
-        </Link>
+        ) : (
+          <>
+            <Link href="/login" asChild>
+              <Pressable style={styles.menuItem}>
+                <MaterialIcons name="login" size={20} color="#00A6A6" style={styles.icon} />
+                <Text>Login</Text>
+              </Pressable>
+            </Link>
 
-        <Link href="/register" asChild>
-          <Pressable style={styles.menuItem}>
-            <MaterialIcons name="person-add" size={20} color="#00A6A6" style={styles.icon} />
-            <Text>Signup</Text>
-          </Pressable>
-        </Link>
+            <Link href="/register" asChild>
+              <Pressable style={styles.menuItem}>
+                <MaterialIcons name="person-add" size={20} color="#00A6A6" style={styles.icon} />
+                <Text>Signup</Text>
+              </Pressable>
+            </Link>
+          </>
+        )}
       </View>
 
     </ScrollView>
