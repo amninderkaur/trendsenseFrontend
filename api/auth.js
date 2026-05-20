@@ -18,3 +18,8 @@ export const verifyOtp = async (email, otp) => {
   const response = await api.post("/api/v1/auth/verify-otp", { email, otp });
   return response.data; // { token: "...", userId: "..." }
 };
+
+export const resendOtp = async (email) => {
+  const response = await api.post("/api/v1/auth/resend-otp", { email });
+  return response.data; // { message: "A new OTP has been sent" }
+};

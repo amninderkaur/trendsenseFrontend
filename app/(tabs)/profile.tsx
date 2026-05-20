@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -14,6 +15,7 @@ import {
 
 import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { getProfile } from "../../api/profile";
+import { deleteAccount } from "../../api/user";
 import { useAppTheme } from "../../context/ThemeContext";
 import { getEmail, removeEmail, removeToken, removeUserId } from "../../utils/token";
 
@@ -38,6 +40,31 @@ export default function Profile() {
     removeUserId();
     removeEmail();
     router.replace("/(auth)/login");
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "You will not be able to access any of your data. This will permanently delete your wardrobe, outfits, saved items, and profile — you will have to start from the beginning to rebuild your wardrobe. This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete My Account",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteAccount();
+            } catch {
+              // still clear local state even if request fails
+            }
+            removeToken();
+            removeUserId();
+            removeEmail();
+            router.replace("/(auth)/login");
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -107,6 +134,10 @@ export default function Profile() {
         <Pressable style={[styles.button, { backgroundColor: "#a3bfa9" }]} onPress={handleLogout}>
           <Text style={styles.buttonText}>Logout</Text>
         </Pressable>
+
+        <TouchableOpacity style={[styles.button, { backgroundColor: "#c0726e" }]} onPress={handleDeleteAccount}>
+          <Text style={styles.buttonText}>Delete Account</Text>
+        </TouchableOpacity>
       </ScrollView>
     </>
   );

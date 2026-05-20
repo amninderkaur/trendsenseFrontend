@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -11,14 +11,16 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-import { verifyOtp } from "../../api/auth";
+import { resendOtp, verifyOtp } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
 import { saveToken, saveUserId, saveRole } from "../../utils/token";
 import PersonalizationModal from "./PersonalizationModal";
 
+const RESEND_COOLDOWN = 30;
+
 export default function OtpScreen() {
   const router = useRouter();
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email, deliveryMethod } = useLocalSearchParams<{ email: string; deliveryMethod?: string }>();
 
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
@@ -29,6 +31,34 @@ export default function OtpScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPersonalization, setShowPersonalization] = useState(false);
+
+  const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    startCountdown();
+    return () => clearTimer();
+  }, []);
+
+  const clearTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+  };
+
+  const startCountdown = () => {
+    clearTimer();
+    setCountdown(RESEND_COOLDOWN);
+    timerRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearTimer();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const handleVerify = async () => {
     if (otp.length !== 6) {
@@ -44,16 +74,31 @@ export default function OtpScreen() {
       saveToken(data.token);
       saveUserId(data.userId);
       if (data.role) saveRole(data.role);
-      // Admin skips personalization and goes straight to admin dashboard
       if (data.role === "ADMIN") {
         router.replace("/admin/dashboard");
       } else {
         setShowPersonalization(true);
       }
-    } catch (err: any) {
+    } catch {
       setError("Invalid or expired code. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (countdown > 0 || resending) return;
+    setResending(true);
+    setResendMessage("");
+    setError("");
+    try {
+      await resendOtp(email);
+      setResendMessage("A new code has been sent.");
+      startCountdown();
+    } catch {
+      setError("Failed to resend code. Please try again.");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -109,8 +154,9 @@ export default function OtpScreen() {
           </Text>
 
           <Text style={globalStyles.subtitle}>
-            Enter the 6-digit code sent to{"\n"}
-            <Text style={styles.emailText}>{email}</Text>
+            {deliveryMethod === "sms"
+              ? "Enter the 6-digit code sent to your phone number"
+              : <>Enter the 6-digit code sent to{"\n"}<Text style={styles.emailText}>{email}</Text></>}
           </Text>
 
           <TextInput
@@ -131,9 +177,8 @@ export default function OtpScreen() {
             autoFocus
           />
 
-          {error ? (
-            <Text style={globalStyles.errorText}>{error}</Text>
-          ) : null}
+          {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
+          {resendMessage ? <Text style={styles.successText}>{resendMessage}</Text> : null}
 
           <TouchableOpacity
             style={[
@@ -153,6 +198,23 @@ export default function OtpScreen() {
                 ]}
               >
                 Verify
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.resendButton,
+              countdown > 0 && styles.resendButtonDisabled,
+            ]}
+            onPress={handleResend}
+            disabled={countdown > 0 || resending}
+          >
+            {resending ? (
+              <ActivityIndicator color={colors.blueDark} />
+            ) : (
+              <Text style={[styles.resendText, countdown > 0 && styles.resendTextDisabled]}>
+                {countdown > 0 ? `Resend code in ${countdown}s` : "Resend Code"}
               </Text>
             )}
           </TouchableOpacity>
@@ -186,5 +248,28 @@ const styles = StyleSheet.create({
   emailText: {
     fontWeight: "700",
     color: colors.text,
+  },
+  resendButton: {
+    alignItems: "center",
+    paddingVertical: 12,
+    marginTop: 4,
+  },
+  resendButtonDisabled: {
+    opacity: 0.5,
+  },
+  resendText: {
+    color: colors.blueDark,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  resendTextDisabled: {
+    color: colors.muted,
+    fontWeight: "500",
+  },
+  successText: {
+    color: "#5a9e6f",
+    fontSize: 13,
+    textAlign: "center",
+    marginTop: 4,
   },
 });

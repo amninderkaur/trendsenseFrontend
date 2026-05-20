@@ -63,7 +63,7 @@ export default function LoginScreen() {
         // First-time login — go to OTP screen
         router.push({
           pathname: "/(auth)/otp",
-          params: { email },
+          params: { email, deliveryMethod: data.deliveryMethod ?? "email" },
         });
       } else {
         // Returning user — token returned directly
