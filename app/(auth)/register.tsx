@@ -28,17 +28,37 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState<"email" | "sms">("email");
+  const [phoneDigits, setPhoneDigits] = useState(""); // 10 raw digits, no country code
+  const [deliveryMethod, setDeliveryMethod] = useState<"email" | "sms">(
+    "email",
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Formats 10 digits as (XXX) XXX-XXXX — +1 is shown as a fixed prefix
+  const formatPhoneDisplay = (digits: string) => {
+    if (!digits) return "";
+    const area = digits.slice(0, 3);
+    const prefix = digits.slice(3, 6);
+    const line = digits.slice(6, 10);
+    let out = "";
+    if (area) out += "(" + area;
+    if (area.length === 3) out += ")";
+    if (prefix) out += " " + prefix;
+    if (line) out += "-" + line;
+    return out;
+  };
+
   const handlePhoneChange = (text: string) => {
-    // Strip everything except digits, then prepend + to enforce E.164 format
-    const digits = text.replace(/\D/g, "");
-    setPhoneNumber(digits ? "+" + digits : "");
+    // Strip all non-digits; drop leading 1 if user typed the country code
+    let digits = text.replace(/\D/g, "");
+    if (digits.startsWith("1") && digits.length > 1) digits = digits.slice(1);
+    setPhoneDigits(digits.slice(0, 10));
     if (error) setError("");
   };
+
+  // E.164 value sent to the API — only valid when all 10 digits are entered
+  const e164Phone = phoneDigits.length === 10 ? "+1" + phoneDigits : "";
 
   const handleRegister = async () => {
     if (!email.trim() || !password.trim() || !confirm.trim()) {
@@ -51,13 +71,13 @@ export default function RegisterScreen() {
       return;
     }
 
-    if (deliveryMethod === "sms" && !phoneNumber) {
+    if (deliveryMethod === "sms" && !phoneDigits) {
       setError("Please enter a phone number to use SMS delivery.");
       return;
     }
 
-    if (phoneNumber && !/^\+\d{7,15}$/.test(phoneNumber)) {
-      setError("Phone number must be in E.164 format, e.g. +16471234567");
+    if (phoneDigits && phoneDigits.length !== 10) {
+      setError("Please enter a valid 10-digit phone number.");
       return;
     }
 
@@ -65,7 +85,7 @@ export default function RegisterScreen() {
     setLoading(true);
 
     try {
-      await register(email, password, phoneNumber || undefined, deliveryMethod);
+      await register(email, password, e164Phone || undefined, deliveryMethod);
       // Registration returns no token — redirect to login
       router.replace("/(auth)/login");
     } catch (err) {
@@ -162,17 +182,24 @@ export default function RegisterScreen() {
           />
 
           <Text style={styles.fieldLabel}>Phone Number (optional)</Text>
-          <TextInput
-            placeholder="Include country code, e.g. +16471234567"
-            placeholderTextColor={colors.muted}
+          <View
             style={[
               globalStyles.input,
+              styles.phoneRow,
               isLargeScreen && globalStyles.largeInput,
             ]}
-            value={phoneNumber}
-            onChangeText={handlePhoneChange}
-            keyboardType="phone-pad"
-          />
+          >
+            <Text style={styles.countryCode}>+1</Text>
+            <View style={styles.phoneDivider} />
+            <TextInput
+              placeholder="(647) 123-4567"
+              placeholderTextColor={colors.muted}
+              style={styles.phoneInput}
+              value={formatPhoneDisplay(phoneDigits)}
+              onChangeText={handlePhoneChange}
+              keyboardType="phone-pad"
+            />
+          </View>
 
           <Text style={styles.fieldLabel}>Receive verification code via</Text>
           <View style={styles.toggleRow}>
@@ -183,7 +210,7 @@ export default function RegisterScreen() {
               ]}
               onPress={() => {
                 setDeliveryMethod("email");
-                setSmsError("");
+                setError("");
               }}
             >
               <Text
@@ -212,9 +239,7 @@ export default function RegisterScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-          {error ? (
-            <Text style={globalStyles.errorText}>{error}</Text>
-          ) : null}
+          {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
 
           <TouchableOpacity
             style={[
@@ -288,5 +313,30 @@ const styles = StyleSheet.create({
   },
   toggleTextActive: {
     color: colors.white,
+  },
+  phoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
+  countryCode: {
+    paddingHorizontal: 14,
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  phoneDivider: {
+    width: 1,
+    alignSelf: "stretch",
+    backgroundColor: colors.muted,
+    opacity: 0.3,
+  },
+  phoneInput: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: colors.text,
   },
 });
