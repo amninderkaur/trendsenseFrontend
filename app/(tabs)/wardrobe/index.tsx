@@ -63,7 +63,7 @@ export default function WardrobeIndex() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/mainMenu" as any)}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <ActivityIndicator size="large" color="#96b7bc" />
@@ -75,7 +75,7 @@ export default function WardrobeIndex() {
   if (error) {
     return (
       <View style={styles.loadingContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/mainMenu" as any)}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.errorText}>{error}</Text>
@@ -85,7 +85,7 @@ export default function WardrobeIndex() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/mainMenu" as any)}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
       <Text style={styles.title}>My Wardrobe</Text>

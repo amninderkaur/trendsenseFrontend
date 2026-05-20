@@ -1,4 +1,5 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import { saveOutfitHistory } from "@/api/outfitHistory";
 import { colors, globalStyles } from "@/constants/globalStyles";
 import { getToken } from "@/utils/token";
 import { useRouter } from "expo-router";
@@ -49,6 +50,8 @@ export default function OutfitSuggestionScreen() {
 
   const [showForm, setShowForm] = useState(true);
   const [rating, setRating] = useState<"up" | "down" | null>(null);
+  const [savingOutfit, setSavingOutfit] = useState(false);
+  const [outfitSaved, setOutfitSaved] = useState(false);
 
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -131,7 +134,27 @@ export default function OutfitSuggestionScreen() {
     setResult(null);
     setRating(null);
     setError(null);
+    setOutfitSaved(false);
     resetChat();
+  };
+
+  const handleSaveOutfit = async () => {
+    if (!result || savingOutfit || outfitSaved) return;
+    setSavingOutfit(true);
+    try {
+      await saveOutfitHistory({
+        occasion: occasion.trim(),
+        city: city.trim(),
+        weatherSummary: result.weatherSummary,
+        reasoning: result.reasoning,
+        selectedItems: result.selectedItems,
+      });
+      setOutfitSaved(true);
+    } catch {
+      // silently fail — don't block the UI
+    } finally {
+      setSavingOutfit(false);
+    }
   };
 
   const buildOutfitContextMessage = (question: string) => {
@@ -242,7 +265,7 @@ ${question}
       <View style={isLargeScreen ? globalStyles.dashboardContent : undefined}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/mainMenu" as any)}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
@@ -459,7 +482,10 @@ ${question}
                     styles.ratingButton,
                     rating === "up" && styles.selectedRatingButton,
                   ]}
-                  onPress={() => setRating("up")}
+                  onPress={() => {
+                    setRating("up");
+                    handleSaveOutfit();
+                  }}
                 >
                   <Text style={styles.ratingText}>👍</Text>
                 </TouchableOpacity>
@@ -474,6 +500,13 @@ ${question}
                   <Text style={styles.ratingText}>👎</Text>
                 </TouchableOpacity>
               </View>
+
+              {outfitSaved && (
+                <Text style={styles.savedText}>Outfit saved to your history!</Text>
+              )}
+              {savingOutfit && (
+                <ActivityIndicator color={colors.blueDark} style={{ marginTop: 6 }} />
+              )}
             </View>
 
             {rating === "down" && (
@@ -697,6 +730,13 @@ const styles = StyleSheet.create({
 
   ratingText: {
     fontSize: 24,
+  },
+
+  savedText: {
+    fontSize: 13,
+    color: colors.blueDark,
+    fontWeight: "600",
+    marginTop: 6,
   },
 
   retryButton: {

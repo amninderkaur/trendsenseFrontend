@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
-import { getShoppingSuggestions } from "../../api/shopping";
+import { getShoppingSuggestions, saveShoppingItem } from "../../api/shopping";
 import { colors, globalStyles } from "../../constants/globalStyles";
 
 export default function Budgeting() {
@@ -14,8 +14,33 @@ export default function Budgeting() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [result, setResult] = React.useState<any>(null);
+  const [savedItems, setSavedItems] = React.useState<Record<number, boolean>>({});
+  const [savingItems, setSavingItems] = React.useState<Record<number, boolean>>({});
+
+  const handleSaveItem = async (item: any, index: number) => {
+    if (savedItems[index] || savingItems[index]) return;
+    setSavingItems((prev) => ({ ...prev, [index]: true }));
+    try {
+      await saveShoppingItem({
+        item: item.item,
+        category: item.category,
+        whyItFits: item.whyItFits,
+        estimatedPrice: item.estimatedPrice,
+        storeName: item.storeName,
+        storeType: item.storeType,
+        link: item.link,
+        nearbyLocation: item.nearbyLocation,
+      });
+      setSavedItems((prev) => ({ ...prev, [index]: true }));
+    } catch {
+      // silently fail
+    } finally {
+      setSavingItems((prev) => ({ ...prev, [index]: false }));
+    }
+  };
 
   const submit = async () => {
+    setSavedItems({});
     setLoading(true);
     setError("");
     try {
@@ -71,6 +96,15 @@ export default function Budgeting() {
           <Text style={styles.detail}>Store: {item.storeName} ({item.storeType})</Text>
           <Text style={styles.detail}>Nearby: {item.nearbyLocation || "Online"}</Text>
           {!!item.link && <Pressable style={styles.linkButton} onPress={() => Linking.openURL(item.link)}><Text style={styles.linkText}>Open Product Link</Text></Pressable>}
+          <Pressable
+            style={[styles.saveButton, savedItems[index] && styles.saveButtonSaved]}
+            onPress={() => handleSaveItem(item, index)}
+            disabled={!!savedItems[index] || !!savingItems[index]}
+          >
+            {savingItems[index]
+              ? <ActivityIndicator color={colors.white} />
+              : <Text style={styles.saveButtonText}>{savedItems[index] ? "Saved" : "Save Item"}</Text>}
+          </Pressable>
         </View>
       ))}
     </ScrollView>
@@ -95,4 +129,7 @@ const styles = StyleSheet.create({
   detail: { color: colors.muted, marginBottom: 4 },
   linkButton: { backgroundColor: colors.bgDark, padding: 12, borderRadius: 999, alignItems: "center", marginTop: 10 },
   linkText: { color: colors.white, fontWeight: "700" },
+  saveButton: { backgroundColor: colors.blueDark, padding: 12, borderRadius: 999, alignItems: "center", marginTop: 8 },
+  saveButtonSaved: { backgroundColor: "#7aab86" },
+  saveButtonText: { color: colors.white, fontWeight: "700" },
 });

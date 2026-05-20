@@ -15,13 +15,13 @@ import {
 import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { colors, globalStyles } from "../../constants/globalStyles";
 import {
-  getPreferencesCompleted,
   getRole,
   getToken,
   removeEmail,
   removeToken,
   removeUserId,
 } from "../../utils/token";
+import { getProfile } from "../../api/profile";
 
 const isWeb = Platform.OS === "web";
 
@@ -34,14 +34,24 @@ export default function Dashboard() {
   const iconSize = isLargeScreen ? 28 : 20;
 
   const [showPersonalization, setShowPersonalization] = React.useState(false);
+  const [welcomeName, setWelcomeName] = React.useState("");
 
   React.useEffect(() => {
-    const checkPreferences = async () => {
-      const completed = await getPreferencesCompleted();
-      if (isLoggedIn && !completed) setShowPersonalization(true);
+    const checkProfile = async () => {
+      if (!isLoggedIn || isAdmin) return;
+      try {
+        const profile = await getProfile();
+        if (profile?.displayName) {
+          setWelcomeName(profile.displayName);
+        } else {
+          setShowPersonalization(true);
+        }
+      } catch {
+        setShowPersonalization(true);
+      }
     };
-    checkPreferences();
-  }, [isLoggedIn]);
+    checkProfile();
+  }, [isLoggedIn, isAdmin]);
 
   const handleSignOut = () => {
     removeToken();
@@ -53,8 +63,11 @@ export default function Dashboard() {
   const navItems = [
     { href: "/", icon: "dashboard", label: "Dashboard", lib: "material" },
     { href: "/upload-clothes", icon: "add-a-photo", label: "Upload Clothes", lib: "material" },
-    { href: "/upload-outfit", icon: "checkroom", label: "Outfit Suggestion", lib: "material" },
+    { href: "/wardrobe", icon: "checkroom", label: "Wardrobe", lib: "material" },
+    { href: "/upload-outfit", icon: "style", label: "Outfit Review", lib: "material" },
+    { href: "/history", icon: "favorite", label: "Saved Outfits", lib: "material" },
     { href: "/budgeting", icon: "wallet", label: "Budgeting", lib: "fa5" },
+    { href: "/saved-items", icon: "bookmark", label: "Saved Items", lib: "material" },
     { href: "/reviews", icon: "rate-review", label: "Reviews", lib: "material" },
     { href: "/profile", icon: "person", label: "Account Profile", lib: "material" },
   ] as const;
@@ -131,6 +144,9 @@ export default function Dashboard() {
           )}
         </View>
         <ScrollView style={web.content} contentContainerStyle={web.contentInner}>
+          {welcomeName ? (
+            <Text style={styles.welcome}>Welcome, {welcomeName} 👋</Text>
+          ) : null}
           <HeroVideo />
           <StatsTiles />
         </ScrollView>
@@ -152,6 +168,9 @@ export default function Dashboard() {
         onClose={() => setShowPersonalization(false)}
       />
       <View style={globalStyles.dashboardContent}>
+        {welcomeName ? (
+          <Text style={styles.welcome}>Welcome, {welcomeName} 👋</Text>
+        ) : null}
         <HeroVideo />
         <StatsTiles />
 
@@ -229,6 +248,7 @@ const styles = StyleSheet.create({
   largeTileNumber: { fontSize: 34 },
   tileLabel: { fontSize: 14, color: colors.muted, textAlign: "center" },
   largeTileLabel: { fontSize: 18 },
+  welcome: { fontSize: 22, fontWeight: "700", color: colors.text, marginTop: 16, marginBottom: 4 },
   menu: { marginTop: 20 },
   icon: { marginRight: 10 },
   adminButton: {

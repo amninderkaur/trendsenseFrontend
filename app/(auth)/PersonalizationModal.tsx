@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import {
   Image,
@@ -12,9 +12,8 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-import { saveProfile } from "../../api/profile";
+import { getProfile, saveProfile } from "../../api/profile";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { savePreferences } from "../../utils/token";
 
 interface Props {
   visible: boolean;
@@ -63,7 +62,7 @@ export default function PersonalizationModal({ visible, onClose }: Props) {
   const [favoriteBrandSearch, setFavoriteBrandSearch] = useState("");
   const [avoidBrandSearch, setAvoidBrandSearch] = useState("");
 
-  const [preferences, setPreferences] = useState<Preferences>({
+  const emptyPreferences: Preferences = {
     name: "",
     ageGroup: "",
     gender: "",
@@ -86,7 +85,50 @@ export default function PersonalizationModal({ visible, onClose }: Props) {
     avoidedBrands: [],
     recommendationFeatures: [],
     notifications: "",
-  });
+  };
+
+  const [preferences, setPreferences] = useState<Preferences>(emptyPreferences);
+
+  // Load saved preferences when modal opens — backend first, localStorage as fallback
+  useEffect(() => {
+    if (!visible) return;
+    const loadSaved = async () => {
+      try {
+        const data = await getProfile();
+        if (data) {
+          setPreferences({
+            ...emptyPreferences,
+            name: data.displayName || "",
+            ageGroup: data.ageGroup || "",
+            gender: data.gender || "",
+            genderOther: "",
+            style: data.styles || [],
+            outfitInspiration: "",
+            outfitImages: [],
+            favoriteColors: data.favoriteColors || [],
+            avoidedColors: (data.colorsToAvoid || []).join(", "),
+            shoppingFor: data.shoppingFor || [],
+            preferredFit: Array.isArray(data.preferredFit) ? data.preferredFit[0] || "" : data.preferredFit || "",
+            fabrics: data.preferredFabrics || [],
+            fitConcerns: data.fitConcerns || [],
+            lifestyle: data.dressFor || [],
+            climate: data.climate || "",
+            budget: data.budgetPerItem || "",
+            shopFrequency: data.shoppingFrequency || "",
+            shoppingMatters: data.shoppingPriorities || [],
+            favoriteBrands: data.favoriteBrands || [],
+            avoidedBrands: data.brandsToAvoid || [],
+            recommendationFeatures: data.recommendationBases || [],
+            notifications: data.styleNotifications === true ? "Yes" : data.styleNotifications === false ? "No" : "",
+          });
+          return;
+        }
+      } catch {
+        // No saved profile yet — form stays blank for first-time fill
+      }
+    };
+    loadSaved();
+  }, [visible]);
 
   const setSingle = (key: keyof Preferences, value: string) => {
     setPreferences((prev) => ({ ...prev, [key]: prev[key] === value ? "" : value }));
@@ -148,9 +190,7 @@ export default function PersonalizationModal({ visible, onClose }: Props) {
     setSaving(true);
     setError("");
     try {
-      const payload = buildProfilePayload();
-      await saveProfile(payload);
-      await savePreferences({ ...preferences, backendPayload: payload });
+      await saveProfile(buildProfilePayload());
       onClose();
     } catch (err: any) {
       setError(err?.message || "Could not save profile. Please try again.");

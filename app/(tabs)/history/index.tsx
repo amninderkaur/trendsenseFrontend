@@ -1,247 +1,165 @@
-import { BASE_URL } from "@/api/axios";
-import { getToken } from "@/utils/token";
-import { Link, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { getOutfitHistory, deleteOutfitHistory } from "@/api/outfitHistory";
+import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
-const API_BASE_URL = `${BASE_URL}/api/v1`;
-
-type WardrobeItem = {
-  id: string;
-  userId: number;
-  imageUrl: string;
-  detectedItems: string[];
-  uploadDate: string;
-  tag: string;
+type SelectedItem = {
+  itemId: string;
+  type: string;
+  color: string;
+  imageBase64: string;
 };
 
-export default function HistoryIndex() {
+type OutfitRecord = {
+  id: string;
+  occasion: string;
+  city: string;
+  weatherSummary: string;
+  reasoning: string;
+  selectedItems: SelectedItem[];
+};
+
+export default function SavedOutfitsIndex() {
   const router = useRouter();
-  const [items, setItems] = useState<WardrobeItem[]>([]);
+  const [outfits, setOutfits] = useState<OutfitRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const loadWardrobeItems = async () => {
+  const load = async () => {
+    setError("");
     try {
-      const token = await getToken();
-
-      if (!token) {
-        Alert.alert("Error", "Please login to view your wardrobe");
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`${API_BASE_URL}/wardrobe`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to load wardrobe: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Wardrobe items:", data);
-
-      // Sort by upload date (newest first)
-      const sortedItems = data.sort(
-        (a: WardrobeItem, b: WardrobeItem) =>
-          new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime(),
-      );
-
-      setItems(sortedItems);
-    } catch (error: any) {
-      console.error("Failed to load wardrobe:", error);
-      Alert.alert("Error", error.message || "Failed to load wardrobe items");
+      const data = await getOutfitHistory();
+      setOutfits(Array.isArray(data) ? data : []);
+    } catch {
+      setError("Could not load saved outfits.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  useEffect(() => {
-    loadWardrobeItems();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      load();
+    }, [])
+  );
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadWardrobeItems();
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await deleteOutfitHistory(id);
+      setOutfits((prev) => prev.filter((o) => o.id !== id));
+    } catch {
+      // silently fail
+    } finally {
+      setDeletingId(null);
+    }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)/mainMenu" as any);
+    }
   };
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <ActivityIndicator size="large" color="#233443" />
-        <Text style={styles.loadingText}>Loading your wardrobe...</Text>
-      </View>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <View style={styles.center}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.emptyTitle}>Your wardrobe is empty</Text>
-        <Text style={styles.emptySubtitle}>
-          Start adding clothing items to build your wardrobe!
-        </Text>
-      </View>
-    );
-  }
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            load();
+          }}
+        />
       }
     >
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <Pressable style={styles.backButton} onPress={goBack}>
         <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.title}>My Wardrobe</Text>
-      <Text style={styles.subtitle}>
-        {items.length} item{items.length !== 1 ? "s" : ""}
-      </Text>
+      </Pressable>
 
-      {items.map((item) => (
-        <Link key={item.id} href={`/history/${item.id}`} asChild>
-          <TouchableOpacity style={styles.card}>
-            <Image
-              source={{
-                uri: `${API_BASE_URL.replace("/api/v1", "")}${item.imageUrl}`,
-              }}
-              style={styles.image}
-              resizeMode="cover"
-            />
+      <Text style={styles.title}>Saved Outfits</Text>
+      <Text style={styles.subtitle}>Outfits you liked from AI suggestions.</Text>
 
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardTitle}>{item.tag}</Text>
+      {loading && (
+        <ActivityIndicator color="#233443" size="large" style={{ marginTop: 40 }} />
+      )}
 
-              {item.detectedItems && item.detectedItems.length > 0 && (
-                <Text style={styles.detectedItems}>
-                  {item.detectedItems.join(", ")}
-                </Text>
-              )}
+      {!!error && <Text style={styles.errorText}>{error}</Text>}
 
-              <Text style={styles.cardDate}>{formatDate(item.uploadDate)}</Text>
+      {!loading && outfits.length === 0 && !error && (
+        <Text style={styles.emptyText}>
+          No saved outfits yet. Like an outfit suggestion to save it here.
+        </Text>
+      )}
+
+      {outfits.map((outfit) => (
+        <View key={outfit.id} style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.occasion}>{outfit.occasion}</Text>
+              <Text style={styles.city}>{outfit.city}</Text>
             </View>
-          </TouchableOpacity>
-        </Link>
+            <Pressable
+              style={styles.deleteButton}
+              onPress={() => handleDelete(outfit.id)}
+              disabled={deletingId === outfit.id}
+            >
+              {deletingId === outfit.id ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.deleteText}>Remove</Text>
+              )}
+            </Pressable>
+          </View>
+
+          {!!outfit.weatherSummary && (
+            <Text style={styles.weather}>{outfit.weatherSummary}</Text>
+          )}
+
+          {!!outfit.reasoning && (
+            <Text style={styles.reasoning}>{outfit.reasoning}</Text>
+          )}
+
+          {outfit.selectedItems?.length > 0 && (
+            <View style={styles.itemsGrid}>
+              {outfit.selectedItems.map((item) => (
+                <View key={item.itemId} style={styles.itemCard}>
+                  <Image
+                    source={{ uri: `data:image/png;base64,${item.imageBase64}` }}
+                    style={styles.itemImage}
+                  />
+                  <Text style={styles.itemType}>{item.color} {item.type}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
       ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#eeede8",
-  },
-  content: {
-    padding: 20,
-    gap: 14,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#233443",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#96b7bc",
-    marginBottom: 10,
-  },
-  center: {
-    flex: 1,
-    backgroundColor: "#eeede8",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    color: "#233443",
-    fontSize: 16,
-    marginTop: 12,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#233443",
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#96b7bc",
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 14,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#c0d1bf",
-  },
-  image: {
-    width: "100%",
-    height: 200,
-    backgroundColor: "#f0f0f0",
-  },
-  cardInfo: {
-    padding: 12,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#233443",
-    textTransform: "capitalize",
-  },
-  detectedItems: {
-    fontSize: 13,
-    color: "#5a8a8d",
-    marginTop: 4,
-    textTransform: "capitalize",
-  },
-  cardDate: {
-    color: "#96b7bc",
-    marginTop: 6,
-    fontSize: 12,
-  },
+  container: { flex: 1, backgroundColor: "#eeede8" },
+  content: { padding: 20, paddingBottom: 40 },
   backButton: {
     alignSelf: "flex-start",
     backgroundColor: "#c0d1bf",
@@ -251,4 +169,67 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
+  title: { fontSize: 26, fontWeight: "700", color: "#233443", marginBottom: 4 },
+  subtitle: { fontSize: 14, color: "#96b7bc", marginBottom: 16 },
+  errorText: { color: "#d0685f", fontSize: 15, textAlign: "center", marginTop: 20 },
+  emptyText: {
+    fontSize: 15,
+    color: "#233443",
+    opacity: 0.7,
+    textAlign: "center",
+    marginTop: 60,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#c0d1bf",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  occasion: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#233443",
+    textTransform: "capitalize",
+  },
+  city: { fontSize: 13, color: "#96b7bc", marginTop: 2 },
+  weather: { fontSize: 13, color: "#5a8a8d", marginBottom: 6 },
+  reasoning: { fontSize: 14, color: "#233443", marginBottom: 10, lineHeight: 20 },
+  itemsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  itemCard: {
+    width: "47%",
+    backgroundColor: "#b9d6da",
+    borderRadius: 12,
+    padding: 8,
+    alignItems: "center",
+  },
+  itemImage: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 8,
+    resizeMode: "cover",
+    backgroundColor: "#dfe9ea",
+  },
+  itemType: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#233443",
+    textTransform: "capitalize",
+    textAlign: "center",
+  },
+  deleteButton: {
+    backgroundColor: "#c0726e",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+  },
+  deleteText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 });
