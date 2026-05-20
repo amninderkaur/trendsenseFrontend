@@ -19,6 +19,7 @@
     "axios": "^1.16.0",
     "axois": "^0.0.1-security",
     "expo": "~54.0.25",
+    "expo-av": "~16.0.8",
     "expo-barcode-scanner": "^13.0.1",
     "expo-constants": "~18.0.10",
     "expo-file-system": "~19.0.19",
