@@ -1,5 +1,7 @@
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { Video } from "expo-av";
 import { Link, useRouter } from "expo-router";
+import React from "react";
 import {
   Platform,
   Pressable,
@@ -10,85 +12,93 @@ import {
   useWindowDimensions,
 } from "react-native";
 
+import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { getToken, removeToken, removeUserId } from "../../utils/token";
+import {
+  getPreferencesCompleted,
+  getRole,
+  getToken,
+  removeEmail,
+  removeToken,
+  removeUserId,
+} from "../../utils/token";
 
 const isWeb = Platform.OS === "web";
 
 export default function Dashboard() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-
-  // isLargeScreen only used for native tablet scaling
   const isLargeScreen = !isWeb && width >= 768;
   const isLoggedIn = !!getToken();
+  const isAdmin = getRole() === "ADMIN";
   const iconSize = isLargeScreen ? 28 : 20;
+
+  const [showPersonalization, setShowPersonalization] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkPreferences = async () => {
+      const completed = await getPreferencesCompleted();
+      if (isLoggedIn && !completed) setShowPersonalization(true);
+    };
+    checkPreferences();
+  }, [isLoggedIn]);
 
   const handleSignOut = () => {
     removeToken();
     removeUserId();
+    removeEmail();
     router.replace("/(auth)/login");
   };
 
-  // ── Shared nav items data ─────────────────────────────────────────────────
   const navItems = [
     { href: "/", icon: "dashboard", label: "Dashboard", lib: "material" },
     { href: "/upload-clothes", icon: "add-a-photo", label: "Upload Clothes", lib: "material" },
     { href: "/upload-outfit", icon: "checkroom", label: "Outfit Suggestion", lib: "material" },
-    { href: "/trends", icon: "chart-line", label: "Trends", lib: "fa5" },
+    { href: "/budgeting", icon: "wallet", label: "Budgeting", lib: "fa5" },
+    { href: "/reviews", icon: "rate-review", label: "Reviews", lib: "material" },
     { href: "/profile", icon: "person", label: "Account Profile", lib: "material" },
   ] as const;
 
-  // ── Stats tiles ───────────────────────────────────────────────────────────
   const StatsTiles = () => (
     <View style={[styles.tilesContainer, isLargeScreen && styles.largeTilesContainer]}>
-      {[{ n: "120", label: "Orders" }, { n: "24", label: "New Customers" }, { n: "8", label: "Pending" }].map(
-        (t) => (
-          <View key={t.label} style={[styles.tile, isLargeScreen && styles.largeTile]}>
-            <Text style={[styles.tileNumber, isLargeScreen && styles.largeTileNumber]}>{t.n}</Text>
-            <Text style={[styles.tileLabel, isLargeScreen && styles.largeTileLabel]}>{t.label}</Text>
-          </View>
-        )
-      )}
+      {[
+        { n: "120", label: "Orders" },
+        { n: "24", label: "New Customers" },
+        { n: "8", label: "Pending" },
+      ].map((t) => (
+        <View key={t.label} style={[styles.tile, isLargeScreen && styles.largeTile]}>
+          <Text style={[styles.tileNumber, isLargeScreen && styles.largeTileNumber]}>{t.n}</Text>
+          <Text style={[styles.tileLabel, isLargeScreen && styles.largeTileLabel]}>{t.label}</Text>
+        </View>
+      ))}
     </View>
   );
 
-  // ── Overview card ─────────────────────────────────────────────────────────
-  const OverviewCard = () => (
-    <View style={[globalStyles.dashboardCard, isLargeScreen && globalStyles.largeDashboardCard]}>
-      <Text style={[globalStyles.cardTitle, isLargeScreen && globalStyles.largeCardTitle]}>Overview</Text>
-      <Text style={[globalStyles.cardText, isLargeScreen && globalStyles.largeCardText]}>
-        Here's a quick summary of your dashboard.
-      </Text>
-      <Link href="/wardrobe" asChild>
-        <Pressable style={StyleSheet.flatten([globalStyles.primaryButton, isLargeScreen && globalStyles.largePrimaryButton])}>
-          <Text style={StyleSheet.flatten([globalStyles.primaryButtonText, isLargeScreen && globalStyles.largePrimaryButtonText])}>
-            Go to Wardrobe
-          </Text>
-        </Pressable>
-      </Link>
-      <Link href="/history" asChild>
-        <Pressable style={StyleSheet.flatten([globalStyles.primaryButton, styles.secondButton, isLargeScreen && globalStyles.largePrimaryButton])}>
-          <Text style={StyleSheet.flatten([globalStyles.primaryButtonText, isLargeScreen && globalStyles.largePrimaryButtonText])}>
-            Go to History
-          </Text>
-        </Pressable>
-      </Link>
+  const HeroVideo = () => (
+    <View style={[styles.videoCard, isLargeScreen && styles.largeVideoCard]}>
+      <Video
+        source={require("../../assets/videos/dashboard.mp4")}
+        resizeMode="cover"
+        shouldPlay
+        isLooping
+        isMuted
+        style={styles.video}
+      />
     </View>
   );
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // WEB LAYOUT — sidebar + content
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── WEB LAYOUT ─────────────────────────────────────────────────────────────
   if (isWeb) {
     return (
       <View style={web.root}>
-        {/* Sidebar */}
+        <PersonalizationModal
+          visible={showPersonalization}
+          onClose={() => setShowPersonalization(false)}
+        />
         <View style={web.sidebar}>
-          <Text style={web.appName}>FashionApp</Text>
-
+          <Text style={web.appName}>TrendSense</Text>
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} asChild>
+            <Link key={item.href} href={item.href as any} asChild>
               <Pressable style={web.navItem}>
                 {item.lib === "material" ? (
                   <MaterialIcons name={item.icon as any} size={18} color={colors.blueDark} style={styles.icon} />
@@ -99,51 +109,36 @@ export default function Dashboard() {
               </Pressable>
             </Link>
           ))}
-
           <View style={web.divider} />
-
           {isLoggedIn ? (
             <Pressable style={web.navItem} onPress={handleSignOut}>
               <MaterialIcons name="logout" size={18} color={colors.blueDark} style={styles.icon} />
               <Text style={web.navLabel}>Sign Out</Text>
             </Pressable>
           ) : (
-            <>
-              <Link href="/login" asChild>
-                <Pressable style={web.navItem}>
-                  <MaterialIcons name="login" size={18} color={colors.blueDark} style={styles.icon} />
-                  <Text style={web.navLabel}>Login</Text>
-                </Pressable>
-              </Link>
-              <Link href="/register" asChild>
-                <Pressable style={web.navItem}>
-                  <MaterialIcons name="person-add" size={18} color={colors.blueDark} style={styles.icon} />
-                  <Text style={web.navLabel}>Sign Up</Text>
-                </Pressable>
-              </Link>
-            </>
+            <Link href="/login" asChild>
+              <Pressable style={web.navItem}>
+                <MaterialIcons name="login" size={18} color={colors.blueDark} style={styles.icon} />
+                <Text style={web.navLabel}>Login</Text>
+              </Pressable>
+            </Link>
+          )}
+          {isAdmin && (
+            <Pressable style={styles.adminButton} onPress={() => router.replace("/admin/dashboard" as any)}>
+              <MaterialIcons name="admin-panel-settings" size={18} color={colors.white} style={styles.icon} />
+              <Text style={styles.adminButtonText}>Go to Admin View</Text>
+            </Pressable>
           )}
         </View>
-
-        {/* Main content */}
         <ScrollView style={web.content} contentContainerStyle={web.contentInner}>
-          <Text style={web.pageTitle}>Dashboard</Text>
-
-          <OverviewCard />
-
-          <View style={web.slideshow}>
-            <Text style={web.slideshowText}>Slideshow Placeholder</Text>
-          </View>
-
+          <HeroVideo />
           <StatsTiles />
         </ScrollView>
       </View>
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // NATIVE LAYOUT — scrollable cards (unchanged)
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── NATIVE LAYOUT ───────────────────────────────────────────────────────────
   return (
     <ScrollView
       style={globalStyles.screen}
@@ -152,33 +147,20 @@ export default function Dashboard() {
         isLargeScreen && globalStyles.largeDashboardContainer,
       ]}
     >
+      <PersonalizationModal
+        visible={showPersonalization}
+        onClose={() => setShowPersonalization(false)}
+      />
       <View style={globalStyles.dashboardContent}>
-        <View style={styles.header}>
-          <Text style={[globalStyles.pageTitle, isLargeScreen && globalStyles.largePageTitle]}>
-            Dashboard
-          </Text>
-          <Text style={[globalStyles.bodyText, isLargeScreen && styles.largeTimeText]}>
-            09:00 AM
-          </Text>
-        </View>
-
-        <OverviewCard />
-
-        <View style={[styles.slideshow, isLargeScreen && styles.largeSlideshow]}>
-          <Text style={[styles.slideshowText, isLargeScreen && styles.largeSlideshowText]}>
-            Slideshow Placeholder
-          </Text>
-        </View>
-
+        <HeroVideo />
         <StatsTiles />
 
         <View style={styles.menu}>
           <Text style={[globalStyles.sectionTitle, isLargeScreen && globalStyles.largeSectionTitle]}>
             Menu
           </Text>
-
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} asChild>
+            <Link key={item.href} href={item.href as any} asChild>
               <Pressable style={StyleSheet.flatten([globalStyles.menuItem, isLargeScreen && globalStyles.largeMenuItem])}>
                 {item.lib === "material" ? (
                   <MaterialIcons name={item.icon as any} size={iconSize} color={colors.blueDark} style={styles.icon} />
@@ -191,8 +173,7 @@ export default function Dashboard() {
               </Pressable>
             </Link>
           ))}
-
-          {isLoggedIn ? (
+          {isLoggedIn && (
             <Pressable
               style={StyleSheet.flatten([globalStyles.menuItem, isLargeScreen && globalStyles.largeMenuItem])}
               onPress={handleSignOut}
@@ -202,21 +183,15 @@ export default function Dashboard() {
                 Sign Out
               </Text>
             </Pressable>
-          ) : (
-            <>
-              <Link href="/login" asChild>
-                <Pressable style={StyleSheet.flatten([globalStyles.menuItem, isLargeScreen && globalStyles.largeMenuItem])}>
-                  <MaterialIcons name="login" size={iconSize} color={colors.blueDark} style={styles.icon} />
-                  <Text style={StyleSheet.flatten([globalStyles.menuText, isLargeScreen && globalStyles.largeMenuText])}>Login</Text>
-                </Pressable>
-              </Link>
-              <Link href="/register" asChild>
-                <Pressable style={StyleSheet.flatten([globalStyles.menuItem, isLargeScreen && globalStyles.largeMenuItem])}>
-                  <MaterialIcons name="person-add" size={iconSize} color={colors.blueDark} style={styles.icon} />
-                  <Text style={StyleSheet.flatten([globalStyles.menuText, isLargeScreen && globalStyles.largeMenuText])}>Signup</Text>
-                </Pressable>
-              </Link>
-            </>
+          )}
+          {isAdmin && (
+            <Pressable
+              style={styles.adminButton}
+              onPress={() => router.replace("/admin/dashboard" as any)}
+            >
+              <MaterialIcons name="admin-panel-settings" size={iconSize} color={colors.white} style={styles.icon} />
+              <Text style={styles.adminButtonText}>Go to Admin View</Text>
+            </Pressable>
           )}
         </View>
       </View>
@@ -224,22 +199,17 @@ export default function Dashboard() {
   );
 }
 
-// ── Shared native styles ────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  header: { paddingVertical: 15 },
-  largeTimeText: { fontSize: 18 },
-  secondButton: { marginTop: 0 },
-  slideshow: {
+  videoCard: {
+    width: "100%",
+    height: 220,
+    borderRadius: 22,
+    overflow: "hidden",
     backgroundColor: colors.blue,
-    borderRadius: 20,
-    height: 150,
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 16,
   },
-  largeSlideshow: { height: 240, borderRadius: 28 },
-  slideshowText: { color: colors.blueDark, fontWeight: "700" },
-  largeSlideshowText: { fontSize: 22 },
+  largeVideoCard: { height: 320, borderRadius: 30 },
+  video: { width: "100%", height: "100%" },
   tilesContainer: { flexDirection: "row", justifyContent: "space-between", marginVertical: 10, gap: 10 },
   largeTilesContainer: { gap: 16 },
   tile: {
@@ -261,15 +231,24 @@ const styles = StyleSheet.create({
   largeTileLabel: { fontSize: 18 },
   menu: { marginTop: 20 },
   icon: { marginRight: 10 },
+  adminButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.blueDark,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginTop: 12,
+  },
+  adminButtonText: {
+    color: colors.white,
+    fontWeight: "800",
+    fontSize: 15,
+  },
 });
 
-// ── Web-only styles ─────────────────────────────────────────────────────────
 const web = StyleSheet.create({
-  root: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: colors.bg,
-  },
+  root: { flex: 1, flexDirection: "row", backgroundColor: colors.bg },
   sidebar: {
     width: 220,
     backgroundColor: colors.card,
@@ -279,56 +258,10 @@ const web = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: colors.bgDark,
   },
-  appName: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: colors.blueDark,
-    marginBottom: 24,
-    paddingHorizontal: 6,
-  },
-  navItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginBottom: 4,
-  },
-  navLabel: {
-    fontSize: 14,
-    color: colors.text,
-    fontWeight: "500",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.bgDark,
-    marginVertical: 12,
-  },
-  content: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  contentInner: {
-    padding: 28,
-    maxWidth: 860,
-  },
-  pageTitle: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 16,
-  },
-  slideshow: {
-    backgroundColor: colors.blue,
-    borderRadius: 14,
-    height: 160,
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 14,
-  },
-  slideshowText: {
-    color: colors.blueDark,
-    fontWeight: "700",
-    fontSize: 15,
-  },
+  appName: { fontSize: 18, fontWeight: "800", color: colors.blueDark, marginBottom: 24, paddingHorizontal: 6 },
+  navItem: { flexDirection: "row", alignItems: "center", paddingVertical: 10, paddingHorizontal: 10, borderRadius: 10, marginBottom: 4 },
+  navLabel: { fontSize: 14, color: colors.text, fontWeight: "500" },
+  divider: { height: 1, backgroundColor: colors.bgDark, marginVertical: 12 },
+  content: { flex: 1, backgroundColor: colors.bg },
+  contentInner: { padding: 28, maxWidth: 860 },
 });

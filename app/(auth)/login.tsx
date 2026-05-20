@@ -15,7 +15,7 @@ import {
 
 import { login } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken, saveUserId } from "../../utils/token";
+import { saveToken, saveUserId, saveRole } from "../../utils/token";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -69,7 +69,9 @@ export default function LoginScreen() {
         // Returning user — token returned directly
         saveToken(data.token);
         saveUserId(data.userId);
-        router.replace("/(tabs)/mainMenu");
+        if (data.role) saveRole(data.role);
+        // Admin goes to admin dashboard, regular users go to main menu
+        router.replace(data.role === "ADMIN" ? "/admin/dashboard" : "/(tabs)/mainMenu");
       }
     } catch (err: any) {
       setError(err.message || "Login failed. Please try again.");

@@ -22,6 +22,7 @@ export default function RootLayout() {
   const pathname = usePathname();
 
   const hideChatButton =
+    pathname === "/" ||
     pathname.includes("login") ||
     pathname.includes("register") ||
     pathname.includes("otp") ||
@@ -32,8 +33,10 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1, position: "relative" }}>
         <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="admin" options={{ headerShown: false }} />
           <Stack.Screen name="chatbot" options={{ headerShown: false }} />
           <Stack.Screen
             name="modal"

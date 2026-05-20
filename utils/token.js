@@ -2,6 +2,7 @@
 let _token = null;
 let _userId = null;
 let _email = null;
+let _role = null;
 let _preferences = null;
 let _preferencesCompleted = false;
 
@@ -42,6 +43,18 @@ export const getUserId = () => _userId || getItem("userId");
 export const removeUserId = () => {
   _userId = null;
   removeItem("userId");
+};
+
+export const saveRole = (role) => {
+  _role = role;
+  setItem("role", role);
+};
+
+export const getRole = () => _role || getItem("role");
+
+export const removeRole = () => {
+  _role = null;
+  removeItem("role");
 };
 
 export const saveEmail = (email) => {

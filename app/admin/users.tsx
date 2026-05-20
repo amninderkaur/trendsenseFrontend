@@ -3,9 +3,18 @@ import React from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { deleteAdminUser, getAdminUsers, updateAdminUser } from "../../api/admin";
 import { colors } from "../../constants/globalStyles";
+import { getRole } from "../../utils/token";
 
 export default function AdminUsers() {
   const router = useRouter();
+
+  if (getRole() !== "ADMIN") {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg }}>
+        <Text style={{ fontSize: 18, color: colors.muted }}>Access denied.</Text>
+      </View>
+    );
+  }
   const [users, setUsers] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [editingId, setEditingId] = React.useState<string | null>(null);

@@ -7,6 +7,8 @@ export default function TabLayout() {
       <Stack.Screen name="mainMenu" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="trends" />
+      <Stack.Screen name="budgeting" />
+      <Stack.Screen name="reviews" />
       <Stack.Screen name="upload-clothes" />
       <Stack.Screen name="upload-outfit" />
       <Stack.Screen name="wardrobe/index" />

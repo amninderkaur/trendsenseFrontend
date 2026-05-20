@@ -13,7 +13,7 @@ import {
 
 import { verifyOtp } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken, saveUserId } from "../../utils/token";
+import { saveToken, saveUserId, saveRole } from "../../utils/token";
 import PersonalizationModal from "./PersonalizationModal";
 
 export default function OtpScreen() {
@@ -43,8 +43,13 @@ export default function OtpScreen() {
       const data = await verifyOtp(email, otp);
       saveToken(data.token);
       saveUserId(data.userId);
-      // First-time login — show personalization questionnaire
-      setShowPersonalization(true);
+      if (data.role) saveRole(data.role);
+      // Admin skips personalization and goes straight to admin dashboard
+      if (data.role === "ADMIN") {
+        router.replace("/admin/dashboard");
+      } else {
+        setShowPersonalization(true);
+      }
     } catch (err: any) {
       setError("Invalid or expired code. Please try again.");
     } finally {
