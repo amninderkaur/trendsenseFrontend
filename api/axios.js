@@ -4,6 +4,10 @@ const BASE_URL = "https://fashionapp-backend-gtatg0hjbwh4c2dk.canadacentral-01.a
 
 const api = axios.create({
   baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  },
 });
 
 export { BASE_URL };
