@@ -24,6 +24,7 @@ export default function RootLayout() {
   const hideChatButton =
     pathname.includes("login") ||
     pathname.includes("register") ||
+    pathname.includes("otp") ||
     pathname.includes("upload-outfit") ||
     pathname.includes("chatbot");
 

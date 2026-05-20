@@ -59,12 +59,18 @@ export default function LoginScreen() {
     try {
       const data = await login(email, password);
 
-      console.log("Login response:", data);
-
-      await saveToken(data.token);
-      await saveUserId(data.userId);
-
-      router.replace("/(tabs)/mainMenu");
+      if (data.requiresOtp) {
+        // First-time login — go to OTP screen
+        router.push({
+          pathname: "/(auth)/otp",
+          params: { email },
+        });
+      } else {
+        // Returning user — token returned directly
+        saveToken(data.token);
+        saveUserId(data.userId);
+        router.replace("/(tabs)/mainMenu");
+      }
     } catch (err: any) {
       setError(err.message || "Login failed. Please try again.");
     } finally {

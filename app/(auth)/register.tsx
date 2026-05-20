@@ -13,8 +13,6 @@ import {
 
 import { register } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken } from "../../utils/token";
-import PersonalizationModal from "./PersonalizationModal";
 
 const PRIMARY = "#ff9c85";
 
@@ -32,40 +30,47 @@ export default function RegisterScreen() {
   const [confirm, setConfirm] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<"email" | "sms">("email");
-  const [smsError, setSmsError] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const handlePhoneChange = (text: string) => {
+    // Strip everything except digits, then prepend + to enforce E.164 format
+    const digits = text.replace(/\D/g, "");
+    setPhoneNumber(digits ? "+" + digits : "");
+    if (error) setError("");
+  };
 
   const handleRegister = async () => {
     if (!email.trim() || !password.trim() || !confirm.trim()) {
-      alert("Please fill out all fields.");
+      setError("Please fill out all fields.");
       return;
     }
 
     if (password !== confirm) {
-      alert("Passwords do not match.");
+      setError("Passwords do not match.");
       return;
     }
 
-    if (deliveryMethod === "sms" && !phoneNumber.trim()) {
-      setSmsError("Please enter a phone number to use SMS verification");
+    if (deliveryMethod === "sms" && !phoneNumber) {
+      setError("Please enter a phone number to use SMS delivery.");
       return;
     }
 
-    setSmsError("");
+    if (phoneNumber && !/^\+\d{7,15}$/.test(phoneNumber)) {
+      setError("Phone number must be in E.164 format, e.g. +16471234567");
+      return;
+    }
+
+    setError("");
     setLoading(true);
 
     try {
-      const data = await register(email, password, phoneNumber.trim() || undefined);
-
-      saveToken(data.token);
-
-      // Show personalization modal after registration
-      setShowQuestionnaire(true);
+      await register(email, password, phoneNumber || undefined, deliveryMethod);
+      // Registration returns no token — redirect to login
+      router.replace("/(auth)/login");
     } catch (err) {
       console.error(err);
-      alert("Registration failed.");
+      setError("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -158,17 +163,14 @@ export default function RegisterScreen() {
 
           <Text style={styles.fieldLabel}>Phone Number (optional)</Text>
           <TextInput
-            placeholder="+1 (555) 555-5555"
+            placeholder="Include country code, e.g. +16471234567"
             placeholderTextColor={colors.muted}
             style={[
               globalStyles.input,
               isLargeScreen && globalStyles.largeInput,
             ]}
             value={phoneNumber}
-            onChangeText={(text) => {
-              setPhoneNumber(text);
-              if (smsError) setSmsError("");
-            }}
+            onChangeText={handlePhoneChange}
             keyboardType="phone-pad"
           />
 
@@ -210,8 +212,8 @@ export default function RegisterScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-          {smsError ? (
-            <Text style={globalStyles.errorText}>{smsError}</Text>
+          {error ? (
+            <Text style={globalStyles.errorText}>{error}</Text>
           ) : null}
 
           <TouchableOpacity
@@ -251,13 +253,6 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <PersonalizationModal
-        visible={showQuestionnaire}
-        onClose={() => {
-          setShowQuestionnaire(false);
-          router.replace("/(auth)/login");
-        }}
-      />
     </View>
   );
 }
