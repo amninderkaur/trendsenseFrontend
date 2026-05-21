@@ -15,7 +15,14 @@ import {
 
 import { login } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken, saveUserId, saveRole, saveEmail, saveName, saveLoginTime } from "../../utils/token";
+import {
+  saveEmail,
+  saveLoginTime,
+  saveName,
+  saveRole,
+  saveToken,
+  saveUserId,
+} from "../../utils/token";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -74,7 +81,9 @@ export default function LoginScreen() {
         saveEmail(email);
         saveLoginTime();
         // Admin goes to admin dashboard, regular users go to main menu
-        router.replace(data.role === "ADMIN" ? "/admin/dashboard" : "/(tabs)/mainMenu");
+        router.replace(
+          data.role === "ADMIN" ? "/admin/dashboard" : "/(tabs)/mainMenu",
+        );
       }
     } catch (err: any) {
       setError(err.message || "Login failed. Please try again.");
@@ -206,6 +215,20 @@ export default function LoginScreen() {
                   Log In
                 </Text>
               )}
+            </Pressable>
+
+            <Pressable
+              style={globalStyles.centeredLink}
+              onPress={() => router.push("/(auth)/forgot-password" as any)}
+            >
+              <Text
+                style={[
+                  globalStyles.linkText,
+                  isLargeScreen && globalStyles.largeLinkText,
+                ]}
+              >
+                Forgot password?
+              </Text>
             </Pressable>
 
             <Link href="/register" asChild>

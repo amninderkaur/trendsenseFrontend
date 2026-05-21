@@ -70,7 +70,7 @@ export const uploadProfilePicture = async (imageUri) => {
   return response.data;
 };
 
-// 6. Change password (logged in)
+// 6. Change password (logged in) — server sends OTP after success to re-verify identity
 export const changePassword = async (currentPassword, newPassword) => {
   const response = await api.post(
     "/api/v1/user/me/change-password",

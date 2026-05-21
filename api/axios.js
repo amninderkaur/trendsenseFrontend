@@ -11,13 +11,26 @@ const api = axios.create({
   },
 });
 
-// Redirect to login on 401 (expired or invalid token)
+// Auth endpoints that legitimately return 401 (wrong OTP, bad credentials)
+// — don't redirect to login for these, let the screen handle the error
+const AUTH_ENDPOINTS = [
+  "/api/v1/auth/authenticate",
+  "/api/v1/auth/verify-otp",
+  "/api/v1/auth/reset-password",
+  "/api/v1/auth/forgot-password",
+  "/api/v1/user/me/change-password", // wrong current password → 401, let screen handle it
+];
+
+// Redirect to login on 401 (expired or invalid token) — but not for auth endpoints
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401) {
+    const url = error?.config?.url || "";
+    const is401 = error?.response?.status === 401;
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((e) => url.includes(e));
+
+    if (is401 && !isAuthEndpoint) {
       clearSession();
-      // Use dynamic import to avoid circular deps with expo-router
       import("expo-router").then(({ router }) => {
         router.replace("/(auth)/login");
       });

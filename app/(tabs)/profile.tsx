@@ -154,6 +154,13 @@ export default function Profile() {
 
         <Pressable
           style={[styles.button, { backgroundColor: themeColors.button }]}
+          onPress={() => router.push("/change-password" as any)}
+        >
+          <Text style={styles.buttonText}>Change Password</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.button, { backgroundColor: themeColors.button }]}
           onPress={() => setShowEdit(true)}
         >
           <Text style={styles.buttonText}>Edit Preferences</Text>
