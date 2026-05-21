@@ -13,7 +13,7 @@ import {
 
 import { resendOtp, verifyOtp } from "../../api/auth";
 import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken, saveUserId, saveRole } from "../../utils/token";
+import { saveToken, saveUserId, saveRole, saveEmail, saveName, saveLoginTime } from "../../utils/token";
 import PersonalizationModal from "./PersonalizationModal";
 
 const RESEND_COOLDOWN = 30;
@@ -74,6 +74,9 @@ export default function OtpScreen() {
       saveToken(data.token);
       saveUserId(data.userId);
       if (data.role) saveRole(data.role);
+      if (data.name) saveName(data.name);
+      if (email) saveEmail(email);
+      saveLoginTime();
       if (data.role === "ADMIN") {
         router.replace("/admin/dashboard");
       } else {

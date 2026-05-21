@@ -1,7 +1,7 @@
 import api from "./axios";
 
-export const register = async (email, password, phoneNumber, deliveryMethod = "email") => {
-  const body = { email, password, deliveryMethod };
+export const register = async (email, password, name, phoneNumber, deliveryMethod = "email") => {
+  const body = { email, password, name, deliveryMethod };
   if (phoneNumber) body.phoneNumber = phoneNumber;
   const response = await api.post("/api/v1/auth/register", body);
   return response.data; // { message: "Registration successful. Please log in." }

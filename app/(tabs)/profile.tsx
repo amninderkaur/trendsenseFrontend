@@ -1,3 +1,5 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -14,33 +16,62 @@ import {
 } from "react-native";
 
 import PersonalizationModal from "../(auth)/PersonalizationModal";
-import { getProfile } from "../../api/profile";
-import { deleteAccount } from "../../api/user";
+import { deleteAccount, getMe, uploadProfilePicture } from "../../api/user";
 import { useAppTheme } from "../../context/ThemeContext";
-import { getEmail, removeEmail, removeToken, removeUserId } from "../../utils/token";
+import { getEmail, getName, removeEmail, removeName, removeToken, removeUserId } from "../../utils/token";
 
 export default function Profile() {
   const router = useRouter();
   const { isDarkMode, toggleDarkMode, themeColors } = useAppTheme();
   const email = getEmail() || "user@example.com";
+  const displayName = getName() || "TrendSense User";
 
-  const [displayName, setDisplayName] = useState("");
-  const [loadingName, setLoadingName] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [uploadingPic, setUploadingPic] = useState(false);
 
   useEffect(() => {
-    getProfile()
-      .then((data) => setDisplayName(data?.displayName || ""))
-      .catch(() => {})
-      .finally(() => setLoadingName(false));
+    getMe()
+      .then((data) => {
+        if (data?.profilePicture) {
+          setAvatarUri(`data:${data.profilePictureType};base64,${data.profilePicture}`);
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+    setUploadingPic(true);
+    try {
+      await uploadProfilePicture(asset.uri);
+      setAvatarUri(asset.uri);
+    } catch {
+      // silently fail — keep old image
+    } finally {
+      setUploadingPic(false);
+    }
+  };
 
   const handleLogout = () => {
     removeToken();
     removeUserId();
     removeEmail();
+    removeName();
     router.replace("/(auth)/login");
   };
 
@@ -61,11 +92,7 @@ export default function Profile() {
     <>
       <PersonalizationModal
         visible={showEdit}
-        onClose={() => {
-          setShowEdit(false);
-          // Refresh name after editing
-          getProfile().then((data) => setDisplayName(data?.displayName || "")).catch(() => {});
-        }}
+        onClose={() => setShowEdit(false)}
       />
 
       <ScrollView
@@ -83,14 +110,25 @@ export default function Profile() {
         </View>
 
         <View style={[styles.card, { backgroundColor: themeColors.card }]}>
-          <Image source={{ uri: "https://placekitten.com/200/200" }} style={styles.avatar} />
-          {loadingName ? (
-            <ActivityIndicator style={{ marginBottom: 4 }} />
-          ) : (
-            <Text style={[styles.name, { color: themeColors.text }]}>
-              {displayName || "TrendSense User"}
-            </Text>
-          )}
+          <TouchableOpacity onPress={handlePickImage} style={styles.avatarWrapper} disabled={uploadingPic}>
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <MaterialIcons name="person" size={60} color="#fff" />
+              </View>
+            )}
+            {uploadingPic ? (
+              <View style={styles.avatarOverlay}>
+                <ActivityIndicator color="#fff" />
+              </View>
+            ) : (
+              <View style={styles.avatarOverlay}>
+                <Text style={styles.avatarEditText}>Edit</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <Text style={[styles.name, { color: themeColors.text }]}>{displayName}</Text>
           <Text style={[styles.email, { color: themeColors.muted }]}>{email}</Text>
         </View>
 
@@ -167,7 +205,11 @@ const styles = StyleSheet.create({
   backButton: { alignSelf: "flex-start", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
   backButtonText: { color: "#fff", fontWeight: "600", fontSize: 14 },
   card: { borderRadius: 16, alignItems: "center", padding: 20, marginHorizontal: 20, marginBottom: 20, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } },
-  avatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 12 },
+  avatarWrapper: { width: 100, height: 100, borderRadius: 50, marginBottom: 12, overflow: "hidden" },
+  avatar: { width: 100, height: 100, borderRadius: 50 },
+  avatarPlaceholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: "#b0c4cc", justifyContent: "center", alignItems: "center" },
+  avatarOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, height: 32, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", alignItems: "center" },
+  avatarEditText: { color: "#fff", fontSize: 12, fontWeight: "700" },
   name: { fontSize: 20, fontWeight: "700" },
   email: { fontSize: 14, marginTop: 4 },
   switchRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },

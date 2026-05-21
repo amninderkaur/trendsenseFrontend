@@ -3,6 +3,7 @@ let _token = null;
 let _userId = null;
 let _email = null;
 let _role = null;
+let _name = null;
 let _preferences = null;
 let _preferencesCompleted = false;
 
@@ -67,6 +68,44 @@ export const getEmail = () => _email || getItem("email");
 export const removeEmail = () => {
   _email = null;
   removeItem("email");
+};
+
+export const saveName = (name) => {
+  _name = name;
+  setItem("name", name);
+};
+
+export const getName = () => _name || getItem("name");
+
+export const removeName = () => {
+  _name = null;
+  removeItem("name");
+};
+
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export const saveLoginTime = () => {
+  setItem("loginTime", Date.now().toString());
+};
+
+export const isSessionExpired = () => {
+  const loginTime = getItem("loginTime");
+  if (!loginTime) return true;
+  return Date.now() - parseInt(loginTime, 10) > SESSION_TTL_MS;
+};
+
+export const clearSession = () => {
+  _token = null;
+  _userId = null;
+  _email = null;
+  _role = null;
+  _name = null;
+  removeItem("token");
+  removeItem("userId");
+  removeItem("email");
+  removeItem("role");
+  removeItem("name");
+  removeItem("loginTime");
 };
 
 export const savePreferences = async (preferences) => {

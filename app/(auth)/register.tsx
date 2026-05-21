@@ -25,6 +25,7 @@ export default function RegisterScreen() {
   const circleSize = Math.max(width * 0.6, 180);
   const smallCircleSize = Math.max(width * 0.45, 140);
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -61,7 +62,7 @@ export default function RegisterScreen() {
   const e164Phone = phoneDigits.length === 10 ? "+1" + phoneDigits : "";
 
   const handleRegister = async () => {
-    if (!email.trim() || !password.trim() || !confirm.trim()) {
+    if (!name.trim() || !email.trim() || !password.trim() || !confirm.trim()) {
       setError("Please fill out all fields.");
       return;
     }
@@ -85,7 +86,7 @@ export default function RegisterScreen() {
     setLoading(true);
 
     try {
-      await register(email, password, e164Phone || undefined, deliveryMethod);
+      await register(email, password, name.trim(), e164Phone || undefined, deliveryMethod);
       // Registration returns no token — redirect to login
       router.replace("/(auth)/login");
     } catch (err) {
@@ -143,6 +144,18 @@ export default function RegisterScreen() {
           <Text style={globalStyles.subtitle}>
             Join us to explore your wardrobe
           </Text>
+
+          <TextInput
+            placeholder="Full Name"
+            placeholderTextColor={colors.muted}
+            style={[
+              globalStyles.input,
+              isLargeScreen && globalStyles.largeInput,
+            ]}
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+          />
 
           <TextInput
             placeholder="email@domain.com"
