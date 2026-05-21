@@ -4,8 +4,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -31,6 +31,7 @@ export default function ClothingDetails() {
   const [item, setItem] = useState<ClothingItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const loadItem = async () => {
@@ -42,8 +43,7 @@ export default function ClothingDetails() {
         });
         if (!response.ok) throw new Error("Failed to load item");
         const data: ClothingItem[] = await response.json();
-        const found = data.find((i) => i.id === outfitId) ?? null;
-        setItem(found);
+        setItem(data.find((i) => i.id === outfitId) ?? null);
       } catch {
         setItem(null);
       } finally {
@@ -58,29 +58,18 @@ export default function ClothingDetails() {
     else router.replace("/wardrobe" as any);
   };
 
-  const confirmDelete = () => {
-    Alert.alert(
-      "Remove Item",
-      `Remove this item from your wardrobe? This cannot be undone.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Remove", style: "destructive", onPress: handleDelete },
-      ]
-    );
-  };
-
   const handleDelete = async () => {
     if (!item) return;
     setDeleting(true);
+    setShowConfirm(false);
     try {
       const token = await getToken();
-      await fetch(`${API_BASE_URL}/api/v1/wardrobe/${item.id}`, {
+      await fetch(`${API_BASE_URL}/api/wardrobe/${item.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
       router.replace("/wardrobe" as any);
     } catch {
-      Alert.alert("Error", "Could not remove item. Please try again.");
       setDeleting(false);
     }
   };
@@ -109,51 +98,75 @@ export default function ClothingDetails() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-
-      <Image
-        source={{ uri: `data:image/png;base64,${item.generatedImageBase64}` }}
-        style={styles.image}
-        resizeMode="cover"
-      />
-
-      <Text style={styles.itemName}>
-        {item.tags?.color} {item.tags?.type}
-      </Text>
-
-      {item.tags?.style && (
-        <>
-          <Text style={styles.sectionTitle}>Style</Text>
-          <Text style={styles.detail}>{item.tags.style}</Text>
-        </>
-      )}
-
-      {item.tags?.occasion?.length > 0 && (
-        <>
-          <Text style={styles.sectionTitle}>Occasions</Text>
-          <View style={styles.tagContainer}>
-            {item.tags.occasion.map((occ) => (
-              <View key={occ} style={styles.tag}>
-                <Text style={styles.tagText}>{occ}</Text>
-              </View>
-            ))}
+    <>
+      {/* Delete confirmation modal */}
+      <Modal visible={showConfirm} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Remove Item</Text>
+            <Text style={styles.modalMessage}>
+              Remove this{" "}
+              <Text style={{ fontWeight: "700" }}>
+                {item.tags?.color} {item.tags?.type}
+              </Text>{" "}
+              from your wardrobe? This cannot be undone.
+            </Text>
+            <TouchableOpacity style={styles.modalDeleteBtn} onPress={handleDelete}>
+              <Text style={styles.modalDeleteText}>Yes, Remove</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowConfirm(false)}>
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
           </View>
-        </>
-      )}
+        </View>
+      </Modal>
 
-      <Pressable
-        style={[styles.deleteButton, deleting && { opacity: 0.6 }]}
-        onPress={confirmDelete}
-        disabled={deleting}
-      >
-        {deleting
-          ? <ActivityIndicator color="#fff" />
-          : <Text style={styles.deleteText}>Remove from Wardrobe</Text>}
-      </Pressable>
-    </ScrollView>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+
+        <Image
+          source={{ uri: `data:image/png;base64,${item.generatedImageBase64}` }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+
+        <Text style={styles.itemName}>
+          {item.tags?.color} {item.tags?.type}
+        </Text>
+
+        {item.tags?.style && (
+          <>
+            <Text style={styles.sectionTitle}>Style</Text>
+            <Text style={styles.detail}>{item.tags.style}</Text>
+          </>
+        )}
+
+        {item.tags?.occasion?.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Occasions</Text>
+            <View style={styles.tagContainer}>
+              {item.tags.occasion.map((occ) => (
+                <View key={occ} style={styles.tag}>
+                  <Text style={styles.tagText}>{occ}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+
+        <TouchableOpacity
+          style={[styles.deleteButton, deleting && { opacity: 0.6 }]}
+          onPress={() => setShowConfirm(true)}
+          disabled={deleting}
+        >
+          {deleting
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.deleteText}>Remove from Wardrobe</Text>}
+        </TouchableOpacity>
+      </ScrollView>
+    </>
   );
 }
 
@@ -174,4 +187,13 @@ const styles = StyleSheet.create({
   errorText: { color: "#d0685f", textAlign: "center", marginTop: 20, fontSize: 14 },
   backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 16 },
   backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
+  // Modal
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", padding: 28 },
+  modalBox: { backgroundColor: "#eeede8", borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
+  modalTitle: { fontSize: 24, fontWeight: "700", color: "#000", textAlign: "center", marginBottom: 12 },
+  modalMessage: { fontSize: 15, color: "#4B5563", lineHeight: 22, textAlign: "center", marginBottom: 24 },
+  modalDeleteBtn: { backgroundColor: "#c0726e", paddingVertical: 18, borderRadius: 32, alignItems: "center", marginBottom: 10 },
+  modalDeleteText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  modalCancelBtn: { backgroundColor: "#a3bea9", paddingVertical: 18, borderRadius: 32, alignItems: "center" },
+  modalCancelText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

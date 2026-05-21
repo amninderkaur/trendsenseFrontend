@@ -2,8 +2,8 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +27,8 @@ export default function Profile() {
   const [displayName, setDisplayName] = useState("");
   const [loadingName, setLoadingName] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     getProfile()
@@ -42,29 +44,17 @@ export default function Profile() {
     router.replace("/(auth)/login");
   };
 
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      "Delete Account",
-      "You will not be able to access any of your data. This will permanently delete your wardrobe, outfits, saved items, and profile — you will have to start from the beginning to rebuild your wardrobe. This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete My Account",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteAccount();
-            } catch {
-              // still clear local state even if request fails
-            }
-            removeToken();
-            removeUserId();
-            removeEmail();
-            router.replace("/(auth)/login");
-          },
-        },
-      ]
-    );
+  const confirmDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+    } catch {
+      // still clear local state even if request fails
+    }
+    removeToken();
+    removeUserId();
+    removeEmail();
+    router.replace("/(auth)/login");
   };
 
   return (
@@ -135,10 +125,37 @@ export default function Profile() {
           <Text style={styles.buttonText}>Logout</Text>
         </Pressable>
 
-        <TouchableOpacity style={[styles.button, { backgroundColor: "#c0726e" }]} onPress={handleDeleteAccount}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: "#c0726e" }]} onPress={() => setShowDeleteConfirm(true)}>
           <Text style={styles.buttonText}>Delete Account</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal visible={showDeleteConfirm} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Delete Account</Text>
+            <Text style={styles.modalMessage}>
+              You will not be able to access any of your data. This will permanently delete your wardrobe, outfits, saved items, and profile — you will have to start from the beginning to rebuild your wardrobe. This cannot be undone.
+            </Text>
+            <TouchableOpacity
+              style={styles.modalDeleteBtn}
+              onPress={confirmDelete}
+              disabled={deleting}
+            >
+              {deleting
+                ? <ActivityIndicator color="#fff" />
+                : <Text style={styles.modalBtnText}>Yes, Delete My Account</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalCancelBtn}
+              onPress={() => setShowDeleteConfirm(false)}
+              disabled={deleting}
+            >
+              <Text style={styles.modalBtnText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
@@ -160,4 +177,11 @@ const styles = StyleSheet.create({
   infoNumber: { fontSize: 18, fontWeight: "700", color: "#233443" },
   button: { paddingVertical: 14, marginHorizontal: 20, borderRadius: 30, alignItems: "center", marginBottom: 10 },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", padding: 28 },
+  modalBox: { backgroundColor: "#eeede8", borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
+  modalTitle: { fontSize: 24, fontWeight: "700", color: "#000", textAlign: "center", marginBottom: 12 },
+  modalMessage: { fontSize: 15, color: "#4B5563", lineHeight: 22, textAlign: "center", marginBottom: 24 },
+  modalDeleteBtn: { backgroundColor: "#c0726e", paddingVertical: 18, borderRadius: 32, alignItems: "center", marginBottom: 10 },
+  modalCancelBtn: { backgroundColor: "#a3bea9", paddingVertical: 18, borderRadius: 32, alignItems: "center" },
+  modalBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

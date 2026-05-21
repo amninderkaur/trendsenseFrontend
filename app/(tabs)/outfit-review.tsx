@@ -77,30 +77,42 @@ export default function OutfitReview() {
       const token = getToken();
       if (!token) throw new Error("Not authenticated. Please log in again.");
 
+      const uriParts = imageUri.split("/");
+      const fileName = uriParts[uriParts.length - 1] || "outfit.jpg";
+      const ext = fileName.split(".").pop()?.toLowerCase();
+      const mimeType =
+        ext === "jpg" || ext === "jpeg" ? "image/jpeg" :
+        ext === "png" ? "image/png" :
+        ext === "webp" ? "image/webp" :
+        imageMime || "image/jpeg";
+
       const formData = new FormData();
-      formData.append("image", {
-        uri: imageUri,
-        name: "outfit.jpg",
-        type: imageMime,
-      } as any);
+
+      if (imageUri.startsWith("blob:") || imageUri.startsWith("http")) {
+        const fetched = await fetch(imageUri);
+        const blob = await fetched.blob();
+        const file = new File([blob], fileName, { type: mimeType });
+        formData.append("image", file);
+      } else {
+        formData.append("image", { uri: imageUri, name: fileName, type: mimeType } as any);
+      }
+
       formData.append("occasion", occasion.trim());
       if (city.trim()) formData.append("city", city.trim());
 
-      const response = await fetch(`${API_BASE_URL}/api/outfit/analyze`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-        body: formData,
+      const responseText = await new Promise<string>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${API_BASE_URL}/api/outfit/analyze`);
+        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.responseText);
+          else reject(new Error(xhr.responseText || `Error ${xhr.status}`));
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(formData);
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || `Error ${response.status}`);
-      }
-
-      const data: AnalysisResult = await response.json();
+      const data: AnalysisResult = JSON.parse(responseText);
       setResult(data);
     } catch (err: any) {
       setError(err.message ?? "Something went wrong. Please try again.");
