@@ -38,6 +38,69 @@ export default function OutfitReview() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatMessages, setChatMessages] = useState<{ id: string; role: "user" | "assistant"; text: string }[]>([
+    { id: "welcome", role: "assistant", text: "Ask me anything about this outfit review — why the score, how to improve it, what to add, or how to make it work for the weather." },
+  ]);
+
+  const resetChat = () => {
+    setChatOpen(false);
+    setChatInput("");
+    setChatMessages([
+      { id: "welcome", role: "assistant", text: "Ask me anything about this outfit review — why the score, how to improve it, what to add, or how to make it work for the weather." },
+    ]);
+  };
+
+  const buildChatContext = (question: string) => {
+    if (!result) return question;
+    return `
+The user is asking a follow-up question about this outfit analysis result.
+
+Occasion: ${occasion.trim()}
+${city.trim() ? `City: ${city.trim()}` : ""}
+${result.currentWeather ? `Current Weather: ${result.currentWeather}` : ""}
+Style Score: ${result.styleScore}/10
+Weather Verdict: ${result.weatherVerdict}
+${result.weatherReason ? `Weather Reason: ${result.weatherReason}` : ""}
+What Works Well: ${result.whatWorksWell?.join(", ") || "none"}
+Suggestions: ${result.suggestions?.join(", ") || "none"}
+Overall Verdict: ${result.overallVerdict}
+
+User question: ${question}
+    `.trim();
+  };
+
+  const sendChatMessage = async () => {
+    const trimmed = chatInput.trim();
+    if (!trimmed || chatLoading) return;
+
+    const userMsg = { id: `${Date.now()}-user`, role: "user" as const, text: trimmed };
+    const history = chatMessages
+      .filter((m) => m.id !== "welcome")
+      .map((m) => ({ role: m.role === "assistant" ? "model" : "user", text: m.text }));
+
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+    setChatLoading(true);
+
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ message: buildChatContext(trimmed), history }),
+      });
+      const data = await response.json();
+      setChatMessages((prev) => [...prev, { id: `${Date.now()}-assistant`, role: "assistant", text: data.reply }]);
+    } catch {
+      setChatMessages((prev) => [...prev, { id: `${Date.now()}-error`, role: "assistant", text: "Sorry, I couldn't answer that right now. Please try again." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -268,6 +331,52 @@ export default function OutfitReview() {
             </View>
           )}
 
+          {!chatOpen && (
+            <TouchableOpacity style={styles.chatButton} onPress={() => setChatOpen(true)}>
+              <Text style={styles.chatButtonText}>Chat with the bot about this review</Text>
+            </TouchableOpacity>
+          )}
+
+          {chatOpen && (
+            <View style={styles.chatCard}>
+              <Text style={styles.chatTitle}>Ask about this outfit</Text>
+
+              <View style={styles.chatMessages}>
+                {chatMessages.map((msg) => {
+                  const isUser = msg.role === "user";
+                  return (
+                    <View key={msg.id} style={isUser ? styles.userBubble : styles.botBubble}>
+                      <Text style={isUser ? styles.userBubbleText : styles.botBubbleText}>{msg.text}</Text>
+                    </View>
+                  );
+                })}
+                {chatLoading && (
+                  <View style={styles.botBubble}>
+                    <ActivityIndicator color={colors.blueDark} />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.chatInputRow}>
+                <TextInput
+                  style={styles.chatInput}
+                  placeholder="Ask why the score, how to improve..."
+                  placeholderTextColor={colors.muted}
+                  value={chatInput}
+                  onChangeText={setChatInput}
+                  multiline
+                />
+                <Pressable
+                  style={[styles.sendButton, (!chatInput.trim() || chatLoading) && { opacity: 0.5 }]}
+                  onPress={sendChatMessage}
+                  disabled={!chatInput.trim() || chatLoading}
+                >
+                  <Text style={styles.sendButtonText}>Send</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
           <Pressable
             style={styles.retryButton}
             onPress={() => {
@@ -275,6 +384,7 @@ export default function OutfitReview() {
               setImageUri(null);
               setOccasion("");
               setCity("");
+              resetChat();
             }}
           >
             <Text style={styles.retryButtonText}>Analyse Another Outfit</Text>
@@ -331,4 +441,18 @@ const styles = StyleSheet.create({
 
   retryButton: { backgroundColor: colors.bgDark, paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 4 },
   retryButtonText: { color: colors.white, fontWeight: "700", fontSize: 15 },
+
+  chatButton: { backgroundColor: colors.blueDark, paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 4 },
+  chatButtonText: { color: colors.white, fontWeight: "700", fontSize: 15 },
+  chatCard: { backgroundColor: colors.card, borderRadius: 16, padding: 16, marginTop: 4 },
+  chatTitle: { fontSize: 16, fontWeight: "700", color: colors.text, marginBottom: 10 },
+  chatMessages: { gap: 10, marginBottom: 12 },
+  botBubble: { alignSelf: "flex-start", maxWidth: "88%", backgroundColor: colors.input, borderRadius: 16, borderBottomLeftRadius: 4, paddingVertical: 10, paddingHorizontal: 12 },
+  userBubble: { alignSelf: "flex-end", maxWidth: "88%", backgroundColor: colors.blueDark, borderRadius: 16, borderBottomRightRadius: 4, paddingVertical: 10, paddingHorizontal: 12 },
+  botBubbleText: { color: colors.text, fontSize: 14, lineHeight: 20 },
+  userBubbleText: { color: colors.white, fontSize: 14, lineHeight: 20 },
+  chatInputRow: { flexDirection: "row", alignItems: "flex-end", gap: 10 },
+  chatInput: { flex: 1, minHeight: 48, maxHeight: 120, backgroundColor: colors.white, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: colors.blueDark, color: colors.text, fontSize: 14 },
+  sendButton: { backgroundColor: colors.blueDark, paddingVertical: 14, paddingHorizontal: 18, borderRadius: 999 },
+  sendButtonText: { color: colors.white, fontWeight: "700" },
 });

@@ -1,8 +1,12 @@
+import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { getShoppingSuggestions, saveShoppingItem } from "../../api/shopping";
 import { colors, globalStyles } from "../../constants/globalStyles";
+import { getToken } from "../../utils/token";
+
+type ChatMessage = { id: string; role: "user" | "assistant"; text: string };
 
 export default function Budgeting() {
   const router = useRouter();
@@ -16,6 +20,74 @@ export default function Budgeting() {
   const [result, setResult] = React.useState<any>(null);
   const [savedItems, setSavedItems] = React.useState<Record<number, boolean>>({});
   const [savingItems, setSavingItems] = React.useState<Record<number, boolean>>({});
+
+  const [chatOpen, setChatOpen] = React.useState(false);
+  const [chatInput, setChatInput] = React.useState("");
+  const [chatLoading, setChatLoading] = React.useState(false);
+  const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([
+    { id: "welcome", role: "assistant", text: "Want more precise results? Ask me to refine these suggestions — e.g. \"I want something cheaper\", \"show me more formal options\", or \"I prefer in-store shopping near me\"." },
+  ]);
+
+  const resetChat = () => {
+    setChatOpen(false);
+    setChatInput("");
+    setChatMessages([
+      { id: "welcome", role: "assistant", text: "Want more precise results? Ask me to refine these suggestions — e.g. \"I want something cheaper\", \"show me more formal options\", or \"I prefer in-store shopping near me\"." },
+    ]);
+  };
+
+  const buildChatContext = (question: string) => {
+    if (!result) return question;
+    const suggestionsSummary = (result.suggestions || [])
+      .map((s: any) => `- ${s.item} (${s.category}), ${s.estimatedPrice} at ${s.storeName}`)
+      .join("\n");
+    return `
+The user is asking a follow-up question about their shopping suggestions to get more precise results.
+
+Their shopping preferences:
+- Budget: ${budget} ${currency}
+- Location: ${location}
+- Focus Category: ${focusCategory}
+- Prefers Online: ${preferOnline ? "Yes" : "No"}
+- Season: ${result.season || "Not specified"}
+- Wardrobe Gaps: ${(result.gapsIdentified || []).join(", ") || "None"}
+- Total Estimate: ${result.totalEstimate || "N/A"}
+
+Current suggestions:
+${suggestionsSummary}
+
+User question: ${question}
+    `.trim();
+  };
+
+  const sendChatMessage = async () => {
+    const trimmed = chatInput.trim();
+    if (!trimmed || chatLoading) return;
+
+    const userMsg: ChatMessage = { id: `${Date.now()}-user`, role: "user", text: trimmed };
+    const history = chatMessages
+      .filter((m) => m.id !== "welcome")
+      .map((m) => ({ role: m.role === "assistant" ? "model" : "user", text: m.text }));
+
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+    setChatLoading(true);
+
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ message: buildChatContext(trimmed), history }),
+      });
+      const data = await response.json();
+      setChatMessages((prev) => [...prev, { id: `${Date.now()}-assistant`, role: "assistant", text: data.reply }]);
+    } catch {
+      setChatMessages((prev) => [...prev, { id: `${Date.now()}-error`, role: "assistant", text: "Sorry, I couldn't answer that right now. Please try again." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   const handleSaveItem = async (item: any, index: number) => {
     if (savedItems[index] || savingItems[index]) return;
@@ -41,6 +113,7 @@ export default function Budgeting() {
 
   const submit = async () => {
     setSavedItems({});
+    resetChat();
     setLoading(true);
     setError("");
     try {
@@ -64,7 +137,9 @@ export default function Budgeting() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}><Text style={styles.backButtonText}>← Back</Text></Pressable>
+      <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </Pressable>
       <Text style={styles.title}>Budgeting</Text>
       <Text style={styles.subtitle}>Find real shopping links based on your budget, currency, location, and focus category.</Text>
 
@@ -73,9 +148,14 @@ export default function Budgeting() {
         <TextInput style={styles.input} placeholder="Currency" value={currency} onChangeText={setCurrency} autoCapitalize="characters" />
         <TextInput style={styles.input} placeholder="Location" value={location} onChangeText={setLocation} />
         <TextInput style={styles.input} placeholder="Focus category e.g. shoes, outerwear" value={focusCategory} onChangeText={setFocusCategory} />
-        <View style={styles.switchRow}><Text style={styles.switchText}>Online stores only</Text><Switch value={preferOnline} onValueChange={setPreferOnline} /></View>
+        <View style={styles.switchRow}>
+          <Text style={styles.switchText}>Online stores only</Text>
+          <Switch value={preferOnline} onValueChange={setPreferOnline} />
+        </View>
         {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
-        <Pressable style={globalStyles.primaryButton} onPress={submit} disabled={loading}>{loading ? <ActivityIndicator color={colors.white} /> : <Text style={globalStyles.primaryButtonText}>Get Shopping Suggestions</Text>}</Pressable>
+        <Pressable style={globalStyles.primaryButton} onPress={submit} disabled={loading}>
+          {loading ? <ActivityIndicator color={colors.white} /> : <Text style={globalStyles.primaryButtonText}>Get Shopping Suggestions</Text>}
+        </Pressable>
       </View>
 
       {result && (
@@ -95,7 +175,11 @@ export default function Budgeting() {
           <Text style={styles.detail}>Price: {item.estimatedPrice}</Text>
           <Text style={styles.detail}>Store: {item.storeName} ({item.storeType})</Text>
           <Text style={styles.detail}>Nearby: {item.nearbyLocation || "Online"}</Text>
-          {!!item.link && <Pressable style={styles.linkButton} onPress={() => Linking.openURL(item.link)}><Text style={styles.linkText}>Open Product Link</Text></Pressable>}
+          {!!item.link && (
+            <Pressable style={styles.linkButton} onPress={() => Linking.openURL(item.link)}>
+              <Text style={styles.linkText}>Open Product Link</Text>
+            </Pressable>
+          )}
           <Pressable
             style={[styles.saveButton, savedItems[index] && styles.saveButtonSaved]}
             onPress={() => handleSaveItem(item, index)}
@@ -107,6 +191,56 @@ export default function Budgeting() {
           </Pressable>
         </View>
       ))}
+
+      {result && suggestions.length > 0 && (
+        <>
+          {!chatOpen && (
+            <Pressable style={styles.chatButton} onPress={() => setChatOpen(true)}>
+              <Text style={styles.chatButtonText}>Refine results with AI chat</Text>
+            </Pressable>
+          )}
+
+          {chatOpen && (
+            <View style={styles.chatCard}>
+              <Text style={styles.chatTitle}>Refine your shopping results</Text>
+
+              <View style={styles.chatMessages}>
+                {chatMessages.map((msg) => {
+                  const isUser = msg.role === "user";
+                  return (
+                    <View key={msg.id} style={isUser ? styles.userBubble : styles.botBubble}>
+                      <Text style={isUser ? styles.userBubbleText : styles.botBubbleText}>{msg.text}</Text>
+                    </View>
+                  );
+                })}
+                {chatLoading && (
+                  <View style={styles.botBubble}>
+                    <ActivityIndicator color={colors.blueDark} />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.chatInputRow}>
+                <TextInput
+                  style={styles.chatInput}
+                  placeholder="e.g. I want something cheaper..."
+                  placeholderTextColor={colors.muted}
+                  value={chatInput}
+                  onChangeText={setChatInput}
+                  multiline
+                />
+                <Pressable
+                  style={[styles.sendButton, (!chatInput.trim() || chatLoading) && { opacity: 0.5 }]}
+                  onPress={sendChatMessage}
+                  disabled={!chatInput.trim() || chatLoading}
+                >
+                  <Text style={styles.sendButtonText}>Send</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -132,4 +266,17 @@ const styles = StyleSheet.create({
   saveButton: { backgroundColor: colors.blueDark, padding: 12, borderRadius: 999, alignItems: "center", marginTop: 8 },
   saveButtonSaved: { backgroundColor: "#7aab86" },
   saveButtonText: { color: colors.white, fontWeight: "700" },
+  chatButton: { backgroundColor: colors.blueDark, paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 8, marginBottom: 12 },
+  chatButtonText: { color: colors.white, fontWeight: "700", fontSize: 15 },
+  chatCard: { backgroundColor: colors.card, borderRadius: 16, padding: 16, marginTop: 8, marginBottom: 12 },
+  chatTitle: { fontSize: 16, fontWeight: "700", color: colors.text, marginBottom: 10 },
+  chatMessages: { gap: 10, marginBottom: 12 },
+  botBubble: { alignSelf: "flex-start", maxWidth: "88%", backgroundColor: colors.input, borderRadius: 16, borderBottomLeftRadius: 4, paddingVertical: 10, paddingHorizontal: 12 },
+  userBubble: { alignSelf: "flex-end", maxWidth: "88%", backgroundColor: colors.blueDark, borderRadius: 16, borderBottomRightRadius: 4, paddingVertical: 10, paddingHorizontal: 12 },
+  botBubbleText: { color: colors.text, fontSize: 14, lineHeight: 20 },
+  userBubbleText: { color: colors.white, fontSize: 14, lineHeight: 20 },
+  chatInputRow: { flexDirection: "row", alignItems: "flex-end", gap: 10 },
+  chatInput: { flex: 1, minHeight: 48, maxHeight: 120, backgroundColor: colors.white, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: colors.blueDark, color: colors.text, fontSize: 14 },
+  sendButton: { backgroundColor: colors.blueDark, paddingVertical: 14, paddingHorizontal: 18, borderRadius: 999 },
+  sendButtonText: { color: colors.white, fontWeight: "700" },
 });
