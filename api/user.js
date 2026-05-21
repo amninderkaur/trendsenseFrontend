@@ -30,13 +30,16 @@ export const getMe = async () => {
   return response.data;
 };
 
-// 4. Update name
-export const updateName = async (name) => {
-  const response = await api.patch(
-    "/api/v1/user/me",
-    { name },
-    { headers: authHeader() },
-  );
+// 4. Update user info (name, phoneNumber, deliveryMethod — send only what changed)
+export const updateUser = async ({ name, phoneNumber, deliveryMethod }) => {
+  const body = {};
+  if (name !== undefined) body.name = name;
+  if (phoneNumber !== undefined) body.phoneNumber = phoneNumber;
+  if (deliveryMethod !== undefined) body.deliveryMethod = deliveryMethod;
+
+  const response = await api.patch("/api/v1/user/me", body, {
+    headers: authHeader(),
+  });
   return response.data;
 };
 
@@ -63,6 +66,32 @@ export const uploadProfilePicture = async (imageUri) => {
       ...authHeader(),
       "Content-Type": undefined,
     },
+  });
+  return response.data;
+};
+
+// 6. Change password (logged in)
+export const changePassword = async (currentPassword, newPassword) => {
+  const response = await api.post(
+    "/api/v1/user/me/change-password",
+    { currentPassword, newPassword },
+    { headers: authHeader() }
+  );
+  return response.data;
+};
+
+// 7. Forgot password — sends OTP to email (no token needed)
+export const forgotPassword = async (email) => {
+  const response = await api.post("/api/v1/auth/forgot-password", { email });
+  return response.data;
+};
+
+// 8. Reset password — verifies OTP then sets new password (no token needed)
+export const resetPassword = async (email, otp, newPassword) => {
+  const response = await api.post("/api/v1/auth/reset-password", {
+    email,
+    otp,
+    newPassword,
   });
   return response.data;
 };

@@ -147,6 +147,13 @@ export default function Profile() {
 
         <Pressable
           style={[styles.button, { backgroundColor: themeColors.button }]}
+          onPress={() => router.push("/edit-info" as any)}
+        >
+          <Text style={styles.buttonText}>Edit Info</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.button, { backgroundColor: themeColors.button }]}
           onPress={() => setShowEdit(true)}
         >
           <Text style={styles.buttonText}>Edit Preferences</Text>
