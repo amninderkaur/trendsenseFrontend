@@ -13,6 +13,7 @@ import {
 
 import api from "../../api/axios";
 import { colors } from "../../constants/globalStyles";
+import { getToken } from "../../utils/token";
 
 type PackingCategories = {
     tops: string[];
@@ -44,7 +45,7 @@ export default function TripPacking() {
 
     const [destination, setDestination] = React.useState("");
     const [days, setDays] = React.useState("");
-    const [season, setSeason] = React.useState("auto");
+    const [season, setSeason] = React.useState("");
     const [activity, setActivity] = React.useState("");
     const [lightPack, setLightPack] = React.useState(false);
 
@@ -68,13 +69,17 @@ export default function TripPacking() {
                 .map((a) => a.trim())
                 .filter(Boolean);
 
-            const res = await api.post<PackingResult>("/api/packing/suggest", {
-                destination: destination.trim(),
-                tripLengthDays: Number(days),
-                activities,
-                season: season.trim() || "auto",
-                lightPack,
-            });
+            const res = await api.post<PackingResult>(
+                "/api/packing/suggest",
+                {
+                    destination: destination.trim(),
+                    tripLengthDays: Number(days),
+                    activities,
+                    season: season.trim() || "auto",
+                    lightPack,
+                },
+                { headers: { Authorization: `Bearer ${getToken()}` } }
+            );
 
             setResult(res.data);
         } catch (err: any) {
