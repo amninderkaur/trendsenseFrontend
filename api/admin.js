@@ -13,13 +13,27 @@ export const getAdminUsers = async () => {
   return response.data;
 };
 
-export const deleteAdminUser = async (id) => {
-  const response = await api.delete(`/api/v1/admin/user/${id}`, { headers: authHeader() });
+export const getAdminUserCount = async () => {
+  const response = await api.get("/api/v1/admin/users/count", { headers: authHeader() });
   return response.data;
 };
 
 export const updateAdminUser = async (id, payload) => {
-  const response = await api.put(`/api/v1/admin/user/${id}`, payload, { headers: authHeader() });
+  const response = await api.patch(`/api/v1/admin/users/${id}`, payload, { headers: authHeader() });
+  return response.data;
+};
+
+export const deleteAdminUser = async (id) => {
+  const response = await api.delete(`/api/v1/admin/users/${id}`, { headers: authHeader() });
+  return response.data;
+};
+
+export const sendEmailToUser = async (id, subject, content) => {
+  const response = await api.post(
+    `/api/v1/admin/users/${id}/email`,
+    { subject, content },
+    { headers: authHeader() }
+  );
   return response.data;
 };
 
