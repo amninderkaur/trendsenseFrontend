@@ -120,6 +120,12 @@ export default function Dashboard() {
       lib: "material",
     },
     {
+      href: "/colour-analysis",
+      icon: "palette",
+      label: "Colour Analysis",
+      lib: "material",
+    },
+    {
       href: "/reviews",
       icon: "rate-review",
       label: "Reviews",
