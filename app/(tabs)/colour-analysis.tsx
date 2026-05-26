@@ -1,4 +1,5 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import { clearColourAnalysis, getProfile } from "@/api/profile";
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -34,13 +35,38 @@ export default function ColourAnalysisScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [analysing, setAnalysing] = useState(false);
   const [result, setResult] = useState<ColourAnalysisResponse | null>(null);
+  const [isSavedResult, setIsSavedResult] = useState(false);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       setImageUri(null);
       setResult(null);
+      setIsSavedResult(false);
       setError(null);
+
+      // Load previously saved colour analysis from profile
+      const loadSaved = async () => {
+        setLoadingSaved(true);
+        try {
+          const profile = await getProfile();
+          if (profile?.colourSeason || profile?.colourPalette) {
+            setResult({
+              season: profile.colourSeason ?? undefined,
+              palette: profile.colourPalette ?? undefined,
+            });
+            setIsSavedResult(true);
+          }
+        } catch {
+          // No saved data — nothing to show
+        } finally {
+          setLoadingSaved(false);
+        }
+      };
+
+      loadSaved();
     }, [])
   );
 
@@ -153,7 +179,22 @@ export default function ColourAnalysisScreen() {
   const handleReset = () => {
     setImageUri(null);
     setResult(null);
+    setIsSavedResult(false);
     setError(null);
+  };
+
+  const handleClear = async () => {
+    setClearing(true);
+    try {
+      await clearColourAnalysis();
+      setResult(null);
+      setIsSavedResult(false);
+      setError(null);
+    } catch {
+      setError("Could not clear your saved analysis. Please try again.");
+    } finally {
+      setClearing(false);
+    }
   };
 
   // Maps common fashion/seasonal colour names → hex. Falls back to the name
@@ -305,6 +346,13 @@ export default function ColourAnalysisScreen() {
         </>
       )}
 
+      {loadingSaved && (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color="#96b7bc" />
+          <Text style={styles.loadingText}>Loading your saved profile...</Text>
+        </View>
+      )}
+
       {analysing && (
         <View style={styles.loadingBox}>
           <ActivityIndicator size="large" color="#96b7bc" />
@@ -393,8 +441,25 @@ export default function ColourAnalysisScreen() {
               </View>
             ))}
 
+          {isSavedResult && (
+            <View style={styles.savedBadge}>
+              <Text style={styles.savedBadgeText}>Saved to your profile</Text>
+            </View>
+          )}
+
           <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
             <Text style={styles.resetButtonText}>Analyse another photo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.clearButton, clearing && { opacity: 0.6 }]}
+            onPress={handleClear}
+            disabled={clearing}
+          >
+            {clearing
+              ? <ActivityIndicator color="#c0726e" />
+              : <Text style={styles.clearButtonText}>Clear saved analysis</Text>
+            }
           </TouchableOpacity>
         </View>
       )}
@@ -506,6 +571,14 @@ const styles = StyleSheet.create({
   listItem: { fontSize: 14, color: "#233443", flexShrink: 1 },
   categoryBlock: { marginTop: 6, gap: 4 },
   categoryTitle: { fontSize: 13, fontWeight: "600", color: "#4a6572", marginBottom: 2 },
+  savedBadge: {
+    alignSelf: "center",
+    backgroundColor: "#c0d1bf",
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+  },
+  savedBadgeText: { fontSize: 12, fontWeight: "600", color: "#233443" },
   resetButton: {
     marginTop: 8,
     backgroundColor: "#c0d1bf",
@@ -514,4 +587,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   resetButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
+  clearButton: {
+    marginTop: 4,
+    paddingVertical: 12,
+    borderRadius: 999,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#d0a09a",
+  },
+  clearButtonText: { color: "#c0726e", fontWeight: "600", fontSize: 14 },
 });
