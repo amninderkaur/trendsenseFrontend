@@ -126,9 +126,9 @@ export default function Dashboard() {
       lib: "material",
     },
     {
-      href: "/reviews",
-      icon: "rate-review",
-      label: "Reviews",
+      href: "/moodboards",
+      icon: "palette",
+      label: "Mood Boards",
       lib: "material",
     },
     {
