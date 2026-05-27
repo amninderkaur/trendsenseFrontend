@@ -6,7 +6,8 @@
 // ================
 //     IMPORTS
 // ================
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -23,47 +24,75 @@ type Props = {
 // ================
 export default function ColourAnalysisHeader({ isLargeScreen, onBack }: Props) {
 
+    const { themeColors } = useAppTheme();
+
   // ================
   //     RENDER
   // ================
   return (
-    <>
-      <TouchableOpacity style={styles.backButton} onPress={onBack}>
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
+  <>
+    <TouchableOpacity
+      style={[
+        styles.backButton,
+        { backgroundColor: themeColors.card },
+      ]}
+      onPress={onBack}
+    >
+      <Text
+        style={[
+          styles.backText,
+          { color: themeColors.text },
+        ]}
+      >
+        ← Back
+      </Text>
+    </TouchableOpacity>
 
-      <View style={[globalStyles.card, styles.heroCard]}>
-        <View style={styles.heroTextBlock}>
-          <Text
-            style={[
-              globalStyles.pageTitle,
-              isLargeScreen && globalStyles.largePageTitle,
-            ]}
-          >
-            Colour Analysis
-          </Text>
+    <View
+      style={[
+        globalStyles.card,
+        styles.heroCard,
+        { backgroundColor: themeColors.card },
+      ]}
+    >
+      <View style={styles.heroTextBlock}>
+        <Text
+          style={[
+            globalStyles.pageTitle,
+            isLargeScreen && globalStyles.largePageTitle,
+            { color: themeColors.text },
+          ]}
+        >
+          Colour Analysis
+        </Text>
 
-          <Text
-            style={[
-              globalStyles.subtitle,
-              isLargeScreen && styles.largeSubtitle,
-            ]}
-          >
-            Upload selfies and answer a few quick questions so AI can suggest
-            your undertone, contrast level, and seasonal colour palette.
-          </Text>
-        </View>
-
-        <View style={styles.heroIconCircle}>
-          <MaterialIcons
-            name="palette"
-            size={isLargeScreen ? 70 : 42}
-            color={colors.white}
-          />
-        </View>
+        <Text
+          style={[
+            globalStyles.subtitle,
+            isLargeScreen && styles.largeSubtitle,
+            { color: themeColors.muted },
+          ]}
+        >
+          Upload selfies and answer a few quick questions so AI can suggest
+          your undertone, contrast level, and seasonal colour palette.
+        </Text>
       </View>
-    </>
-  );
+
+      <View
+        style={[
+          styles.heroIconCircle,
+          { backgroundColor: themeColors.blueDark },
+        ]}
+      >
+        <MaterialIcons
+          name="palette"
+          size={isLargeScreen ? 70 : 42}
+          color={themeColors.white}
+        />
+      </View>
+    </View>
+  </>
+);
 }
 // ================
 //     STYLES
@@ -71,14 +100,12 @@ export default function ColourAnalysisHeader({ isLargeScreen, onBack }: Props) {
 const styles = StyleSheet.create({
   backButton: {
     alignSelf: "flex-start",
-    backgroundColor: colors.card,
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 999,
   },
 
   backText: {
-    color: colors.text,
     fontWeight: "700",
   },
 
@@ -105,7 +132,6 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    backgroundColor: colors.blueDark,
     alignItems: "center",
     justifyContent: "center",
   },

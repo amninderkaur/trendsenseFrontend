@@ -12,7 +12,8 @@
 //     IMPORTS
 // ================
 import type { ColourAnalysisResultData } from "@/app/(tabs)/colour-analysis";
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import {
     ActivityIndicator,
     StyleSheet,
@@ -53,81 +54,267 @@ export default function ColourAnalysisResult({
    // ================
   //     RENDER
   // ================
-  return (
-    <View style={[globalStyles.card, styles.resultCard]}>
-      <Text style={styles.sectionTitle}>Your Colour Results</Text>
+ const { themeColors } = useAppTheme();
 
-      {isSavedResult ? (
-        <View style={styles.savedBadge}>
-          <Text style={styles.savedBadgeText}>Saved to your profile</Text>
-        </View>
-      ) : null}
+return (
+  <View
+    style={[
+      globalStyles.card,
+      styles.resultCard,
+      { backgroundColor: themeColors.card },
+    ]}
+  >
+    <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+      Your Colour Results
+    </Text>
 
-      <View style={styles.seasonCard}>
-        <Text style={styles.seasonLabel}>Your Season</Text>
-        <Text style={styles.seasonValue}>{result.season}</Text>
-      </View>
-
-      <View style={styles.resultGrid}>
-        <View style={styles.resultItem}>
-          <Text style={styles.resultLabel}>Undertone</Text>
-          <Text style={styles.resultValue}>{result.undertone}</Text>
-        </View>
-
-        <View style={styles.resultItem}>
-          <Text style={styles.resultLabel}>Contrast</Text>
-          <Text style={styles.resultValue}>{result.contrast}</Text>
-        </View>
-
-        <View style={styles.resultItem}>
-          <Text style={styles.resultLabel}>Best Jewelry</Text>
-          <Text style={styles.resultValue}>{result.bestJewelry}</Text>
-        </View>
-      </View>
-
-      <View style={styles.summaryBox}>
-        <Text style={styles.summaryTitle}>Summary</Text>
-        <Text style={styles.summaryText}>{result.summary}</Text>
-      </View>
-
-      <Text style={styles.paletteTitle}>Recommended Colours</Text>
-      <ColorDots colorsList={result.recommendedColors} />
-
-      <Text style={styles.paletteDescription}>
-        AI-selected colours based on your uploaded selfies and answers.
-      </Text>
-
-      <Text style={styles.paletteTitle}>Best Colours</Text>
-      <Text style={styles.paletteDescription}>
-        {result.bestColorsDescription}
-      </Text>
-      <ColorDots colorsList={result.bestColors} />
-
-      <Text style={styles.paletteTitle}>Worst Colours</Text>
-      <Text style={styles.paletteDescription}>
-        {result.worstColorsDescription}
-      </Text>
-      <ColorDots colorsList={result.worstColors} />
-
-      <TouchableOpacity style={globalStyles.primaryButton} onPress={onRetake}>
-        <Text style={globalStyles.primaryButtonText}>Retake Analysis</Text>
-      </TouchableOpacity>
-
-      {isSavedResult ? (
-        <TouchableOpacity
-          style={styles.clearButton}
-          onPress={onClearSaved}
-          disabled={clearing}
+    {isSavedResult ? (
+      <View
+        style={[
+          styles.savedBadge,
+          { backgroundColor: themeColors.bgDark },
+        ]}
+      >
+        <Text
+          style={[
+            styles.savedBadgeText,
+            { color: themeColors.white },
+          ]}
         >
-          {clearing ? (
-            <ActivityIndicator color={colors.accent} />
-          ) : (
-            <Text style={styles.clearButtonText}>Clear Saved Analysis</Text>
-          )}
-        </TouchableOpacity>
-      ) : null}
+          Saved to your profile
+        </Text>
+      </View>
+    ) : null}
+
+    <View
+      style={[
+        styles.seasonCard,
+        { backgroundColor: themeColors.input },
+      ]}
+    >
+      <Text
+        style={[
+          styles.seasonLabel,
+          { color: themeColors.muted },
+        ]}
+      >
+        Your Season
+      </Text>
+
+      <Text
+        style={[
+          styles.seasonValue,
+          { color: themeColors.text },
+        ]}
+      >
+        {result.season}
+      </Text>
     </View>
-  );
+
+    <View style={styles.resultGrid}>
+      <View
+        style={[
+          styles.resultItem,
+          { backgroundColor: themeColors.input },
+        ]}
+      >
+        <Text
+          style={[
+            styles.resultLabel,
+            { color: themeColors.muted },
+          ]}
+        >
+          Undertone
+        </Text>
+
+        <Text
+          style={[
+            styles.resultValue,
+            { color: themeColors.text },
+          ]}
+        >
+          {result.undertone}
+        </Text>
+      </View>
+
+      <View
+        style={[
+          styles.resultItem,
+          { backgroundColor: themeColors.input },
+        ]}
+      >
+        <Text
+          style={[
+            styles.resultLabel,
+            { color: themeColors.muted },
+          ]}
+        >
+          Contrast
+        </Text>
+
+        <Text
+          style={[
+            styles.resultValue,
+            { color: themeColors.text },
+          ]}
+        >
+          {result.contrast}
+        </Text>
+      </View>
+
+      <View
+        style={[
+          styles.resultItem,
+          { backgroundColor: themeColors.input },
+        ]}
+      >
+        <Text
+          style={[
+            styles.resultLabel,
+            { color: themeColors.muted },
+          ]}
+        >
+          Best Jewelry
+        </Text>
+
+        <Text
+          style={[
+            styles.resultValue,
+            { color: themeColors.text },
+          ]}
+        >
+          {result.bestJewelry}
+        </Text>
+      </View>
+    </View>
+
+    <View
+      style={[
+        styles.summaryBox,
+        { backgroundColor: themeColors.input },
+      ]}
+    >
+      <Text
+        style={[
+          styles.summaryTitle,
+          { color: themeColors.text },
+        ]}
+      >
+        Summary
+      </Text>
+
+      <Text
+        style={[
+          styles.summaryText,
+          { color: themeColors.muted },
+        ]}
+      >
+        {result.summary}
+      </Text>
+    </View>
+
+    <Text
+      style={[
+        styles.paletteTitle,
+        { color: themeColors.text },
+      ]}
+    >
+      Recommended Colours
+    </Text>
+
+    <ColorDots colorsList={result.recommendedColors} />
+
+    <Text
+      style={[
+        styles.paletteDescription,
+        { color: themeColors.muted },
+      ]}
+    >
+      AI-selected colours based on your uploaded selfies and answers.
+    </Text>
+
+    <Text
+      style={[
+        styles.paletteTitle,
+        { color: themeColors.text },
+      ]}
+    >
+      Best Colours
+    </Text>
+
+    <Text
+      style={[
+        styles.paletteDescription,
+        { color: themeColors.muted },
+      ]}
+    >
+      {result.bestColorsDescription}
+    </Text>
+
+    <ColorDots colorsList={result.bestColors} />
+
+    <Text
+      style={[
+        styles.paletteTitle,
+        { color: themeColors.text },
+      ]}
+    >
+      Worst Colours
+    </Text>
+
+    <Text
+      style={[
+        styles.paletteDescription,
+        { color: themeColors.muted },
+      ]}
+    >
+      {result.worstColorsDescription}
+    </Text>
+
+    <ColorDots colorsList={result.worstColors} />
+
+    <TouchableOpacity
+      style={[
+        globalStyles.primaryButton,
+        { backgroundColor: themeColors.button },
+      ]}
+      onPress={onRetake}
+    >
+      <Text
+        style={[
+          globalStyles.primaryButtonText,
+          { color: themeColors.white },
+        ]}
+      >
+        Retake Analysis
+      </Text>
+    </TouchableOpacity>
+
+    {isSavedResult ? (
+      <TouchableOpacity
+        style={[
+          styles.clearButton,
+          { borderColor: themeColors.accent },
+        ]}
+        onPress={onClearSaved}
+        disabled={clearing}
+      >
+        {clearing ? (
+          <ActivityIndicator color={themeColors.accent} />
+        ) : (
+          <Text
+            style={[
+              styles.clearButtonText,
+              { color: themeColors.accent },
+            ]}
+          >
+            Clear Saved Analysis
+          </Text>
+        )}
+      </TouchableOpacity>
+    ) : null}
+  </View>
+);
 }
 // ================
 //     STYLES
@@ -141,13 +328,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 26,
     fontWeight: "800",
-    color: colors.text,
     marginBottom: 12,
   },
 
   savedBadge: {
     alignSelf: "flex-start",
-    backgroundColor: colors.bgDark,
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 999,
@@ -155,13 +340,11 @@ const styles = StyleSheet.create({
   },
 
   savedBadgeText: {
-    color: colors.white,
     fontSize: 13,
     fontWeight: "700",
   },
 
   seasonCard: {
-    backgroundColor: colors.input,
     borderRadius: 22,
     padding: 22,
     marginBottom: 16,
@@ -170,7 +353,6 @@ const styles = StyleSheet.create({
 
   seasonLabel: {
     fontSize: 13,
-    color: colors.muted,
     fontWeight: "700",
     marginBottom: 6,
     textTransform: "uppercase",
@@ -179,7 +361,6 @@ const styles = StyleSheet.create({
 
   seasonValue: {
     fontSize: 30,
-    color: colors.text,
     fontWeight: "900",
     textAlign: "center",
   },
@@ -192,26 +373,22 @@ const styles = StyleSheet.create({
 
   resultItem: {
     width: "48%",
-    backgroundColor: colors.input,
     borderRadius: 18,
     padding: 16,
   },
 
   resultLabel: {
     fontSize: 13,
-    color: colors.muted,
     marginBottom: 6,
     fontWeight: "700",
   },
 
   resultValue: {
     fontSize: 17,
-    color: colors.text,
     fontWeight: "800",
   },
 
   summaryBox: {
-    backgroundColor: colors.input,
     borderRadius: 18,
     padding: 16,
     marginTop: 16,
@@ -219,20 +396,17 @@ const styles = StyleSheet.create({
 
   summaryTitle: {
     fontSize: 16,
-    color: colors.text,
     fontWeight: "800",
     marginBottom: 8,
   },
 
   summaryText: {
     fontSize: 15,
-    color: colors.muted,
     lineHeight: 22,
   },
 
   paletteTitle: {
     fontSize: 18,
-    color: colors.text,
     fontWeight: "800",
     marginTop: 24,
     marginBottom: 8,
@@ -240,7 +414,6 @@ const styles = StyleSheet.create({
 
   paletteDescription: {
     fontSize: 14,
-    color: colors.muted,
     lineHeight: 20,
     marginBottom: 10,
   },
@@ -256,7 +429,6 @@ const styles = StyleSheet.create({
     height: 42,
     borderRadius: 21,
     borderWidth: 1,
-    borderColor: colors.white,
   },
 
   clearButton: {
@@ -265,11 +437,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors.accent,
   },
 
   clearButtonText: {
-    color: colors.accent,
     fontWeight: "800",
     fontSize: 15,
   },

@@ -14,16 +14,17 @@
 import MoodboardCard from "@/components/Moodboards/MoodboardCard";
 import MoodboardDetail from "@/components/Moodboards/MoodboardDetail";
 import MoodboardForm from "@/components/Moodboards/MoodboardForm";
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    useWindowDimensions,
 } from "react-native";
 
 // ================
@@ -45,7 +46,7 @@ type ScreenMode = "list" | "create" | "detail" | "edit";
 export default function MoodboardsScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-
+ const { themeColors } = useAppTheme();
   const isLargeScreen = width >= 768;
 
   const [screenMode, setScreenMode] = useState<ScreenMode>("list");
@@ -140,113 +141,174 @@ export default function MoodboardsScreen() {
   // ================
   //     RENDER
   // ================
-  return (
-    <ScrollView
-      style={globalStyles.screen}
-      contentContainerStyle={[
-        styles.scrollContent,
-        isLargeScreen && styles.largeScrollContent,
-      ]}
-    >
-      <View style={styles.pageContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>
-            {screenMode === "list" ? "← Back" : "← Back to Moodboards"}
-          </Text>
-        </TouchableOpacity>
+  
+return (
+  <ScrollView
+    style={[
+      globalStyles.screen,
+      { backgroundColor: themeColors.bg },
+    ]}
+    contentContainerStyle={[
+      styles.scrollContent,
+      isLargeScreen && styles.largeScrollContent,
+    ]}
+  >
+    <View style={styles.pageContainer}>
+      <TouchableOpacity
+        style={[
+          styles.backButton,
+          { backgroundColor: themeColors.card },
+        ]}
+        onPress={goBack}
+      >
+        <Text
+          style={[
+            styles.backButtonText,
+            { color: themeColors.text },
+          ]}
+        >
+          {screenMode === "list" ? "← Back" : "← Back to Moodboards"}
+        </Text>
+      </TouchableOpacity>
 
-        {screenMode === "list" ? (
-          <>
-            <View style={[globalStyles.card, styles.headerCard]}>
-              <View style={styles.headerTextBlock}>
-                <Text
-                  style={[
-                    globalStyles.pageTitle,
-                    isLargeScreen && globalStyles.largePageTitle,
-                  ]}
-                >
-                  Moodboards
-                </Text>
+      {screenMode === "list" ? (
+        <>
+          <View
+            style={[
+              globalStyles.card,
+              styles.headerCard,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <View style={styles.headerTextBlock}>
+              <Text
+                style={[
+                  globalStyles.pageTitle,
+                  isLargeScreen && globalStyles.largePageTitle,
+                  { color: themeColors.text },
+                ]}
+              >
+                Moodboards
+              </Text>
 
-                <Text style={styles.subtitle}>
-                  Create visual collections for outfit inspiration, aesthetics,
-                  trips, events, or style goals.
-                </Text>
-              </View>
+              <Text
+                style={[
+                  styles.subtitle,
+                  { color: themeColors.muted },
+                ]}
+              >
+                Create visual collections for outfit inspiration, aesthetics,
+                trips, events, or style goals.
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[
+                globalStyles.primaryButton,
+                { backgroundColor: themeColors.button },
+              ]}
+              onPress={startCreate}
+            >
+              <Text
+                style={[
+                  globalStyles.primaryButtonText,
+                  { color: themeColors.white },
+                ]}
+              >
+                Create Moodboard
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {moodboards.length === 0 ? (
+            <View
+              style={[
+                globalStyles.card,
+                styles.emptyCard,
+                { backgroundColor: themeColors.card },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.emptyTitle,
+                  { color: themeColors.text },
+                ]}
+              >
+                No moodboards yet
+              </Text>
+
+              <Text
+                style={[
+                  styles.emptyText,
+                  { color: themeColors.muted },
+                ]}
+              >
+                Start by creating a moodboard with a name, short description,
+                and at least one inspiration image.
+              </Text>
 
               <TouchableOpacity
-                style={globalStyles.primaryButton}
+                style={[
+                  globalStyles.primaryButton,
+                  { backgroundColor: themeColors.button },
+                ]}
                 onPress={startCreate}
               >
-                <Text style={globalStyles.primaryButtonText}>
-                  Create Moodboard
+                <Text
+                  style={[
+                    globalStyles.primaryButtonText,
+                    { color: themeColors.white },
+                  ]}
+                >
+                  Create Your First Moodboard
                 </Text>
               </TouchableOpacity>
             </View>
+          ) : (
+            <View style={styles.grid}>
+              {moodboards.map((moodboard) => (
+                <MoodboardCard
+                  key={moodboard.id}
+                  moodboard={moodboard}
+                  onPress={() => openMoodboard(moodboard)}
+                />
+              ))}
+            </View>
+          )}
+        </>
+      ) : null}
 
-            {moodboards.length === 0 ? (
-              <View style={[globalStyles.card, styles.emptyCard]}>
-                <Text style={styles.emptyTitle}>No moodboards yet</Text>
+      {screenMode === "create" ? (
+        <MoodboardForm
+          mode="create"
+          initialMoodboard={null}
+          onSave={saveMoodboard}
+          onCancel={goBack}
+        />
+      ) : null}
 
-                <Text style={styles.emptyText}>
-                  Start by creating a moodboard with a name, short description,
-                  and at least one inspiration image.
-                </Text>
+      {screenMode === "edit" && selectedMoodboard ? (
+        <MoodboardForm
+          mode="edit"
+          initialMoodboard={selectedMoodboard}
+          onSave={saveMoodboard}
+          onCancel={goBack}
+        />
+      ) : null}
 
-                <TouchableOpacity
-                  style={globalStyles.primaryButton}
-                  onPress={startCreate}
-                >
-                  <Text style={globalStyles.primaryButtonText}>
-                    Create Your First Moodboard
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.grid}>
-                {moodboards.map((moodboard) => (
-                  <MoodboardCard
-                    key={moodboard.id}
-                    moodboard={moodboard}
-                    onPress={() => openMoodboard(moodboard)}
-                  />
-                ))}
-              </View>
-            )}
-          </>
-        ) : null}
-
-        {screenMode === "create" ? (
-          <MoodboardForm
-            mode="create"
-            initialMoodboard={null}
-            onSave={saveMoodboard}
-            onCancel={goBack}
-          />
-        ) : null}
-
-        {screenMode === "edit" && selectedMoodboard ? (
-          <MoodboardForm
-            mode="edit"
-            initialMoodboard={selectedMoodboard}
-            onSave={saveMoodboard}
-            onCancel={goBack}
-          />
-        ) : null}
-
-        {screenMode === "detail" && selectedMoodboard ? (
-          <MoodboardDetail
-            moodboard={selectedMoodboard}
-            onEdit={() => startEdit(selectedMoodboard)}
-            onDelete={() => deleteMoodboard(selectedMoodboard.id)}
-            onAddImages={(images) =>
-              addImagesToMoodboard(selectedMoodboard.id, images)
-            }
-          />
-        ) : null}
-      </View>
-    </ScrollView>
-  );
+      {screenMode === "detail" && selectedMoodboard ? (
+        <MoodboardDetail
+          moodboard={selectedMoodboard}
+          onEdit={() => startEdit(selectedMoodboard)}
+          onDelete={() => deleteMoodboard(selectedMoodboard.id)}
+          onAddImages={(images) =>
+            addImagesToMoodboard(selectedMoodboard.id, images)
+          }
+        />
+      ) : null}
+    </View>
+  </ScrollView>
+);
 }
 
 // ================
@@ -270,14 +332,12 @@ const styles = StyleSheet.create({
 
   backButton: {
     alignSelf: "flex-start",
-    backgroundColor: colors.card,
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 999,
   },
 
   backButtonText: {
-    color: colors.text,
     fontWeight: "700",
   },
 
@@ -292,7 +352,6 @@ const styles = StyleSheet.create({
   },
 
   subtitle: {
-    color: colors.muted,
     fontSize: 15,
     lineHeight: 22,
   },
@@ -312,14 +371,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 24,
     fontWeight: "800",
-    color: colors.text,
     marginBottom: 8,
     textAlign: "center",
   },
 
   emptyText: {
     fontSize: 15,
-    color: colors.muted,
     lineHeight: 22,
     textAlign: "center",
     marginBottom: 20,

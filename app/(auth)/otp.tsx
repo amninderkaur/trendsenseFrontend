@@ -12,15 +12,28 @@ import {
 } from "react-native";
 
 import { resendOtp, verifyOtp } from "../../api/auth";
-import { colors, globalStyles } from "../../constants/globalStyles";
-import { saveToken, saveUserId, saveRole, saveEmail, saveName, saveLoginTime } from "../../utils/token";
+import { globalStyles } from "../../constants/globalStyles";
+import { useAppTheme } from "../../context/ThemeContext";
+import {
+  saveEmail,
+  saveLoginTime,
+  saveName,
+  saveRole,
+  saveToken,
+  saveUserId,
+} from "../../utils/token";
 import PersonalizationModal from "./PersonalizationModal";
 
 const RESEND_COOLDOWN = 30;
 
 export default function OtpScreen() {
   const router = useRouter();
-  const { email, deliveryMethod } = useLocalSearchParams<{ email: string; deliveryMethod?: string }>();
+  const { themeColors } = useAppTheme();
+
+  const { email, deliveryMethod } = useLocalSearchParams<{
+    email: string;
+    deliveryMethod?: string;
+  }>();
 
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
@@ -39,6 +52,7 @@ export default function OtpScreen() {
 
   useEffect(() => {
     startCountdown();
+
     return () => clearTimer();
   }, []);
 
@@ -49,12 +63,14 @@ export default function OtpScreen() {
   const startCountdown = () => {
     clearTimer();
     setCountdown(RESEND_COOLDOWN);
+
     timerRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearTimer();
           return 0;
         }
+
         return prev - 1;
       });
     }, 1000);
@@ -71,12 +87,16 @@ export default function OtpScreen() {
 
     try {
       const data = await verifyOtp(email, otp);
+
       saveToken(data.token);
       saveUserId(data.userId);
+
       if (data.role) saveRole(data.role);
       if (data.name) saveName(data.name);
       if (email) saveEmail(email);
+
       saveLoginTime();
+
       if (data.role === "ADMIN") {
         router.replace("/admin/dashboard");
       } else {
@@ -91,11 +111,14 @@ export default function OtpScreen() {
 
   const handleResend = async () => {
     if (countdown > 0 || resending) return;
+
     setResending(true);
     setResendMessage("");
     setError("");
+
     try {
       await resendOtp(email);
+
       setResendMessage("A new code has been sent.");
       startCountdown();
     } catch {
@@ -106,11 +129,17 @@ export default function OtpScreen() {
   };
 
   return (
-    <View style={globalStyles.screen}>
+    <View
+      style={[
+        globalStyles.screen,
+        { backgroundColor: themeColors.bg },
+      ]}
+    >
       <View
         style={[
           globalStyles.topRightCircle,
           {
+            backgroundColor: themeColors.bgDark,
             width: circleSize,
             height: circleSize,
             borderRadius: circleSize / 2,
@@ -119,10 +148,12 @@ export default function OtpScreen() {
           },
         ]}
       />
+
       <View
         style={[
           globalStyles.bottomLeftCircle,
           {
+            backgroundColor: themeColors.blue,
             width: smallCircleSize,
             height: smallCircleSize,
             borderRadius: smallCircleSize / 2,
@@ -145,34 +176,54 @@ export default function OtpScreen() {
           style={[
             globalStyles.formCard,
             isLargeScreen && globalStyles.largeFormCard,
+            { backgroundColor: themeColors.card },
           ]}
         >
           <Text
             style={[
               globalStyles.pageTitle,
               isLargeScreen && globalStyles.largePageTitle,
+              { color: themeColors.text },
             ]}
           >
             Verify Your Identity
           </Text>
 
-          <Text style={globalStyles.subtitle}>
-            {deliveryMethod === "sms"
-              ? "Enter the 6-digit code sent to your phone number"
-              : <>Enter the 6-digit code sent to{"\n"}<Text style={styles.emailText}>{email}</Text></>}
+          <Text
+            style={[
+              globalStyles.subtitle,
+              { color: themeColors.muted },
+            ]}
+          >
+            {deliveryMethod === "sms" ? (
+              "Enter the 6-digit code sent to your phone number"
+            ) : (
+              <>
+                Enter the 6-digit code sent to{"\n"}
+                <Text style={[styles.emailText, { color: themeColors.text }]}>
+                  {email}
+                </Text>
+              </>
+            )}
           </Text>
 
           <TextInput
             placeholder="000000"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={themeColors.muted}
             style={[
               globalStyles.input,
               styles.otpInput,
               isLargeScreen && globalStyles.largeInput,
+              {
+                backgroundColor: themeColors.input,
+                color: themeColors.text,
+                borderColor: themeColors.bgDark,
+              },
             ]}
             value={otp}
             onChangeText={(text) => {
               setOtp(text.replace(/\D/g, "").slice(0, 6));
+
               if (error) setError("");
             }}
             keyboardType="number-pad"
@@ -180,24 +231,31 @@ export default function OtpScreen() {
             autoFocus
           />
 
-          {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
-          {resendMessage ? <Text style={styles.successText}>{resendMessage}</Text> : null}
+          {error ? (
+            <Text style={globalStyles.errorText}>{error}</Text>
+          ) : null}
+
+          {resendMessage ? (
+            <Text style={styles.successText}>{resendMessage}</Text>
+          ) : null}
 
           <TouchableOpacity
             style={[
               globalStyles.primaryButton,
               isLargeScreen && globalStyles.largePrimaryButton,
+              { backgroundColor: themeColors.button },
             ]}
             onPress={handleVerify}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color={colors.white} />
+              <ActivityIndicator color={themeColors.white} />
             ) : (
               <Text
                 style={[
                   globalStyles.primaryButtonText,
                   isLargeScreen && globalStyles.largePrimaryButtonText,
+                  { color: themeColors.white },
                 ]}
               >
                 Verify
@@ -214,10 +272,21 @@ export default function OtpScreen() {
             disabled={countdown > 0 || resending}
           >
             {resending ? (
-              <ActivityIndicator color={colors.blueDark} />
+              <ActivityIndicator color={themeColors.blueDark} />
             ) : (
-              <Text style={[styles.resendText, countdown > 0 && styles.resendTextDisabled]}>
-                {countdown > 0 ? `Resend code in ${countdown}s` : "Resend Code"}
+              <Text
+                style={[
+                  styles.resendText,
+                  { color: themeColors.blueDark },
+                  countdown > 0 && {
+                    color: themeColors.muted,
+                    fontWeight: "500",
+                  },
+                ]}
+              >
+                {countdown > 0
+                  ? `Resend code in ${countdown}s`
+                  : "Resend Code"}
               </Text>
             )}
           </TouchableOpacity>
@@ -230,6 +299,7 @@ export default function OtpScreen() {
               style={[
                 globalStyles.linkText,
                 isLargeScreen && globalStyles.largeLinkText,
+                { color: themeColors.blueDark },
               ]}
             >
               Back to Login
@@ -248,27 +318,26 @@ const styles = StyleSheet.create({
     letterSpacing: 8,
     fontWeight: "700",
   },
+
   emailText: {
     fontWeight: "700",
-    color: colors.text,
   },
+
   resendButton: {
     alignItems: "center",
     paddingVertical: 12,
     marginTop: 4,
   },
+
   resendButtonDisabled: {
     opacity: 0.5,
   },
+
   resendText: {
-    color: colors.blueDark,
     fontWeight: "700",
     fontSize: 14,
   },
-  resendTextDisabled: {
-    color: colors.muted,
-    fontWeight: "500",
-  },
+
   successText: {
     color: "#5a9e6f",
     fontSize: 13,

@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -13,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 
@@ -44,6 +44,7 @@ type UploadResponse = {
 
 export default function UploadWardrobeScreen() {
   const router = useRouter();
+  const { themeColors } = useAppTheme();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<DetectedClothingItem | null>(null);
@@ -184,70 +185,247 @@ export default function UploadWardrobeScreen() {
   }
 };
 
-
-  return (
-    <ScrollView contentContainerStyle={styles.scrollContent}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.title}>Upload a clothing item</Text>
-      <Text style={styles.subtitle}>
-        Add new pieces to your wardrobe by taking a photo or selecting one from your gallery.
+return (
+  <ScrollView
+    contentContainerStyle={[
+      styles.scrollContent,
+      { backgroundColor: themeColors.bg },
+    ]}
+  >
+    <TouchableOpacity
+      style={[
+        styles.backButton,
+        { backgroundColor: themeColors.bgDark },
+      ]}
+      onPress={() => router.back()}
+    >
+      <Text
+        style={[
+          styles.backButtonText,
+          { color: themeColors.text },
+        ]}
+      >
+        ← Back
       </Text>
+    </TouchableOpacity>
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button} onPress={handlePickImage}>
-          <Text style={styles.buttonText}>Choose from gallery</Text>
-        </TouchableOpacity>
+    <Text
+      style={[
+        styles.title,
+        { color: themeColors.text },
+      ]}
+    >
+      Upload a clothing item
+    </Text>
 
-        <TouchableOpacity style={styles.buttonOutline} onPress={handleTakePhoto}>
-          <Text style={styles.buttonOutlineText}>Take a photo</Text>
-        </TouchableOpacity>
-      </View>
+    <Text
+      style={[
+        styles.subtitle,
+        { color: themeColors.blueDark },
+      ]}
+    >
+      Add new pieces to your wardrobe by taking a photo or selecting one from your
+      gallery.
+    </Text>
 
-      {imageUri && (
-        <View style={styles.previewContainer}>
-          <Text style={styles.sectionTitle}>Preview</Text>
-          <Image source={{ uri: imageUri }} style={styles.previewImage} />
-        </View>
-      )}
+    <View style={styles.buttonRow}>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          { backgroundColor: themeColors.bgDark },
+        ]}
+        onPress={handlePickImage}
+      >
+        <Text
+          style={[
+            styles.buttonText,
+            { color: themeColors.text },
+          ]}
+        >
+          Choose from gallery
+        </Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.uploadButton, (!imageUri || uploading) && { opacity: 0.6 }]}
-        disabled={!imageUri || uploading}
-        onPress={handleUploadToWardrobe}
+        style={[
+          styles.buttonOutline,
+          { borderColor: themeColors.bgDark },
+        ]}
+        onPress={handleTakePhoto}
       >
-        {uploading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.uploadButtonText}>Add to wardrobe</Text>
-        )}
+        <Text
+          style={[
+            styles.buttonOutlineText,
+            { color: themeColors.text },
+          ]}
+        >
+          Take a photo
+        </Text>
       </TouchableOpacity>
+    </View>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+    {imageUri && (
+      <View style={styles.previewContainer}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            { color: themeColors.text },
+          ]}
+        >
+          Preview
+        </Text>
 
-     
-    </ScrollView>
-  );
+        <Image
+          source={{ uri: imageUri }}
+          style={[
+            styles.previewImage,
+            { borderColor: themeColors.bgDark },
+          ]}
+        />
+      </View>
+    )}
+
+    <TouchableOpacity
+      style={[
+        styles.uploadButton,
+        { backgroundColor: themeColors.blue },
+        (!imageUri || uploading) && { opacity: 0.6 },
+      ]}
+      disabled={!imageUri || uploading}
+      onPress={handleUploadToWardrobe}
+    >
+      {uploading ? (
+        <ActivityIndicator color={themeColors.white} />
+      ) : (
+        <Text
+          style={[
+            styles.uploadButtonText,
+            { color: themeColors.text },
+          ]}
+        >
+          Add to wardrobe
+        </Text>
+      )}
+    </TouchableOpacity>
+
+    {error && (
+      <Text
+        style={[
+          styles.errorText,
+          { color: themeColors.accent },
+        ]}
+      >
+        {error}
+      </Text>
+    )}
+  </ScrollView>
+);
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 32, gap: 16, backgroundColor: "#eeede8" },
-  title: { fontSize: 22, fontWeight: "700", color: "#233443" },
-  subtitle: { fontSize: 14, color: "#96b7bc", marginBottom: 4 },
-  buttonRow: { flexDirection: "row", gap: 12, marginTop: 10 },
-  button: { flex: 1, backgroundColor: "#c0d1bf", paddingVertical: 12, borderRadius: 999, alignItems: "center" },
-  buttonText: { color: "#233443", fontWeight: "600" },
-  buttonOutline: { flex: 1, borderColor: "#a3bfa9", borderWidth: 1, paddingVertical: 12, borderRadius: 999, alignItems: "center" },
-  buttonOutlineText: { color: "#233443", fontWeight: "600" },
-  previewContainer: { marginTop: 24 },
-  previewImage: { width: "100%", aspectRatio: 3 / 4, borderRadius: 16, marginTop: 8, borderWidth: 2, borderColor: "#a3bfa9" },
-  sectionTitle: { fontSize: 16, fontWeight: "600", marginBottom: 4, color: "#233443" },
-  uploadButton: { marginTop: 24, backgroundColor: "#b9d6da", paddingVertical: 14, borderRadius: 999, alignItems: "center" },
-  uploadButtonText: { color: "#233443", fontWeight: "700", fontSize: 15 },
-  resultBox: { backgroundColor: "#c0d1bf", marginTop: 20, borderRadius: 14, padding: 16 },
-  resultItem: { color: "#233443", marginBottom: 4, fontWeight: "500" },
-  errorText: { color: "#d0685f", marginTop: 12, fontSize: 14, fontWeight: "600" },
-  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
-  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 32,
+    gap: 16,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+  },
+
+  subtitle: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+
+  buttonRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 10,
+  },
+
+  button: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 999,
+    alignItems: "center",
+  },
+
+  buttonText: {
+    fontWeight: "600",
+  },
+
+  buttonOutline: {
+    flex: 1,
+    borderWidth: 1,
+    paddingVertical: 12,
+    borderRadius: 999,
+    alignItems: "center",
+  },
+
+  buttonOutlineText: {
+    fontWeight: "600",
+  },
+
+  previewContainer: {
+    marginTop: 24,
+  },
+
+  previewImage: {
+    width: "100%",
+    aspectRatio: 3 / 4,
+    borderRadius: 16,
+    marginTop: 8,
+    borderWidth: 2,
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+
+  uploadButton: {
+    marginTop: 24,
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: "center",
+  },
+
+  uploadButtonText: {
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
+  resultBox: {
+    marginTop: 20,
+    borderRadius: 14,
+    padding: 16,
+  },
+
+  resultItem: {
+    marginBottom: 4,
+    fontWeight: "500",
+  },
+
+  errorText: {
+    marginTop: 12,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  backButton: {
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
+
+  backButtonText: {
+    fontWeight: "600",
+    fontSize: 14,
+  },
 });

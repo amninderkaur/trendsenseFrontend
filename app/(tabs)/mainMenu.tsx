@@ -8,6 +8,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   View,
   useWindowDimensions,
@@ -15,7 +16,8 @@ import {
 
 import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { getProfile } from "../../api/profile";
-import { colors, globalStyles } from "../../constants/globalStyles";
+import { globalStyles } from "../../constants/globalStyles";
+import { useAppTheme } from "../../context/ThemeContext";
 import {
   getRole,
   getToken,
@@ -27,8 +29,11 @@ import {
 const isWeb = Platform.OS === "web";
 
 export default function Dashboard() {
+  const { themeColors, isDarkMode, toggleDarkMode } = useAppTheme();
+
   const router = useRouter();
   const { width } = useWindowDimensions();
+
   const isLargeScreen = !isWeb && width >= 768;
   const isLoggedIn = !!getToken();
   const isAdmin = getRole() === "ADMIN";
@@ -61,82 +66,23 @@ export default function Dashboard() {
     removeToken();
     removeUserId();
     removeEmail();
+
     router.replace("/(auth)/login");
   };
 
   const navItems = [
-    {
-      href: "/",
-      icon: "dashboard",
-      label: "Dashboard",
-      lib: "material",
-    },
-    {
-      href: "/upload-clothes",
-      icon: "add-a-photo",
-      label: "Upload Clothes",
-      lib: "material",
-    },
-    {
-      href: "/wardrobe",
-      icon: "checkroom",
-      label: "Wardrobe",
-      lib: "material",
-    },
-    {
-      href: "/upload-outfit",
-      icon: "style",
-      label: "Outfit Suggestion",
-      lib: "material",
-    },
-    {
-      href: "/outfit-review",
-      icon: "search",
-      label: "Outfit Review",
-      lib: "material",
-    },
-    {
-      href: "/history",
-      icon: "favorite",
-      label: "Saved Outfits",
-      lib: "material",
-    },
-    {
-      href: "/budgeting",
-      icon: "wallet",
-      label: "Budgeting",
-      lib: "fa5",
-    },
-    {
-      href: "/trip-packing",
-      icon: "luggage",
-      label: "Trip Packing",
-      lib: "material",
-    },
-    {
-      href: "/saved-items",
-      icon: "bookmark",
-      label: "Saved Items",
-      lib: "material",
-    },
-    {
-      href: "/colour-analysis",
-      icon: "palette",
-      label: "Colour Analysis",
-      lib: "material",
-    },
-    {
-      href: "/moodboards",
-      icon: "palette",
-      label: "Mood Boards",
-      lib: "material",
-    },
-    {
-      href: "/profile",
-      icon: "person",
-      label: "Account Profile",
-      lib: "material",
-    },
+    { href: "/", icon: "dashboard", label: "Dashboard", lib: "material" },
+    { href: "/upload-clothes", icon: "add-a-photo", label: "Upload Clothes", lib: "material" },
+    { href: "/wardrobe", icon: "checkroom", label: "Wardrobe", lib: "material" },
+    { href: "/upload-outfit", icon: "style", label: "Outfit Suggestion", lib: "material" },
+    { href: "/outfit-review", icon: "search", label: "Outfit Review", lib: "material" },
+    { href: "/history", icon: "favorite", label: "Saved Outfits", lib: "material" },
+    { href: "/budgeting", icon: "wallet", label: "Budgeting", lib: "fa5" },
+    { href: "/trip-packing", icon: "luggage", label: "Trip Packing", lib: "material" },
+    { href: "/saved-items", icon: "bookmark", label: "Saved Items", lib: "material" },
+    { href: "/colour-analysis", icon: "palette", label: "Colour Analysis", lib: "material" },
+    { href: "/moodboards", icon: "palette", label: "Mood Boards", lib: "material" },
+    { href: "/profile", icon: "person", label: "Account Profile", lib: "material" },
   ] as const;
 
   const StatsTiles = () => (
@@ -150,27 +96,36 @@ export default function Dashboard() {
         { n: "120", label: "Orders" },
         { n: "24", label: "New Customers" },
         { n: "8", label: "Pending" },
-      ].map((t) => (
+      ].map((tile) => (
         <View
-          key={t.label}
-          style={[styles.tile, isLargeScreen && styles.largeTile]}
+          key={tile.label}
+          style={[
+            styles.tile,
+            isLargeScreen && styles.largeTile,
+            {
+              backgroundColor: themeColors.card,
+              shadowColor: themeColors.text,
+            },
+          ]}
         >
           <Text
             style={[
               styles.tileNumber,
               isLargeScreen && styles.largeTileNumber,
+              { color: themeColors.blueDark },
             ]}
           >
-            {t.n}
+            {tile.n}
           </Text>
 
           <Text
             style={[
               styles.tileLabel,
               isLargeScreen && styles.largeTileLabel,
+              { color: themeColors.muted },
             ]}
           >
-            {t.label}
+            {tile.label}
           </Text>
         </View>
       ))}
@@ -195,15 +150,46 @@ export default function Dashboard() {
     </View>
   );
 
+  const ThemeToggle = () => (
+    <View
+      style={[
+        styles.themeToggle,
+        { backgroundColor: themeColors.card },
+      ]}
+    >
+      <Text style={[styles.themeToggleText, { color: themeColors.text }]}>
+        {isDarkMode ? "Dark Mode" : "Light Mode"}
+      </Text>
+
+      <Switch
+        value={isDarkMode}
+        onValueChange={toggleDarkMode}
+        thumbColor={themeColors.white}
+        trackColor={{
+          false: themeColors.input,
+          true: themeColors.blueDark,
+        }}
+      />
+    </View>
+  );
+
   if (isWeb) {
     return (
-      <View style={web.root}>
+      <View style={[web.root, { backgroundColor: themeColors.bg }]}>
         <PersonalizationModal
           visible={showPersonalization}
           onClose={() => setShowPersonalization(false)}
         />
 
-        <View style={web.sidebar}>
+        <View
+          style={[
+            web.sidebar,
+            {
+              backgroundColor: themeColors.card,
+              borderRightColor: themeColors.bgDark,
+            },
+          ]}
+        >
           <View style={web.logoContainer}>
             <Image
               source={require("../../assets/images/trendsense-logo.png")}
@@ -211,8 +197,12 @@ export default function Dashboard() {
               resizeMode="contain"
             />
 
-            <Text style={web.appName}>TrendSense</Text>
+            <Text style={[web.appName, { color: themeColors.blueDark }]}>
+              TrendSense
+            </Text>
           </View>
+
+          <ThemeToggle />
 
           {navItems.map((item) => (
             <Link key={item.href} href={item.href as any} asChild>
@@ -221,35 +211,39 @@ export default function Dashboard() {
                   <MaterialIcons
                     name={item.icon as any}
                     size={18}
-                    color={colors.blueDark}
+                    color={themeColors.blueDark}
                     style={styles.icon}
                   />
                 ) : (
                   <FontAwesome5
                     name={item.icon as any}
                     size={16}
-                    color={colors.blueDark}
+                    color={themeColors.blueDark}
                     style={styles.icon}
                   />
                 )}
 
-                <Text style={web.navLabel}>{item.label}</Text>
+                <Text style={[web.navLabel, { color: themeColors.text }]}>
+                  {item.label}
+                </Text>
               </Pressable>
             </Link>
           ))}
 
-          <View style={web.divider} />
+          <View style={[web.divider, { backgroundColor: themeColors.bgDark }]} />
 
           {isLoggedIn ? (
             <Pressable style={web.navItem} onPress={handleSignOut}>
               <MaterialIcons
                 name="logout"
                 size={18}
-                color={colors.blueDark}
+                color={themeColors.blueDark}
                 style={styles.icon}
               />
 
-              <Text style={web.navLabel}>Sign Out</Text>
+              <Text style={[web.navLabel, { color: themeColors.text }]}>
+                Sign Out
+              </Text>
             </Pressable>
           ) : (
             <Link href="/login" asChild>
@@ -257,30 +251,33 @@ export default function Dashboard() {
                 <MaterialIcons
                   name="login"
                   size={18}
-                  color={colors.blueDark}
+                  color={themeColors.blueDark}
                   style={styles.icon}
                 />
 
-                <Text style={web.navLabel}>Login</Text>
+                <Text style={[web.navLabel, { color: themeColors.text }]}>
+                  Login
+                </Text>
               </Pressable>
             </Link>
           )}
 
           {isAdmin && (
             <Pressable
-              style={styles.adminButton}
-              onPress={() =>
-                router.replace("/admin/dashboard" as any)
-              }
+              style={[
+                styles.adminButton,
+                { backgroundColor: themeColors.blueDark },
+              ]}
+              onPress={() => router.replace("/admin/dashboard" as any)}
             >
               <MaterialIcons
                 name="admin-panel-settings"
                 size={18}
-                color={colors.white}
+                color={themeColors.white}
                 style={styles.icon}
               />
 
-              <Text style={styles.adminButtonText}>
+              <Text style={[styles.adminButtonText, { color: themeColors.white }]}>
                 Go to Admin View
               </Text>
             </Pressable>
@@ -288,11 +285,11 @@ export default function Dashboard() {
         </View>
 
         <ScrollView
-          style={web.content}
+          style={[web.content, { backgroundColor: themeColors.bg }]}
           contentContainerStyle={web.contentInner}
         >
           {welcomeName ? (
-            <Text style={styles.welcome}>
+            <Text style={[styles.welcome, { color: themeColors.text }]}>
               Welcome, {welcomeName} 👋
             </Text>
           ) : null}
@@ -306,11 +303,10 @@ export default function Dashboard() {
 
   return (
     <ScrollView
-      style={globalStyles.screen}
+      style={[globalStyles.screen, { backgroundColor: themeColors.bg }]}
       contentContainerStyle={[
         globalStyles.dashboardContainer,
-        isLargeScreen &&
-          globalStyles.largeDashboardContainer,
+        isLargeScreen && globalStyles.largeDashboardContainer,
       ]}
     >
       <PersonalizationModal
@@ -320,20 +316,21 @@ export default function Dashboard() {
 
       <View style={globalStyles.dashboardContent}>
         {welcomeName ? (
-          <Text style={styles.welcome}>
+          <Text style={[styles.welcome, { color: themeColors.text }]}>
             Welcome, {welcomeName} 👋
           </Text>
         ) : null}
 
         <HeroVideo />
         <StatsTiles />
+        <ThemeToggle />
 
         <View style={styles.menu}>
           <Text
             style={[
               globalStyles.sectionTitle,
-              isLargeScreen &&
-                globalStyles.largeSectionTitle,
+              isLargeScreen && globalStyles.largeSectionTitle,
+              { color: themeColors.text },
             ]}
           >
             Menu
@@ -342,34 +339,34 @@ export default function Dashboard() {
           {navItems.map((item) => (
             <Link key={item.href} href={item.href as any} asChild>
               <Pressable
-                style={StyleSheet.flatten([
+                style={[
                   globalStyles.menuItem,
-                  isLargeScreen &&
-                    globalStyles.largeMenuItem,
-                ])}
+                  isLargeScreen && globalStyles.largeMenuItem,
+                  { backgroundColor: themeColors.card },
+                ]}
               >
                 {item.lib === "material" ? (
                   <MaterialIcons
                     name={item.icon as any}
                     size={iconSize}
-                    color={colors.blueDark}
+                    color={themeColors.blueDark}
                     style={styles.icon}
                   />
                 ) : (
                   <FontAwesome5
                     name={item.icon as any}
                     size={iconSize - 2}
-                    color={colors.blueDark}
+                    color={themeColors.blueDark}
                     style={styles.icon}
                   />
                 )}
 
                 <Text
-                  style={StyleSheet.flatten([
+                  style={[
                     globalStyles.menuText,
-                    isLargeScreen &&
-                      globalStyles.largeMenuText,
-                  ])}
+                    isLargeScreen && globalStyles.largeMenuText,
+                    { color: themeColors.text },
+                  ]}
                 >
                   {item.label}
                 </Text>
@@ -379,26 +376,26 @@ export default function Dashboard() {
 
           {isLoggedIn && (
             <Pressable
-              style={StyleSheet.flatten([
+              style={[
                 globalStyles.menuItem,
-                isLargeScreen &&
-                  globalStyles.largeMenuItem,
-              ])}
+                isLargeScreen && globalStyles.largeMenuItem,
+                { backgroundColor: themeColors.card },
+              ]}
               onPress={handleSignOut}
             >
               <MaterialIcons
                 name="logout"
                 size={iconSize}
-                color={colors.blueDark}
+                color={themeColors.blueDark}
                 style={styles.icon}
               />
 
               <Text
-                style={StyleSheet.flatten([
+                style={[
                   globalStyles.menuText,
-                  isLargeScreen &&
-                    globalStyles.largeMenuText,
-                ])}
+                  isLargeScreen && globalStyles.largeMenuText,
+                  { color: themeColors.text },
+                ]}
               >
                 Sign Out
               </Text>
@@ -407,19 +404,20 @@ export default function Dashboard() {
 
           {isAdmin && (
             <Pressable
-              style={styles.adminButton}
-              onPress={() =>
-                router.replace("/admin/dashboard" as any)
-              }
+              style={[
+                styles.adminButton,
+                { backgroundColor: themeColors.blueDark },
+              ]}
+              onPress={() => router.replace("/admin/dashboard" as any)}
             >
               <MaterialIcons
                 name="admin-panel-settings"
                 size={iconSize}
-                color={colors.white}
+                color={themeColors.white}
                 style={styles.icon}
               />
 
-              <Text style={styles.adminButtonText}>
+              <Text style={[styles.adminButtonText, { color: themeColors.white }]}>
                 Go to Admin View
               </Text>
             </Pressable>
@@ -462,12 +460,10 @@ const styles = StyleSheet.create({
   },
 
   tile: {
-    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 15,
     alignItems: "center",
     flex: 1,
-    shadowColor: colors.text,
     shadowOpacity: 0.05,
     shadowRadius: 4,
     shadowOffset: {
@@ -485,7 +481,6 @@ const styles = StyleSheet.create({
   tileNumber: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.blueDark,
   },
 
   largeTileNumber: {
@@ -494,7 +489,6 @@ const styles = StyleSheet.create({
 
   tileLabel: {
     fontSize: 14,
-    color: colors.muted,
     textAlign: "center",
   },
 
@@ -505,7 +499,6 @@ const styles = StyleSheet.create({
   welcome: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.text,
     marginTop: 16,
     marginBottom: 4,
   },
@@ -518,10 +511,24 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 
+  themeToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 14,
+  },
+
+  themeToggleText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
   adminButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.blueDark,
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -529,7 +536,6 @@ const styles = StyleSheet.create({
   },
 
   adminButtonText: {
-    color: colors.white,
     fontWeight: "800",
     fontSize: 15,
   },
@@ -539,17 +545,14 @@ const web = StyleSheet.create({
   root: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: colors.bg,
   },
 
   sidebar: {
     width: 220,
-    backgroundColor: colors.card,
     paddingTop: 24,
     paddingHorizontal: 14,
     paddingBottom: 24,
     borderRightWidth: 1,
-    borderRightColor: colors.bgDark,
   },
 
   logoContainer: {
@@ -568,7 +571,6 @@ const web = StyleSheet.create({
   appName: {
     fontSize: 20,
     fontWeight: "800",
-    color: colors.blueDark,
   },
 
   navItem: {
@@ -582,23 +584,20 @@ const web = StyleSheet.create({
 
   navLabel: {
     fontSize: 14,
-    color: colors.text,
     fontWeight: "500",
   },
 
   divider: {
     height: 1,
-    backgroundColor: colors.bgDark,
     marginVertical: 12,
   },
 
   content: {
     flex: 1,
-    backgroundColor: colors.bg,
   },
 
   contentInner: {
     padding: 28,
     maxWidth: 860,
   },
-}); 
+});

@@ -12,12 +12,12 @@ import {
 } from "react-native";
 
 import { register } from "../../api/auth";
-import { colors, globalStyles } from "../../constants/globalStyles";
-
-const PRIMARY = "#ff9c85";
+import { globalStyles } from "../../constants/globalStyles";
+import { useAppTheme } from "../../context/ThemeContext";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { themeColors } = useAppTheme();
 
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
@@ -29,31 +29,35 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [phoneDigits, setPhoneDigits] = useState(""); // 10 raw digits, no country code
+  const [phoneDigits, setPhoneDigits] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<"email" | "sms">(
-    "email",
+    "email"
   );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Formats 10 digits as (XXX) XXX-XXXX — +1 is shown as a fixed prefix
   const formatPhoneDisplay = (digits: string) => {
     if (!digits) return "";
     const area = digits.slice(0, 3);
     const prefix = digits.slice(3, 6);
     const line = digits.slice(6, 10);
+
     let out = "";
     if (area) out += "(" + area;
     if (area.length === 3) out += ")";
     if (prefix) out += " " + prefix;
     if (line) out += "-" + line;
+
     return out;
   };
 
   const handlePhoneChange = (text: string) => {
     // Strip all non-digits; drop leading 1 if user typed the country code
     let digits = text.replace(/\D/g, "");
-    if (digits.startsWith("1") && digits.length > 1) digits = digits.slice(1);
+    if (digits.startsWith("1") && digits.length > 1) {
+      digits = digits.slice(1);
+    }
+
     setPhoneDigits(digits.slice(0, 10));
     if (error) setError("");
   };
@@ -86,8 +90,15 @@ export default function RegisterScreen() {
     setLoading(true);
 
     try {
-      await register(email, password, name.trim(), e164Phone || undefined, deliveryMethod);
       // Registration returns no token — redirect to login
+      await register(
+        email,
+        password,
+        name.trim(),
+        e164Phone || undefined,
+        deliveryMethod
+      );
+
       router.replace("/(auth)/login");
     } catch (err) {
       console.error(err);
@@ -98,11 +109,17 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={globalStyles.screen}>
+    <View
+      style={[
+        globalStyles.screen,
+        { backgroundColor: themeColors.bg },
+      ]}
+    >
       <View
         style={[
           globalStyles.topRightCircle,
           {
+            backgroundColor: themeColors.bgDark,
             width: circleSize,
             height: circleSize,
             borderRadius: circleSize / 2,
@@ -116,6 +133,7 @@ export default function RegisterScreen() {
         style={[
           globalStyles.bottomLeftCircle,
           {
+            backgroundColor: themeColors.blue,
             width: smallCircleSize,
             height: smallCircleSize,
             borderRadius: smallCircleSize / 2,
@@ -130,27 +148,39 @@ export default function RegisterScreen() {
           style={[
             globalStyles.formCard,
             isLargeScreen && globalStyles.largeFormCard,
+            { backgroundColor: themeColors.card },
           ]}
         >
           <Text
             style={[
               globalStyles.pageTitle,
               isLargeScreen && globalStyles.largePageTitle,
+              { color: themeColors.text },
             ]}
           >
             Create an Account
           </Text>
 
-          <Text style={globalStyles.subtitle}>
+          <Text
+            style={[
+              globalStyles.subtitle,
+              { color: themeColors.muted },
+            ]}
+          >
             Join us to explore your wardrobe
           </Text>
 
           <TextInput
             placeholder="Full Name"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={themeColors.muted}
             style={[
               globalStyles.input,
               isLargeScreen && globalStyles.largeInput,
+              {
+                backgroundColor: themeColors.input,
+                color: themeColors.text,
+                borderColor: themeColors.bgDark,
+              },
             ]}
             value={name}
             onChangeText={setName}
@@ -159,10 +189,15 @@ export default function RegisterScreen() {
 
           <TextInput
             placeholder="email@domain.com"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={themeColors.muted}
             style={[
               globalStyles.input,
               isLargeScreen && globalStyles.largeInput,
+              {
+                backgroundColor: themeColors.input,
+                color: themeColors.text,
+                borderColor: themeColors.bgDark,
+              },
             ]}
             value={email}
             onChangeText={setEmail}
@@ -172,10 +207,15 @@ export default function RegisterScreen() {
 
           <TextInput
             placeholder="Password"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={themeColors.muted}
             style={[
               globalStyles.input,
               isLargeScreen && globalStyles.largeInput,
+              {
+                backgroundColor: themeColors.input,
+                color: themeColors.text,
+                borderColor: themeColors.bgDark,
+              },
             ]}
             secureTextEntry
             value={password}
@@ -184,42 +224,92 @@ export default function RegisterScreen() {
 
           <TextInput
             placeholder="Confirm Password"
-            placeholderTextColor={colors.muted}
+            placeholderTextColor={themeColors.muted}
             style={[
               globalStyles.input,
               isLargeScreen && globalStyles.largeInput,
+              {
+                backgroundColor: themeColors.input,
+                color: themeColors.text,
+                borderColor: themeColors.bgDark,
+              },
             ]}
             secureTextEntry
             value={confirm}
             onChangeText={setConfirm}
           />
 
-          <Text style={styles.fieldLabel}>Phone Number (optional)</Text>
+          <Text
+            style={[
+              styles.fieldLabel,
+              { color: themeColors.muted },
+            ]}
+          >
+            Phone Number (optional)
+          </Text>
+
           <View
             style={[
               globalStyles.input,
               styles.phoneRow,
               isLargeScreen && globalStyles.largeInput,
+              {
+                backgroundColor: themeColors.input,
+                borderColor: themeColors.bgDark,
+              },
             ]}
           >
-            <Text style={styles.countryCode}>+1</Text>
-            <View style={styles.phoneDivider} />
+            <Text
+              style={[
+                styles.countryCode,
+                { color: themeColors.text },
+              ]}
+            >
+              +1
+            </Text>
+
+            <View
+              style={[
+                styles.phoneDivider,
+                { backgroundColor: themeColors.muted },
+              ]}
+            />
+
             <TextInput
               placeholder="(647) 123-4567"
-              placeholderTextColor={colors.muted}
-              style={styles.phoneInput}
+              placeholderTextColor={themeColors.muted}
+              style={[
+                styles.phoneInput,
+                { color: themeColors.text },
+              ]}
               value={formatPhoneDisplay(phoneDigits)}
               onChangeText={handlePhoneChange}
               keyboardType="phone-pad"
             />
           </View>
 
-          <Text style={styles.fieldLabel}>Receive verification code via</Text>
-          <View style={styles.toggleRow}>
+          <Text
+            style={[
+              styles.fieldLabel,
+              { color: themeColors.muted },
+            ]}
+          >
+            Receive verification code via
+          </Text>
+
+          <View
+            style={[
+              styles.toggleRow,
+              { borderColor: themeColors.input },
+            ]}
+          >
             <TouchableOpacity
               style={[
                 styles.toggleButton,
-                deliveryMethod === "email" && styles.toggleButtonActive,
+                { backgroundColor: themeColors.input },
+                deliveryMethod === "email" && {
+                  backgroundColor: themeColors.button,
+                },
               ]}
               onPress={() => {
                 setDeliveryMethod("email");
@@ -229,46 +319,71 @@ export default function RegisterScreen() {
               <Text
                 style={[
                   styles.toggleText,
-                  deliveryMethod === "email" && styles.toggleTextActive,
+                  { color: themeColors.muted },
+                  deliveryMethod === "email" && {
+                    color: themeColors.white,
+                  },
                 ]}
               >
                 Email
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={[
                 styles.toggleButton,
-                deliveryMethod === "sms" && styles.toggleButtonActive,
+                { backgroundColor: themeColors.input },
+                deliveryMethod === "sms" && {
+                  backgroundColor: themeColors.button,
+                },
               ]}
-              onPress={() => setDeliveryMethod("sms")}
+              onPress={() => {
+                setDeliveryMethod("sms");
+                setError("");
+              }}
             >
               <Text
                 style={[
                   styles.toggleText,
-                  deliveryMethod === "sms" && styles.toggleTextActive,
+                  { color: themeColors.muted },
+                  deliveryMethod === "sms" && {
+                    color: themeColors.white,
+                  },
                 ]}
               >
                 SMS
               </Text>
             </TouchableOpacity>
           </View>
-          {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
+
+          {error ? (
+            <Text
+              style={[
+                globalStyles.errorText,
+                isLargeScreen && globalStyles.largeErrorText,
+              ]}
+            >
+              {error}
+            </Text>
+          ) : null}
 
           <TouchableOpacity
             style={[
               globalStyles.primaryButton,
               isLargeScreen && globalStyles.largePrimaryButton,
+              { backgroundColor: themeColors.button },
             ]}
             onPress={handleRegister}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color={colors.white} />
+              <ActivityIndicator color={themeColors.white} />
             ) : (
               <Text
                 style={[
                   globalStyles.primaryButtonText,
                   isLargeScreen && globalStyles.largePrimaryButtonText,
+                  { color: themeColors.white },
                 ]}
               >
                 Register
@@ -284,6 +399,7 @@ export default function RegisterScreen() {
               style={[
                 globalStyles.linkText,
                 isLargeScreen && globalStyles.largeLinkText,
+                { color: themeColors.blueDark },
               ]}
             >
               Already have an account? Login
@@ -299,7 +415,6 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.muted,
     marginBottom: 8,
   },
   toggleRow: {
@@ -308,24 +423,15 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: colors.input,
   },
   toggleButton: {
     flex: 1,
     paddingVertical: 14,
     alignItems: "center",
-    backgroundColor: colors.input,
-  },
-  toggleButtonActive: {
-    backgroundColor: PRIMARY,
   },
   toggleText: {
     fontSize: 15,
     fontWeight: "600",
-    color: colors.muted,
-  },
-  toggleTextActive: {
-    color: colors.white,
   },
   phoneRow: {
     flexDirection: "row",
@@ -337,12 +443,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     fontSize: 15,
     fontWeight: "700",
-    color: colors.text,
   },
   phoneDivider: {
     width: 1,
     alignSelf: "stretch",
-    backgroundColor: colors.muted,
     opacity: 0.3,
   },
   phoneInput: {
@@ -350,6 +454,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
-    color: colors.text,
   },
 });

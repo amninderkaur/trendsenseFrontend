@@ -12,6 +12,7 @@ import { View } from "react-native";
 import "react-native-reanimated";
 
 import FloatingChatButton from "@/components/floating-chat-button";
+import { AppThemeProvider } from "@/context/ThemeContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 import "../global.css";
@@ -29,6 +30,7 @@ export default function RootLayout() {
     pathname.includes("chatbot");
 
   return (
+    <AppThemeProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1, position: "relative" }}>
         <Stack>
@@ -48,5 +50,6 @@ export default function RootLayout() {
 
       <StatusBar style="auto" />
     </ThemeProvider>
+    </AppThemeProvider>
   );
 }

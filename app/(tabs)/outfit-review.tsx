@@ -1,4 +1,6 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -14,7 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { colors, globalStyles } from "../../constants/globalStyles";
 
 type AnalysisResult = {
   occasion: string;
@@ -29,7 +30,7 @@ type AnalysisResult = {
 
 export default function OutfitReview() {
   const router = useRouter();
-
+  const { themeColors } = useAppTheme();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageMime, setImageMime] = useState<string>("image/jpeg");
   const [occasion, setOccasion] = useState("");
@@ -201,258 +202,878 @@ User question: ${question}
     return "#c0726e";
   };
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.title}>Outfit Review</Text>
-      <Text style={styles.subtitle}>
-        Upload a photo of your outfit and get AI feedback on your style, fit for
-        the occasion, and weather suitability.
+  // ============
+  // RENDER
+  // ============
+return (
+  <ScrollView
+    style={[
+      styles.container,
+      { backgroundColor: themeColors.bg },
+    ]}
+    contentContainerStyle={styles.content}
+  >
+    <TouchableOpacity
+      style={[
+        styles.backButton,
+        { backgroundColor: themeColors.bgDark },
+      ]}
+      onPress={goBack}
+    >
+      <Text
+        style={[
+          styles.backButtonText,
+          { color: themeColors.white },
+        ]}
+      >
+        ← Back
       </Text>
+    </TouchableOpacity>
 
-      {/* Image picker */}
-      <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.previewImage} resizeMode="cover" />
-        ) : (
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.imagePlaceholderIcon}>📸</Text>
-            <Text style={styles.imagePlaceholderText}>Tap to select outfit photo</Text>
-            <Text style={styles.imagePlaceholderSub}>JPEG, PNG, or WebP</Text>
-          </View>
-        )}
-      </TouchableOpacity>
+    <Text
+      style={[
+        styles.title,
+        { color: themeColors.text },
+      ]}
+    >
+      Outfit Review
+    </Text>
 
-      {imageUri && (
-        <TouchableOpacity style={styles.changePhoto} onPress={pickImage}>
-          <Text style={styles.changePhotoText}>Change photo</Text>
-        </TouchableOpacity>
-      )}
+    <Text
+      style={[
+        styles.subtitle,
+        { color: themeColors.muted },
+      ]}
+    >
+      Upload a photo of your outfit and get AI feedback on your style, fit for
+      the occasion, and weather suitability.
+    </Text>
 
-      {/* Form */}
-      <View style={styles.formCard}>
-        <Text style={styles.label}>Occasion <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. job interview, casual brunch, wedding"
-          placeholderTextColor={colors.muted}
-          value={occasion}
-          onChangeText={setOccasion}
+    {/* Image picker */}
+    <TouchableOpacity
+      style={[
+        styles.imagePicker,
+        { borderColor: themeColors.bgDark },
+      ]}
+      onPress={pickImage}
+    >
+      {imageUri ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.previewImage}
+          resizeMode="cover"
         />
-
-        <Text style={styles.label}>City <Text style={styles.optional}>(optional)</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Toronto — for weather check"
-          placeholderTextColor={colors.muted}
-          value={city}
-          onChangeText={setCity}
-        />
-
-        {!!error && <Text style={globalStyles.errorText}>{error}</Text>}
-
-        <Pressable
-          style={[styles.analyzeButton, loading && { opacity: 0.6 }]}
-          onPress={handleAnalyze}
-          disabled={loading}
+      ) : (
+        <View
+          style={[
+            styles.imagePlaceholder,
+            { backgroundColor: themeColors.card },
+          ]}
         >
-          {loading
-            ? <ActivityIndicator color={colors.white} />
-            : <Text style={styles.analyzeButtonText}>Analyse Outfit</Text>}
-        </Pressable>
-      </View>
+          <Text style={styles.imagePlaceholderIcon}>📸</Text>
 
-      {/* Result */}
-      {result && (
-        <View style={styles.resultContainer}>
-          {/* Score */}
-          <View style={styles.scoreCard}>
-            <Text style={styles.scoreLabel}>Style Score</Text>
-            <Text style={[styles.scoreValue, { color: scoreColor(result.styleScore) }]}>
-              {result.styleScore}/10
-            </Text>
-            <Text style={styles.scoreOccasion}>{result.occasion}</Text>
-          </View>
-
-          {/* Overall verdict */}
-          {!!result.overallVerdict && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Overall Verdict</Text>
-              <Text style={styles.verdictText}>{result.overallVerdict}</Text>
-            </View>
-          )}
-
-          {/* Weather */}
-          {result.currentWeather && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Weather Check</Text>
-              <Text style={styles.weatherInfo}>{result.currentWeather}</Text>
-              <View style={[styles.verdictBadge, { backgroundColor: verdictColor(result.weatherVerdict) }]}>
-                <Text style={styles.verdictBadgeText}>
-                  {result.weatherVerdict === "suitable"
-                    ? "Suitable for the weather"
-                    : result.weatherVerdict === "not suitable"
-                    ? "Not suitable for the weather"
-                    : "Weather check skipped"}
-                </Text>
-              </View>
-              {!!result.weatherReason && (
-                <Text style={styles.weatherReason}>{result.weatherReason}</Text>
-              )}
-            </View>
-          )}
-
-          {/* What works well */}
-          {result.whatWorksWell?.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>What Works Well</Text>
-              {result.whatWorksWell.map((point, i) => (
-                <View key={i} style={styles.bulletRow}>
-                  <Text style={styles.bulletGreen}>✓</Text>
-                  <Text style={styles.bulletText}>{point}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Suggestions */}
-          {result.suggestions?.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Suggestions</Text>
-              {result.suggestions.map((s, i) => (
-                <View key={i} style={styles.bulletRow}>
-                  <Text style={styles.bulletBlue}>→</Text>
-                  <Text style={styles.bulletText}>{s}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {!chatOpen && (
-            <TouchableOpacity style={styles.chatButton} onPress={() => setChatOpen(true)}>
-              <Text style={styles.chatButtonText}>Chat with the bot about this review</Text>
-            </TouchableOpacity>
-          )}
-
-          {chatOpen && (
-            <View style={styles.chatCard}>
-              <Text style={styles.chatTitle}>Ask about this outfit</Text>
-
-              <View style={styles.chatMessages}>
-                {chatMessages.map((msg) => {
-                  const isUser = msg.role === "user";
-                  return (
-                    <View key={msg.id} style={isUser ? styles.userBubble : styles.botBubble}>
-                      <Text style={isUser ? styles.userBubbleText : styles.botBubbleText}>{msg.text}</Text>
-                    </View>
-                  );
-                })}
-                {chatLoading && (
-                  <View style={styles.botBubble}>
-                    <ActivityIndicator color={colors.blueDark} />
-                  </View>
-                )}
-              </View>
-
-              <View style={styles.chatInputRow}>
-                <TextInput
-                  style={styles.chatInput}
-                  placeholder="Ask why the score, how to improve..."
-                  placeholderTextColor={colors.muted}
-                  value={chatInput}
-                  onChangeText={setChatInput}
-                  multiline
-                />
-                <Pressable
-                  style={[styles.sendButton, (!chatInput.trim() || chatLoading) && { opacity: 0.5 }]}
-                  onPress={sendChatMessage}
-                  disabled={!chatInput.trim() || chatLoading}
-                >
-                  <Text style={styles.sendButtonText}>Send</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-
-          <Pressable
-            style={styles.retryButton}
-            onPress={() => {
-              setResult(null);
-              setImageUri(null);
-              setOccasion("");
-              setCity("");
-              resetChat();
-            }}
+          <Text
+            style={[
+              styles.imagePlaceholderText,
+              { color: themeColors.text },
+            ]}
           >
-            <Text style={styles.retryButtonText}>Analyse Another Outfit</Text>
-          </Pressable>
+            Tap to select outfit photo
+          </Text>
+
+          <Text
+            style={[
+              styles.imagePlaceholderSub,
+              { color: themeColors.muted },
+            ]}
+          >
+            JPEG, PNG, or WebP
+          </Text>
         </View>
       )}
-    </ScrollView>
-  );
+    </TouchableOpacity>
+
+    {imageUri && (
+      <TouchableOpacity
+        style={styles.changePhoto}
+        onPress={pickImage}
+      >
+        <Text
+          style={[
+            styles.changePhotoText,
+            { color: themeColors.blueDark },
+          ]}
+        >
+          Change photo
+        </Text>
+      </TouchableOpacity>
+    )}
+
+    {/* Form */}
+    <View
+      style={[
+        styles.formCard,
+        { backgroundColor: themeColors.card },
+      ]}
+    >
+      <Text
+        style={[
+          styles.label,
+          { color: themeColors.text },
+        ]}
+      >
+        Occasion{" "}
+        <Text
+          style={[
+            styles.required,
+            { color: themeColors.accent },
+          ]}
+        >
+          *
+        </Text>
+      </Text>
+
+      <TextInput
+        style={[
+          styles.input,
+          {
+            backgroundColor: themeColors.white,
+            borderColor: themeColors.input,
+            color: themeColors.text,
+          },
+        ]}
+        placeholder="e.g. job interview, casual brunch, wedding"
+        placeholderTextColor={themeColors.muted}
+        value={occasion}
+        onChangeText={setOccasion}
+      />
+
+      <Text
+        style={[
+          styles.label,
+          { color: themeColors.text },
+        ]}
+      >
+        City{" "}
+        <Text
+          style={[
+            styles.optional,
+            { color: themeColors.muted },
+          ]}
+        >
+          (optional)
+        </Text>
+      </Text>
+
+      <TextInput
+        style={[
+          styles.input,
+          {
+            backgroundColor: themeColors.white,
+            borderColor: themeColors.input,
+            color: themeColors.text,
+          },
+        ]}
+        placeholder="e.g. Toronto — for weather check"
+        placeholderTextColor={themeColors.muted}
+        value={city}
+        onChangeText={setCity}
+      />
+
+      {!!error && (
+        <Text
+          style={[
+            globalStyles.errorText,
+            { color: themeColors.accent },
+          ]}
+        >
+          {error}
+        </Text>
+      )}
+
+      <Pressable
+        style={[
+          styles.analyzeButton,
+          { backgroundColor: themeColors.blueDark },
+          loading && { opacity: 0.6 },
+        ]}
+        onPress={handleAnalyze}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color={themeColors.white} />
+        ) : (
+          <Text
+            style={[
+              styles.analyzeButtonText,
+              { color: themeColors.white },
+            ]}
+          >
+            Analyse Outfit
+          </Text>
+        )}
+      </Pressable>
+    </View>
+
+    {/* Result */}
+    {result && (
+      <View style={styles.resultContainer}>
+        {/* Score */}
+        <View
+          style={[
+            styles.scoreCard,
+            { backgroundColor: themeColors.card },
+          ]}
+        >
+          <Text
+            style={[
+              styles.scoreLabel,
+              { color: themeColors.muted },
+            ]}
+          >
+            Style Score
+          </Text>
+
+          <Text
+            style={[
+              styles.scoreValue,
+              { color: scoreColor(result.styleScore) },
+            ]}
+          >
+            {result.styleScore}/10
+          </Text>
+
+          <Text
+            style={[
+              styles.scoreOccasion,
+              { color: themeColors.text },
+            ]}
+          >
+            {result.occasion}
+          </Text>
+        </View>
+
+        {/* Overall verdict */}
+        {!!result.overallVerdict && (
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              Overall Verdict
+            </Text>
+
+            <Text
+              style={[
+                styles.verdictText,
+                { color: themeColors.text },
+              ]}
+            >
+              {result.overallVerdict}
+            </Text>
+          </View>
+        )}
+
+        {/* Weather */}
+        {result.currentWeather && (
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              Weather Check
+            </Text>
+
+            <Text
+              style={[
+                styles.weatherInfo,
+                { color: themeColors.muted },
+              ]}
+            >
+              {result.currentWeather}
+            </Text>
+
+            <View
+              style={[
+                styles.verdictBadge,
+                {
+                  backgroundColor: verdictColor(
+                    result.weatherVerdict
+                  ),
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.verdictBadgeText,
+                  { color: themeColors.white },
+                ]}
+              >
+                {result.weatherVerdict === "suitable"
+                  ? "Suitable for the weather"
+                  : result.weatherVerdict === "not suitable"
+                  ? "Not suitable for the weather"
+                  : "Weather check skipped"}
+              </Text>
+            </View>
+
+            {!!result.weatherReason && (
+              <Text
+                style={[
+                  styles.weatherReason,
+                  { color: themeColors.text },
+                ]}
+              >
+                {result.weatherReason}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* What works well */}
+        {result.whatWorksWell?.length > 0 && (
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              What Works Well
+            </Text>
+
+            {result.whatWorksWell.map((point, i) => (
+              <View key={i} style={styles.bulletRow}>
+                <Text style={styles.bulletGreen}>✓</Text>
+
+                <Text
+                  style={[
+                    styles.bulletText,
+                    { color: themeColors.text },
+                  ]}
+                >
+                  {point}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Suggestions */}
+        {result.suggestions?.length > 0 && (
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              Suggestions
+            </Text>
+
+            {result.suggestions.map((s, i) => (
+              <View key={i} style={styles.bulletRow}>
+                <Text
+                  style={[
+                    styles.bulletBlue,
+                    { color: themeColors.blueDark },
+                  ]}
+                >
+                  →
+                </Text>
+
+                <Text
+                  style={[
+                    styles.bulletText,
+                    { color: themeColors.text },
+                  ]}
+                >
+                  {s}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {!chatOpen && (
+          <TouchableOpacity
+            style={[
+              styles.chatButton,
+              { backgroundColor: themeColors.blueDark },
+            ]}
+            onPress={() => setChatOpen(true)}
+          >
+            <Text
+              style={[
+                styles.chatButtonText,
+                { color: themeColors.white },
+              ]}
+            >
+              Chat with the bot about this review
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {chatOpen && (
+          <View
+            style={[
+              styles.chatCard,
+              { backgroundColor: themeColors.card },
+            ]}
+          >
+            <Text
+              style={[
+                styles.chatTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              Ask about this outfit
+            </Text>
+
+            <View style={styles.chatMessages}>
+              {chatMessages.map((msg) => {
+                const isUser = msg.role === "user";
+
+                return (
+                  <View
+                    key={msg.id}
+                    style={[
+                      isUser
+                        ? styles.userBubble
+                        : styles.botBubble,
+                      {
+                        backgroundColor: isUser
+                          ? themeColors.blueDark
+                          : themeColors.input,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        isUser
+                          ? styles.userBubbleText
+                          : styles.botBubbleText,
+                        {
+                          color: isUser
+                            ? themeColors.white
+                            : themeColors.text,
+                        },
+                      ]}
+                    >
+                      {msg.text}
+                    </Text>
+                  </View>
+                );
+              })}
+
+              {chatLoading && (
+                <View
+                  style={[
+                    styles.botBubble,
+                    { backgroundColor: themeColors.input },
+                  ]}
+                >
+                  <ActivityIndicator color={themeColors.blueDark} />
+                </View>
+              )}
+            </View>
+
+            <View style={styles.chatInputRow}>
+              <TextInput
+                style={[
+                  styles.chatInput,
+                  {
+                    backgroundColor: themeColors.white,
+                    borderColor: themeColors.blueDark,
+                    color: themeColors.text,
+                  },
+                ]}
+                placeholder="Ask why the score, how to improve..."
+                placeholderTextColor={themeColors.muted}
+                value={chatInput}
+                onChangeText={setChatInput}
+                multiline
+              />
+
+              <Pressable
+                style={[
+                  styles.sendButton,
+                  { backgroundColor: themeColors.blueDark },
+                  (!chatInput.trim() || chatLoading) && {
+                    opacity: 0.5,
+                  },
+                ]}
+                onPress={sendChatMessage}
+                disabled={!chatInput.trim() || chatLoading}
+              >
+                <Text
+                  style={[
+                    styles.sendButtonText,
+                    { color: themeColors.white },
+                  ]}
+                >
+                  Send
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        <Pressable
+          style={[
+            styles.retryButton,
+            { backgroundColor: themeColors.bgDark },
+          ]}
+          onPress={() => {
+            setResult(null);
+            setImageUri(null);
+            setOccasion("");
+            setCity("");
+            resetChat();
+          }}
+        >
+          <Text
+            style={[
+              styles.retryButtonText,
+              { color: themeColors.white },
+            ]}
+          >
+            Analyse Another Outfit
+          </Text>
+        </Pressable>
+      </View>
+    )}
+  </ScrollView>
+);
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 20, paddingBottom: 40 },
-  backButton: { alignSelf: "flex-start", backgroundColor: colors.bgDark, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
-  backButtonText: { color: colors.white, fontWeight: "700" },
-  title: { fontSize: 28, fontWeight: "800", color: colors.text, marginBottom: 6 },
-  subtitle: { color: colors.muted, fontSize: 14, marginBottom: 20, lineHeight: 20 },
+  container: {
+    flex: 1,
+  },
 
-  imagePicker: { width: "100%", borderRadius: 18, overflow: "hidden", marginBottom: 8, borderWidth: 2, borderColor: colors.bgDark, borderStyle: "dashed" },
-  previewImage: { width: "100%", height: 320 },
-  imagePlaceholder: { height: 220, alignItems: "center", justifyContent: "center", backgroundColor: colors.card, gap: 8 },
-  imagePlaceholderIcon: { fontSize: 40 },
-  imagePlaceholderText: { fontSize: 15, fontWeight: "600", color: colors.text },
-  imagePlaceholderSub: { fontSize: 12, color: colors.muted },
-  changePhoto: { alignItems: "center", marginBottom: 16 },
-  changePhotoText: { color: colors.blueDark, fontWeight: "600", fontSize: 13 },
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
 
-  formCard: { backgroundColor: colors.card, borderRadius: 18, padding: 16, marginBottom: 20 },
-  label: { fontSize: 13, fontWeight: "600", color: colors.text, marginBottom: 6, marginTop: 4 },
-  required: { color: "#c0726e" },
-  optional: { color: colors.muted, fontWeight: "400" },
-  input: { backgroundColor: colors.white, borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: colors.input, color: colors.text },
-  analyzeButton: { backgroundColor: colors.blueDark, paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 4 },
-  analyzeButtonText: { color: colors.white, fontWeight: "700", fontSize: 16 },
+  backButton: {
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
 
-  resultContainer: { gap: 14 },
-  scoreCard: { backgroundColor: colors.card, borderRadius: 18, padding: 20, alignItems: "center", gap: 4 },
-  scoreLabel: { fontSize: 13, fontWeight: "600", color: colors.muted, textTransform: "uppercase", letterSpacing: 0.5 },
-  scoreValue: { fontSize: 52, fontWeight: "800" },
-  scoreOccasion: { fontSize: 14, color: colors.text, textTransform: "capitalize", marginTop: 2 },
+  backButtonText: {
+    fontWeight: "700",
+  },
 
-  section: { backgroundColor: colors.card, borderRadius: 16, padding: 16, gap: 8 },
-  sectionTitle: { fontSize: 13, fontWeight: "700", color: colors.text, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 },
-  verdictText: { fontSize: 15, color: colors.text, lineHeight: 22 },
-  weatherInfo: { fontSize: 14, color: colors.muted },
-  verdictBadge: { alignSelf: "flex-start", paddingVertical: 5, paddingHorizontal: 14, borderRadius: 999 },
-  verdictBadgeText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-  weatherReason: { fontSize: 14, color: colors.text, lineHeight: 20, marginTop: 4 },
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    marginBottom: 6,
+  },
 
-  bulletRow: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
-  bulletGreen: { color: "#5a9e6f", fontWeight: "700", fontSize: 15, marginTop: 1 },
-  bulletBlue: { color: colors.blueDark, fontWeight: "700", fontSize: 15, marginTop: 1 },
-  bulletText: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
+  subtitle: {
+    fontSize: 14,
+    marginBottom: 20,
+    lineHeight: 20,
+  },
 
-  retryButton: { backgroundColor: colors.bgDark, paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 4 },
-  retryButtonText: { color: colors.white, fontWeight: "700", fontSize: 15 },
+  imagePicker: {
+    width: "100%",
+    borderRadius: 18,
+    overflow: "hidden",
+    marginBottom: 8,
+    borderWidth: 2,
+    borderStyle: "dashed",
+  },
 
-  chatButton: { backgroundColor: colors.blueDark, paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 4 },
-  chatButtonText: { color: colors.white, fontWeight: "700", fontSize: 15 },
-  chatCard: { backgroundColor: colors.card, borderRadius: 16, padding: 16, marginTop: 4 },
-  chatTitle: { fontSize: 16, fontWeight: "700", color: colors.text, marginBottom: 10 },
-  chatMessages: { gap: 10, marginBottom: 12 },
-  botBubble: { alignSelf: "flex-start", maxWidth: "88%", backgroundColor: colors.input, borderRadius: 16, borderBottomLeftRadius: 4, paddingVertical: 10, paddingHorizontal: 12 },
-  userBubble: { alignSelf: "flex-end", maxWidth: "88%", backgroundColor: colors.blueDark, borderRadius: 16, borderBottomRightRadius: 4, paddingVertical: 10, paddingHorizontal: 12 },
-  botBubbleText: { color: colors.text, fontSize: 14, lineHeight: 20 },
-  userBubbleText: { color: colors.white, fontSize: 14, lineHeight: 20 },
-  chatInputRow: { flexDirection: "row", alignItems: "flex-end", gap: 10 },
-  chatInput: { flex: 1, minHeight: 48, maxHeight: 120, backgroundColor: colors.white, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: colors.blueDark, color: colors.text, fontSize: 14 },
-  sendButton: { backgroundColor: colors.blueDark, paddingVertical: 14, paddingHorizontal: 18, borderRadius: 999 },
-  sendButtonText: { color: colors.white, fontWeight: "700" },
+  previewImage: {
+    width: "100%",
+    height: 320,
+  },
+
+  imagePlaceholder: {
+    height: 220,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+
+  imagePlaceholderIcon: {
+    fontSize: 40,
+  },
+
+  imagePlaceholderText: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
+  imagePlaceholderSub: {
+    fontSize: 12,
+  },
+
+  changePhoto: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+
+  changePhotoText: {
+    fontWeight: "600",
+    fontSize: 13,
+  },
+
+  formCard: {
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 20,
+  },
+
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 6,
+    marginTop: 4,
+  },
+
+  required: {},
+
+  optional: {
+    fontWeight: "400",
+  },
+
+  input: {
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+
+  analyzeButton: {
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: "center",
+    marginTop: 4,
+  },
+
+  analyzeButtonText: {
+    fontWeight: "700",
+    fontSize: 16,
+  },
+
+  resultContainer: {
+    gap: 14,
+  },
+
+  scoreCard: {
+    borderRadius: 18,
+    padding: 20,
+    alignItems: "center",
+    gap: 4,
+  },
+
+  scoreLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+
+  scoreValue: {
+    fontSize: 52,
+    fontWeight: "800",
+  },
+
+  scoreOccasion: {
+    fontSize: 14,
+    textTransform: "capitalize",
+    marginTop: 2,
+  },
+
+  section: {
+    borderRadius: 16,
+    padding: 16,
+    gap: 8,
+  },
+
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+
+  verdictText: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+
+  weatherInfo: {
+    fontSize: 14,
+  },
+
+  verdictBadge: {
+    alignSelf: "flex-start",
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+  },
+
+  verdictBadgeText: {
+    fontWeight: "700",
+    fontSize: 13,
+  },
+
+  weatherReason: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 4,
+  },
+
+  bulletRow: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "flex-start",
+  },
+
+  bulletGreen: {
+    color: "#5a9e6f",
+    fontWeight: "700",
+    fontSize: 15,
+    marginTop: 1,
+  },
+
+  bulletBlue: {
+    fontWeight: "700",
+    fontSize: 15,
+    marginTop: 1,
+  },
+
+  bulletText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  retryButton: {
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: "center",
+    marginTop: 4,
+  },
+
+  retryButtonText: {
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
+  chatButton: {
+    paddingVertical: 14,
+    borderRadius: 999,
+    alignItems: "center",
+    marginTop: 4,
+  },
+
+  chatButtonText: {
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
+  chatCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 4,
+  },
+
+  chatTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 10,
+  },
+
+  chatMessages: {
+    gap: 10,
+    marginBottom: 12,
+  },
+
+  botBubble: {
+    alignSelf: "flex-start",
+    maxWidth: "88%",
+    borderRadius: 16,
+    borderBottomLeftRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+
+  userBubble: {
+    alignSelf: "flex-end",
+    maxWidth: "88%",
+    borderRadius: 16,
+    borderBottomRightRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+
+  botBubbleText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  userBubbleText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+
+  chatInputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 10,
+  },
+
+  chatInput: {
+    flex: 1,
+    minHeight: 48,
+    maxHeight: 120,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderWidth: 1,
+    fontSize: 14,
+  },
+
+  sendButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+  },
+
+  sendButtonText: {
+    fontWeight: "700",
+  },
 });
