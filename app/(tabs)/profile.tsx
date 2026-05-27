@@ -1,3 +1,4 @@
+import { colors } from "../../constants/globalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -228,16 +229,16 @@ const styles = StyleSheet.create({
   email: { fontSize: 14, marginTop: 4 },
   switchRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   infoContainer: { flexDirection: "row", justifyContent: "space-around", marginBottom: 20 },
-  infoCard: { backgroundColor: "#b9d6da", padding: 15, borderRadius: 12, alignItems: "center", width: 100 },
+  infoCard: { backgroundColor: colors.blue, padding: 15, borderRadius: 12, alignItems: "center", width: 100 },
   infoTitle: { fontSize: 14, color: "#222", marginBottom: 5 },
   infoNumber: { fontSize: 18, fontWeight: "700", color: "#233443" },
   button: { paddingVertical: 14, marginHorizontal: 20, borderRadius: 30, alignItems: "center", marginBottom: 10 },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", padding: 28 },
-  modalBox: { backgroundColor: "#eeede8", borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
+  modalBox: { backgroundColor: colors.card, borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
   modalTitle: { fontSize: 24, fontWeight: "700", color: "#000", textAlign: "center", marginBottom: 12 },
-  modalMessage: { fontSize: 15, color: "#4B5563", lineHeight: 22, textAlign: "center", marginBottom: 24 },
+  modalMessage: { fontSize: 15, color: colors.muted, lineHeight: 22, textAlign: "center", marginBottom: 24 },
   modalDeleteBtn: { backgroundColor: "#c0726e", paddingVertical: 18, borderRadius: 32, alignItems: "center", marginBottom: 10 },
-  modalCancelBtn: { backgroundColor: "#a3bea9", paddingVertical: 18, borderRadius: 32, alignItems: "center" },
+  modalCancelBtn: { backgroundColor: colors.bgDark, paddingVertical: 18, borderRadius: 32, alignItems: "center" },
   modalBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

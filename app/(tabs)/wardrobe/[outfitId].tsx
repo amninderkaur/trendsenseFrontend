@@ -1,3 +1,4 @@
+import { colors } from "../../../constants/globalStyles";
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { getToken } from "@/utils/token";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -80,7 +81,7 @@ export default function ClothingDetails() {
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <ActivityIndicator size="large" color="#96b7bc" />
+        <ActivityIndicator size="large" color={colors.blueDark} />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
@@ -171,16 +172,16 @@ export default function ClothingDetails() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#eeede8" },
+  container: { flex: 1, backgroundColor: colors.card },
   content: { padding: 20, paddingBottom: 40 },
-  center: { flex: 1, backgroundColor: "#eeede8", alignItems: "center", justifyContent: "center", padding: 20 },
-  loadingText: { fontSize: 16, color: "#96b7bc", marginTop: 12 },
+  center: { flex: 1, backgroundColor: colors.card, alignItems: "center", justifyContent: "center", padding: 20 },
+  loadingText: { fontSize: 16, color: colors.blueDark, marginTop: 12 },
   image: { width: "100%", aspectRatio: 3 / 4, borderRadius: 18, marginVertical: 16, borderWidth: 2, borderColor: "#a3bfa9" },
   itemName: { fontSize: 22, fontWeight: "700", color: "#233443", marginBottom: 12 },
   sectionTitle: { fontSize: 16, fontWeight: "600", color: "#233443", marginTop: 16, marginBottom: 6 },
   detail: { fontSize: 14, color: "#5a8a8d", textTransform: "capitalize" },
   tagContainer: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  tag: { backgroundColor: "#b9d6da", paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20 },
+  tag: { backgroundColor: colors.blue, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20 },
   tagText: { fontSize: 13, color: "#233443", fontWeight: "600", textTransform: "capitalize" },
   deleteButton: { backgroundColor: "#c0726e", paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 28 },
   deleteText: { color: "#fff", fontWeight: "700", fontSize: 15 },
@@ -189,11 +190,11 @@ const styles = StyleSheet.create({
   backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
   // Modal
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", padding: 28 },
-  modalBox: { backgroundColor: "#eeede8", borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
+  modalBox: { backgroundColor: colors.card, borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
   modalTitle: { fontSize: 24, fontWeight: "700", color: "#000", textAlign: "center", marginBottom: 12 },
-  modalMessage: { fontSize: 15, color: "#4B5563", lineHeight: 22, textAlign: "center", marginBottom: 24 },
+  modalMessage: { fontSize: 15, color: colors.muted, lineHeight: 22, textAlign: "center", marginBottom: 24 },
   modalDeleteBtn: { backgroundColor: "#c0726e", paddingVertical: 18, borderRadius: 32, alignItems: "center", marginBottom: 10 },
   modalDeleteText: { color: "#fff", fontWeight: "700", fontSize: 16 },
-  modalCancelBtn: { backgroundColor: "#a3bea9", paddingVertical: 18, borderRadius: 32, alignItems: "center" },
+  modalCancelBtn: { backgroundColor: colors.bgDark, paddingVertical: 18, borderRadius: 32, alignItems: "center" },
   modalCancelText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

@@ -348,14 +348,14 @@ export default function ColourAnalysisScreen() {
 
       {loadingSaved && (
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#96b7bc" />
+          <ActivityIndicator size="large" color={colors.blueDark} />
           <Text style={styles.loadingText}>Loading your saved profile...</Text>
         </View>
       )}
 
       {analysing && (
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#96b7bc" />
+          <ActivityIndicator size="large" color={colors.blueDark} />
           <Text style={styles.loadingText}>Analysing your colours...</Text>
         </View>
       )}
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 40,
     gap: 16,
-    backgroundColor: "#eeede8",
+    backgroundColor: colors.card,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
   title: { fontSize: 22, fontWeight: "700", color: "#233443" },
-  subtitle: { fontSize: 14, color: "#96b7bc", marginBottom: 4 },
+  subtitle: { fontSize: 14, color: colors.blueDark, marginBottom: 4 },
   imagePicker: {
     width: "100%",
     borderRadius: 18,
@@ -515,14 +515,14 @@ const styles = StyleSheet.create({
   imageActionLink: { color: colors.blueDark, fontWeight: "600", fontSize: 13 },
   analyseButton: {
     marginTop: 8,
-    backgroundColor: "#b9d6da",
+    backgroundColor: colors.blue,
     paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
   },
   analyseButtonText: { color: "#233443", fontWeight: "700", fontSize: 15 },
   loadingBox: { alignItems: "center", paddingVertical: 24, gap: 12 },
-  loadingText: { color: "#96b7bc", fontSize: 14, fontWeight: "500" },
+  loadingText: { color: colors.blueDark, fontSize: 14, fontWeight: "500" },
   errorText: { color: "#d0685f", marginTop: 4, fontSize: 14, fontWeight: "600" },
   resultCard: {
     backgroundColor: "#fff",
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   seasonBadge: {
-    backgroundColor: "#b9d6da",
+    backgroundColor: colors.blue,
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   resultLabel: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#96b7bc",
+    color: colors.blueDark,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },

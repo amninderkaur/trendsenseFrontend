@@ -3,380 +3,237 @@
 import { StyleSheet } from "react-native";
 
 export const colors = {
-  bg: "#c1d1bf",
-  bgDark: "#a3bea9",
-  card: "#eeede8",
-  input: "#dae4e2",
-  blue: "#b9d6da",
-  blueDark: "#96b7bc",
-  text: "#000000",
-  muted: "#4B5563",
+  bg: "#EEF2EF",
+  bgDark: "#2A3530",
+  card: "#FFFFFF",
+  input: "#E4ECE8",
+  blue: "#B9D6DA",
+  blueDark: "#6BA8A4",
+  text: "#1A2520",
+  muted: "#5A6E68",
   accent: "#FF6B4A",
   white: "#FFFFFF",
 };
 
 export const globalStyles = StyleSheet.create({
-  // =========================
   // LAYOUT
-  // =========================
-
   screen: {
     flex: 1,
     backgroundColor: colors.bg,
     position: "relative",
   },
-
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
   },
-
   centeredContent: {
     justifyContent: "center",
     alignItems: "center",
   },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
   },
 
-  // =========================
-  // AUTH PAGES
-  // Login / Register shared
-  // =========================
-
+  // AUTH
   formCard: {
     width: "100%",
     maxWidth: 340,
     minHeight: 500,
-    backgroundColor: colors.card,
+    backgroundColor: "#DCE9D8",
     padding: 28,
-    borderRadius: 32,
+    borderRadius: 28,
     justifyContent: "center",
-
-    shadowColor: colors.text,
+    shadowColor: "#1A2520",
     shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-
-    elevation: 5,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
-
   largeFormCard: {
     maxWidth: 900,
     minHeight: 520,
     padding: 60,
-    borderRadius: 40,
+    borderRadius: 36,
   },
-
   input: {
-    borderWidth: 1,
-    borderColor: colors.input,
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    fontSize: 16,
+    borderWidth: 1.5,
+    borderColor: "#D0DDD8",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
     color: colors.text,
-    marginBottom: 18,
-    backgroundColor: colors.input,
-
-    shadowColor: colors.text,
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    marginBottom: 10,
+    backgroundColor: "#F4F8F5",
   },
-
   largeInput: {
-    paddingHorizontal: 28,
-    paddingVertical: 24,
-    fontSize: 22,
-    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    fontSize: 20,
+    borderRadius: 16,
   },
-
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-
   passwordInput: {
     flex: 1,
     color: colors.text,
-    fontSize: 16,
+    fontSize: 14,
   },
-
-  largePasswordInput: {
-    fontSize: 22,
-  },
-
+  largePasswordInput: { fontSize: 20 },
   showText: {
-    paddingHorizontal: 12,
-    fontWeight: "600",
+    paddingHorizontal: 10,
+    fontWeight: "700",
     color: colors.accent,
+    fontSize: 13,
   },
+  largeShowText: { fontSize: 18 },
 
-  largeShowText: {
-    fontSize: 18,
-  },
-
-  // =========================
   // BUTTONS
-  // =========================
-
   primaryButton: {
-    backgroundColor: colors.bgDark,
-    paddingVertical: 18,
-    borderRadius: 32,
-    alignItems: "center",
-    marginTop: 12,
-    marginBottom: 20,
-  },
-
-  largePrimaryButton: {
-    paddingVertical: 24,
-    borderRadius: 40,
-  },
-
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  largePrimaryButtonText: {
-    fontSize: 22,
-  },
-
-  // =========================
-  // TYPOGRAPHY
-  // =========================
-
-  pageTitle: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 10,
-  },
-
-  largePageTitle: {
-    fontSize: 56,
-    marginBottom: 20,
-  },
-
-  subtitle: {
-    fontSize: 16,
-    color: colors.blueDark,
-    marginBottom: 24,
-  },
-
-  bodyText: {
-    fontSize: 14,
-    color: colors.muted,
-  },
-
-  errorText: {
-    color: colors.accent,
-    marginBottom: 12,
-    fontSize: 14,
-  },
-
-  largeErrorText: {
-    fontSize: 18,
-  },
-
-  // =========================
-  // LINKS
-  // =========================
-
-  centeredLink: {
+    backgroundColor: colors.accent,
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
     marginTop: 10,
+    marginBottom: 16,
+    shadowColor: colors.accent,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
+  largePrimaryButton: {
+    paddingVertical: 22,
+    borderRadius: 18,
+  },
+  primaryButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  largePrimaryButtonText: { fontSize: 22 },
 
-  linkText: {
+  // TYPOGRAPHY
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: "900",
     color: colors.text,
+    marginBottom: 8,
+  },
+  largePageTitle: { fontSize: 50, marginBottom: 18 },
+  subtitle: {
     fontSize: 14,
-    fontWeight: "600",
+    color: colors.muted,
+    marginBottom: 20,
   },
+  bodyText: { fontSize: 13, color: colors.muted },
+  errorText: { color: colors.accent, marginBottom: 10, fontSize: 13 },
+  largeErrorText: { fontSize: 18 },
+  centeredLink: { alignItems: "center", marginTop: 10 },
+  linkText: { color: colors.text, fontSize: 13, fontWeight: "600" },
+  largeLinkText: { fontSize: 18 },
 
-  largeLinkText: {
-    fontSize: 18,
-  },
-
-  // =========================
-  // DECORATIVE ELEMENTS
-  // =========================
-
+  // DECORATIVE
   topRightCircle: {
     position: "absolute",
-    width: 220,
-    height: 220,
-    borderRadius: 110,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     backgroundColor: colors.blueDark,
-    top: -80,
-    right: -80,
-    opacity: 0.47,
+    top: -70,
+    right: -70,
+    opacity: 0.18,
   },
-
   bottomLeftCircle: {
     position: "absolute",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     backgroundColor: colors.blue,
-    bottom: -60,
-    left: -60,
-    opacity: 0.56,
+    bottom: -55,
+    left: -55,
+    opacity: 0.22,
   },
 
-  // =========================
   // CARDS
-  // =========================
-
   card: {
     backgroundColor: colors.card,
     borderRadius: 16,
-    padding: 20,
-
+    padding: 14,
     shadowColor: colors.text,
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
 
-  //==============================
-  // PERSONALIZATION MODAL
-  //==============================
-
+  // MODAL
   modalContainer: {
     backgroundColor: colors.card,
-    borderRadius: 25,
-    padding: 20,
+    borderRadius: 28,
+    padding: 22,
     maxHeight: "90%",
     width: "100%",
     maxWidth: 380,
     alignSelf: "center",
+    shadowColor: colors.text,
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
   },
-
-  largeModalContainer: {
-    maxWidth: 700,
-    padding: 40,
-    borderRadius: 35,
-  },
-
+  largeModalContainer: { maxWidth: 700, padding: 44, borderRadius: 36 },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 20,
+    fontWeight: "800",
     color: colors.text,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 18,
   },
-
-  largeModalTitle: {
-    fontSize: 40,
-    marginBottom: 30,
-  },
-
+  largeModalTitle: { fontSize: 36, marginBottom: 28 },
   modalHeading: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
     color: colors.text,
-    marginBottom: 10,
-    marginTop: 15,
+    marginBottom: 8,
+    marginTop: 14,
   },
+  largeModalHeading: { fontSize: 22, marginTop: 22 },
 
-  largeModalHeading: {
-    fontSize: 24,
-    marginTop: 24,
-  },
-
-  // =========================
-  // Main Menu
-  // =========================
-
-  dashboardContainer: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 30,
-  },
-
-  largeDashboardContainer: {
-    padding: 40,
-    alignItems: "center",
-  },
-
-  dashboardContent: {
-    width: "100%",
-    maxWidth: 900,
-  },
-
+  // DASHBOARD
+  dashboardContainer: { flexGrow: 1, padding: 14, paddingBottom: 24 },
+  largeDashboardContainer: { padding: 36, alignItems: "center" },
+  dashboardContent: { width: "100%", maxWidth: 900 },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 10,
     fontWeight: "700",
-    color: colors.text,
-    marginBottom: 10,
-  },
-
-  largeSectionTitle: {
-    fontSize: 28,
-  },
-
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 6,
-  },
-
-  largeCardTitle: {
-    fontSize: 28,
-  },
-
-  cardText: {
-    fontSize: 14,
     color: colors.muted,
-    marginBottom: 10,
+    marginBottom: 8,
+    letterSpacing: 0.7,
+    textTransform: "uppercase",
   },
-
-  largeCardText: {
-    fontSize: 18,
-  },
-
+  largeSectionTitle: { fontSize: 15 },
+  cardTitle: { fontSize: 15, fontWeight: "700", color: colors.text, marginBottom: 5 },
+  largeCardTitle: { fontSize: 24 },
+  cardText: { fontSize: 12, color: colors.muted, marginBottom: 8 },
+  largeCardText: { fontSize: 18 },
   dashboardCard: {
     backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 20,
-    marginVertical: 10,
-
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 8,
     shadowColor: colors.text,
     shadowOpacity: 0.05,
-    shadowRadius: 5,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
-    elevation: 3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-
-  largeDashboardCard: {
-    padding: 32,
-    borderRadius: 28,
-  },
-
+  largeDashboardCard: { padding: 28, borderRadius: 22 },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -385,219 +242,119 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 16,
     marginBottom: 10,
-
     shadowColor: colors.text,
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
+  largeMenuItem: { paddingVertical: 20, paddingHorizontal: 20, borderRadius: 20 },
+  menuText: { fontSize: 14, color: colors.text, fontWeight: "600" },
+  largeMenuText: { fontSize: 20 },
 
-  largeMenuItem: {
-    paddingVertical: 20,
-    paddingHorizontal: 22,
-    borderRadius: 22,
-  },
-
-  menuText: {
-    fontSize: 15,
-    color: colors.text,
-    fontWeight: "500",
-  },
-
-  largeMenuText: {
-    fontSize: 20,
-  },
-  //==========================
-  // CHATBOT PAGE
-  //==========================
-  // =========================
   // CHATBOT
-  // =========================
-
-  chatScreen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    paddingTop: 56,
-  },
-
-  chatContent: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 900,
-    alignSelf: "center",
-  },
-
+  chatScreen: { flex: 1, backgroundColor: colors.bg, paddingTop: 56 },
+  chatContent: { flex: 1, width: "100%", maxWidth: 900, alignSelf: "center" },
   chatHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 14,
+    gap: 10,
   },
-
-  largeChatHeader: {
-    paddingHorizontal: 40,
-    paddingBottom: 24,
-  },
-
+  largeChatHeader: { paddingHorizontal: 40, paddingBottom: 24 },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.text,
+    shadowOpacity: 0.06,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-
-  largeIconButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-  },
-
-  chatContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    gap: 12,
-  },
-
-  largeChatContainer: {
-    paddingHorizontal: 40,
-    gap: 16,
-  },
-
+  largeIconButton: { width: 54, height: 54, borderRadius: 27 },
+  chatContainer: { paddingHorizontal: 14, paddingBottom: 18, gap: 8 },
+  largeChatContainer: { paddingHorizontal: 40, gap: 14 },
   botBubble: {
     alignSelf: "flex-start",
-    maxWidth: "86%",
+    maxWidth: "80%",
     backgroundColor: colors.card,
     borderRadius: 18,
     borderBottomLeftRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 11,
+    paddingHorizontal: 13,
+    shadowColor: colors.text,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
   },
-
   userBubble: {
     alignSelf: "flex-end",
-    maxWidth: "86%",
-    backgroundColor: colors.blueDark,
+    maxWidth: "80%",
+    backgroundColor: colors.accent,
     borderRadius: 18,
     borderBottomRightRadius: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 11,
+    paddingHorizontal: 13,
   },
-
-  largeChatBubble: {
-    maxWidth: "75%",
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-  },
-
-  botText: {
-    color: colors.text,
-    fontSize: 15,
-    lineHeight: 21,
-  },
-
-  userText: {
-    color: colors.white,
-    fontSize: 15,
-    lineHeight: 21,
-  },
-
-  largeChatText: {
-    fontSize: 20,
-    lineHeight: 28,
-  },
-
-  quickPromptRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-    paddingTop: 8,
-  },
-
+  largeChatBubble: { maxWidth: "72%", paddingVertical: 16, paddingHorizontal: 18, borderRadius: 22 },
+  botText: { color: colors.text, fontSize: 13, lineHeight: 20 },
+  userText: { color: colors.white, fontSize: 13, lineHeight: 20 },
+  largeChatText: { fontSize: 19, lineHeight: 27 },
+  quickPromptRow: { flexDirection: "row", flexWrap: "wrap", gap: 7, paddingTop: 7 },
   quickPrompt: {
-    backgroundColor: colors.card,
+    backgroundColor: "#DCE9D8",
     borderRadius: 999,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 7,
+    paddingHorizontal: 13,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
-
-  largeQuickPrompt: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-  },
-
-  quickPromptText: {
-    fontSize: 13,
-    color: colors.text,
-    fontWeight: "600",
-  },
-
-  largeQuickPromptText: {
-    fontSize: 17,
-  },
-
+  largeQuickPrompt: { paddingVertical: 12, paddingHorizontal: 18 },
+  quickPromptText: { fontSize: 11, color: colors.accent, fontWeight: "700" },
+  largeQuickPromptText: { fontSize: 16 },
   chatInputBar: {
     flexDirection: "row",
     alignItems: "flex-end",
-    gap: 10,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 24,
+    gap: 9,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 22,
+    backgroundColor: colors.card,
+    borderTopWidth: 1,
+    borderTopColor: "#E8EDE9",
   },
-
-  largeChatInputBar: {
-    paddingHorizontal: 40,
-    paddingBottom: 36,
-    gap: 16,
-  },
-
+  largeChatInputBar: { paddingHorizontal: 40, paddingBottom: 36, gap: 14 },
   chatInput: {
     flex: 1,
-    minHeight: 50,
+    minHeight: 44,
     maxHeight: 120,
-    backgroundColor: colors.card,
-    borderRadius: 18,
+    backgroundColor: colors.bg,
+    borderRadius: 22,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 10,
     color: colors.text,
-    fontSize: 15,
-    borderWidth: 1,
-    borderColor: colors.blueDark,
+    fontSize: 13,
   },
-
-  largeChatInput: {
-    minHeight: 70,
-    maxHeight: 160,
-    borderRadius: 24,
-    paddingHorizontal: 22,
-    paddingVertical: 18,
-    fontSize: 20,
-  },
-
+  largeChatInput: { minHeight: 66, maxHeight: 150, borderRadius: 28, paddingHorizontal: 20, paddingVertical: 16, fontSize: 19 },
   sendButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.blueDark,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.accent,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.accent,
+    shadowOpacity: 0.35,
+    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
-
-  largeSendButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-  },
-
-  disabledButton: {
-    opacity: 0.5,
-  },
+  largeSendButton: { width: 62, height: 62, borderRadius: 31 },
+  disabledButton: { opacity: 0.45 },
 });

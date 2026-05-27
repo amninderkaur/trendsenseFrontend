@@ -1,3 +1,4 @@
+import { colors } from "../../../constants/globalStyles";
 import { BASE_URL } from "@/api/axios";
 import { getToken } from "@/utils/token";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -183,14 +184,14 @@ export default function HistoryDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#eeede8",
+    backgroundColor: colors.card,
   },
   content: {
     paddingBottom: 30,
   },
   center: {
     flex: 1,
-    backgroundColor: "#eeede8",
+    backgroundColor: colors.card,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 12,
-    color: "#96b7bc",
+    color: colors.blueDark,
     marginBottom: 4,
     textTransform: "uppercase",
     fontWeight: "600",
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 14,
-    color: "#96b7bc",
+    color: colors.blueDark,
     marginTop: 2,
   },
   detectedSection: {
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   tag: {
-    backgroundColor: "#b9d6da",
+    backgroundColor: colors.blue,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: "#96b7bc",
+    color: colors.blueDark,
     fontWeight: "500",
   },
   infoValue: {

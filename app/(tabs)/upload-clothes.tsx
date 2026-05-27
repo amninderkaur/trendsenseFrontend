@@ -1,3 +1,4 @@
+import { colors } from "../../constants/globalStyles";
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -232,9 +233,9 @@ export default function UploadWardrobeScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 32, gap: 16, backgroundColor: "#eeede8" },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 32, gap: 16, backgroundColor: colors.card },
   title: { fontSize: 22, fontWeight: "700", color: "#233443" },
-  subtitle: { fontSize: 14, color: "#96b7bc", marginBottom: 4 },
+  subtitle: { fontSize: 14, color: colors.blueDark, marginBottom: 4 },
   buttonRow: { flexDirection: "row", gap: 12, marginTop: 10 },
   button: { flex: 1, backgroundColor: "#c0d1bf", paddingVertical: 12, borderRadius: 999, alignItems: "center" },
   buttonText: { color: "#233443", fontWeight: "600" },
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
   previewContainer: { marginTop: 24 },
   previewImage: { width: "100%", aspectRatio: 3 / 4, borderRadius: 16, marginTop: 8, borderWidth: 2, borderColor: "#a3bfa9" },
   sectionTitle: { fontSize: 16, fontWeight: "600", marginBottom: 4, color: "#233443" },
-  uploadButton: { marginTop: 24, backgroundColor: "#b9d6da", paddingVertical: 14, borderRadius: 999, alignItems: "center" },
+  uploadButton: { marginTop: 24, backgroundColor: colors.blue, paddingVertical: 14, borderRadius: 999, alignItems: "center" },
   uploadButtonText: { color: "#233443", fontWeight: "700", fontSize: 15 },
   resultBox: { backgroundColor: "#c0d1bf", marginTop: 20, borderRadius: 14, padding: 16 },
   resultItem: { color: "#233443", marginBottom: 4, fontWeight: "500" },

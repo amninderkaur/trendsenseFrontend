@@ -197,7 +197,7 @@ User question: ${question}
 
   const verdictColor = (verdict: string) => {
     if (verdict === "suitable") return "#5a9e6f";
-    if (verdict === "unknown") return "#96b7bc";
+    if (verdict === "unknown") return colors.blueDark;
     return "#c0726e";
   };
 

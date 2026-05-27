@@ -1,3 +1,4 @@
+import { colors } from "../../../constants/globalStyles";
 import { getOutfitHistory, deleteOutfitHistory } from "@/api/outfitHistory";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -158,7 +159,7 @@ export default function SavedOutfitsIndex() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#eeede8" },
+  container: { flex: 1, backgroundColor: colors.card },
   content: { padding: 20, paddingBottom: 40 },
   backButton: {
     alignSelf: "flex-start",
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
   title: { fontSize: 26, fontWeight: "700", color: "#233443", marginBottom: 4 },
-  subtitle: { fontSize: 14, color: "#96b7bc", marginBottom: 16 },
+  subtitle: { fontSize: 14, color: colors.blueDark, marginBottom: 16 },
   errorText: { color: "#d0685f", fontSize: 15, textAlign: "center", marginTop: 20 },
   emptyText: {
     fontSize: 15,
@@ -199,13 +200,13 @@ const styles = StyleSheet.create({
     color: "#233443",
     textTransform: "capitalize",
   },
-  city: { fontSize: 13, color: "#96b7bc", marginTop: 2 },
+  city: { fontSize: 13, color: colors.blueDark, marginTop: 2 },
   weather: { fontSize: 13, color: "#5a8a8d", marginBottom: 6 },
   reasoning: { fontSize: 14, color: "#233443", marginBottom: 10, lineHeight: 20 },
   itemsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   itemCard: {
     width: "47%",
-    backgroundColor: "#b9d6da",
+    backgroundColor: colors.blue,
     borderRadius: 12,
     padding: 8,
     alignItems: "center",
