@@ -11,11 +11,13 @@ import {
   View,
 } from "react-native";
 
-import { deleteShoppingItem, getSavedShoppingItems } from "../../api/shopping";
-import { colors, globalStyles } from "../../constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { useFocusEffect } from "@react-navigation/native";
+import { deleteShoppingItem, getSavedShoppingItems } from "../../api/shopping";
 
 export default function SavedItems() {
+  const { themeColors } = useAppTheme(); 
   const router = useRouter();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,72 +58,286 @@ export default function SavedItems() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} />}
+  <ScrollView
+    style={[
+      styles.container,
+      { backgroundColor: themeColors.bg },
+    ]}
+    contentContainerStyle={styles.content}
+    refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          load();
+        }}
+      />
+    }
+  >
+    <Pressable
+      style={[
+        styles.backButton,
+        { backgroundColor: themeColors.bgDark },
+      ]}
+      onPress={() =>
+        router.canGoBack()
+          ? router.back()
+          : router.replace("/(tabs)/mainMenu" as any)
+      }
     >
-      <Pressable style={styles.backButton} onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/mainMenu" as any)}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </Pressable>
+      <Text
+        style={[
+          styles.backButtonText,
+          { color: themeColors.white },
+        ]}
+      >
+        ← Back
+      </Text>
+    </Pressable>
 
-      <Text style={styles.title}>Saved Items</Text>
-      <Text style={styles.subtitle}>Shopping items you've saved from budgeting suggestions.</Text>
+    <Text
+      style={[
+        styles.title,
+        { color: themeColors.text },
+      ]}
+    >
+      Saved Items
+    </Text>
 
-      {loading && <ActivityIndicator color={colors.blueDark} style={{ marginTop: 40 }} />}
+    <Text
+      style={[
+        styles.subtitle,
+        { color: themeColors.muted },
+      ]}
+    >
+      Shopping items you've saved from budgeting suggestions.
+    </Text>
 
-      {!!error && <Text style={globalStyles.errorText}>{error}</Text>}
+    {loading && (
+      <ActivityIndicator
+        color={themeColors.blueDark}
+        style={{ marginTop: 40 }}
+      />
+    )}
 
-      {!loading && items.length === 0 && !error && (
-        <Text style={styles.emptyText}>No saved items yet. Save items from the Budgeting screen.</Text>
-      )}
+    {!!error && (
+      <Text
+        style={[
+          globalStyles.errorText,
+          { color: themeColors.accent },
+        ]}
+      >
+        {error}
+      </Text>
+    )}
 
-      {items.map((item: any) => (
-        <View key={item.id} style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.itemName}>{item.item}</Text>
-            <Pressable
-              style={styles.deleteButton}
-              onPress={() => handleDelete(item.id)}
-              disabled={deletingId === item.id}
-            >
-              {deletingId === item.id
-                ? <ActivityIndicator color={colors.white} size="small" />
-                : <Text style={styles.deleteText}>Remove</Text>}
-            </Pressable>
-          </View>
-          <Text style={styles.detail}>Category: {item.category}</Text>
-          <Text style={styles.detail}>Why it fits: {item.whyItFits}</Text>
-          <Text style={styles.detail}>Price: {item.estimatedPrice}</Text>
-          <Text style={styles.detail}>Store: {item.storeName} ({item.storeType})</Text>
-          {!!item.nearbyLocation && (
-            <Text style={styles.detail}>Nearby: {item.nearbyLocation}</Text>
-          )}
-          {!!item.link && (
-            <Pressable style={styles.linkButton} onPress={() => Linking.openURL(item.link)}>
-              <Text style={styles.linkText}>Open Product Link</Text>
-            </Pressable>
-          )}
+    {!loading && items.length === 0 && !error && (
+      <Text
+        style={[
+          styles.emptyText,
+          { color: themeColors.muted },
+        ]}
+      >
+        No saved items yet. Save items from the Budgeting screen.
+      </Text>
+    )}
+
+    {items.map((item: any) => (
+      <View
+        key={item.id}
+        style={[
+          styles.card,
+          { backgroundColor: themeColors.card },
+        ]}
+      >
+        <View style={styles.cardHeader}>
+          <Text
+            style={[
+              styles.itemName,
+              { color: themeColors.text },
+            ]}
+          >
+            {item.item}
+          </Text>
+
+          <Pressable
+            style={[
+              styles.deleteButton,
+              { backgroundColor: themeColors.accent },
+            ]}
+            onPress={() => handleDelete(item.id)}
+            disabled={deletingId === item.id}
+          >
+            {deletingId === item.id ? (
+              <ActivityIndicator
+                color={themeColors.white}
+                size="small"
+              />
+            ) : (
+              <Text
+                style={[
+                  styles.deleteText,
+                  { color: themeColors.white },
+                ]}
+              >
+                Remove
+              </Text>
+            )}
+          </Pressable>
         </View>
-      ))}
-    </ScrollView>
-  );
+
+        <Text
+          style={[
+            styles.detail,
+            { color: themeColors.muted },
+          ]}
+        >
+          Category: {item.category}
+        </Text>
+
+        <Text
+          style={[
+            styles.detail,
+            { color: themeColors.muted },
+          ]}
+        >
+          Why it fits: {item.whyItFits}
+        </Text>
+
+        <Text
+          style={[
+            styles.detail,
+            { color: themeColors.muted },
+          ]}
+        >
+          Price: {item.estimatedPrice}
+        </Text>
+
+        <Text
+          style={[
+            styles.detail,
+            { color: themeColors.muted },
+          ]}
+        >
+          Store: {item.storeName} ({item.storeType})
+        </Text>
+
+        {!!item.nearbyLocation && (
+          <Text
+            style={[
+              styles.detail,
+              { color: themeColors.muted },
+            ]}
+          >
+            Nearby: {item.nearbyLocation}
+          </Text>
+        )}
+
+        {!!item.link && (
+          <Pressable
+            style={[
+              styles.linkButton,
+              { backgroundColor: themeColors.bgDark },
+            ]}
+            onPress={() => Linking.openURL(item.link)}
+          >
+            <Text
+              style={[
+                styles.linkText,
+                { color: themeColors.white },
+              ]}
+            >
+              Open Product Link
+            </Text>
+          </Pressable>
+        )}
+      </View>
+    ))}
+  </ScrollView>
+);
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 20, paddingBottom: 40 },
-  backButton: { alignSelf: "flex-start", backgroundColor: colors.bgDark, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
-  backButtonText: { color: colors.white, fontWeight: "700" },
-  title: { fontSize: 28, fontWeight: "800", color: colors.text },
-  subtitle: { color: colors.muted, marginTop: 6, marginBottom: 18 },
-  emptyText: { fontSize: 15, color: colors.muted, textAlign: "center", marginTop: 60 },
-  card: { backgroundColor: colors.card, padding: 16, borderRadius: 16, marginBottom: 12 },
-  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
-  itemName: { fontSize: 17, fontWeight: "800", color: colors.text, flex: 1, marginRight: 8 },
-  detail: { color: colors.muted, marginBottom: 4 },
-  deleteButton: { backgroundColor: "#c0726e", paddingVertical: 6, paddingHorizontal: 14, borderRadius: 999 },
-  deleteText: { color: colors.white, fontWeight: "700", fontSize: 13 },
-  linkButton: { backgroundColor: colors.bgDark, padding: 12, borderRadius: 999, alignItems: "center", marginTop: 10 },
-  linkText: { color: colors.white, fontWeight: "700" },
+  container: {
+    flex: 1,
+  },
+
+  content: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+
+  backButton: {
+    alignSelf: "flex-start",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
+
+  backButtonText: {
+    fontWeight: "700",
+  },
+
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+  },
+
+  subtitle: {
+    marginTop: 6,
+    marginBottom: 18,
+  },
+
+  emptyText: {
+    fontSize: 15,
+    textAlign: "center",
+    marginTop: 60,
+  },
+
+  card: {
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+
+  itemName: {
+    fontSize: 17,
+    fontWeight: "800",
+    flex: 1,
+    marginRight: 8,
+  },
+
+  detail: {
+    marginBottom: 4,
+  },
+
+  deleteButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+  },
+
+  deleteText: {
+    fontWeight: "700",
+    fontSize: 13,
+  },
+
+  linkButton: {
+    padding: 12,
+    borderRadius: 999,
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  linkText: {
+    fontWeight: "700",
+  },
 });

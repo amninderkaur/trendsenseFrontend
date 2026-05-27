@@ -1,5 +1,6 @@
 import { colors } from "../../../constants/globalStyles";
 import { BASE_URL } from "@/api/axios";
+import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -28,6 +29,8 @@ type WardrobeItemDetail = {
 export default function HistoryDetails() {
   const { clothingId } = useLocalSearchParams();
   const router = useRouter();
+  const { themeColors } = useAppTheme();
+
   const [item, setItem] = useState<WardrobeItemDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,9 +48,6 @@ export default function HistoryDetails() {
         return;
       }
 
-      console.log("Fetching item details for ID:", clothingId);
-
-      // Fetch all wardrobe items (since there's no single-item endpoint yet)
       const response = await fetch(`${API_BASE_URL}/wardrobe`, {
         method: "GET",
         headers: {
@@ -61,8 +61,6 @@ export default function HistoryDetails() {
       }
 
       const allItems: WardrobeItemDetail[] = await response.json();
-
-      // Find the specific item
       const foundItem = allItems.find((i) => i.id === clothingId);
 
       if (!foundItem) {
@@ -72,7 +70,6 @@ export default function HistoryDetails() {
       }
 
       setItem(foundItem);
-      console.log("Item loaded:", foundItem);
     } catch (error: any) {
       console.error("Failed to load item:", error);
       Alert.alert("Error", error.message || "Failed to load item details");
@@ -84,6 +81,7 @@ export default function HistoryDetails() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+
     return date.toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -94,6 +92,7 @@ export default function HistoryDetails() {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
+
     return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
@@ -102,79 +101,238 @@ export default function HistoryDetails() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#233443" />
-        <Text style={styles.loadingText}>Loading item details...</Text>
+      <View
+        style={[
+          styles.center,
+          { backgroundColor: themeColors.bg },
+        ]}
+      >
+        <ActivityIndicator size="large" color={themeColors.text} />
+        <Text
+          style={[
+            styles.loadingText,
+            { color: themeColors.text },
+          ]}
+        >
+          Loading item details...
+        </Text>
       </View>
     );
   }
 
   if (!item) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Item not found</Text>
+      <View
+        style={[
+          styles.center,
+          { backgroundColor: themeColors.bg },
+        ]}
+      >
+        <Text
+          style={[
+            styles.errorText,
+            { color: themeColors.accent },
+          ]}
+        >
+          Item not found
+        </Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[
+        styles.container,
+        { backgroundColor: themeColors.bg },
+      ]}
+      contentContainerStyle={styles.content}
+    >
       <Image
         source={{
           uri: `${BASE_URL}${item.imageUrl}`,
         }}
-        style={styles.mainImage}
+        style={[
+          styles.mainImage,
+          { backgroundColor: themeColors.input },
+        ]}
         resizeMode="cover"
       />
 
       <View style={styles.detailsSection}>
-        <Text style={styles.title}>{item.tag}</Text>
+        <Text
+          style={[
+            styles.title,
+            { color: themeColors.text },
+          ]}
+        >
+          {item.tag}
+        </Text>
 
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateLabel}>Added on</Text>
-          <Text style={styles.date}>{formatDate(item.uploadDate)}</Text>
-          <Text style={styles.time}>{formatTime(item.uploadDate)}</Text>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: themeColors.card, borderColor: themeColors.bgDark },
+          ]}
+        >
+          <Text
+            style={[
+              styles.dateLabel,
+              { color: themeColors.blueDark },
+            ]}
+          >
+            Added on
+          </Text>
+
+          <Text
+            style={[
+              styles.date,
+              { color: themeColors.text },
+            ]}
+          >
+            {formatDate(item.uploadDate)}
+          </Text>
+
+          <Text
+            style={[
+              styles.time,
+              { color: themeColors.blueDark },
+            ]}
+          >
+            {formatTime(item.uploadDate)}
+          </Text>
         </View>
 
         {item.detectedItems && item.detectedItems.length > 0 && (
-          <View style={styles.detectedSection}>
-            <Text style={styles.sectionTitle}>Detected Items</Text>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: themeColors.card, borderColor: themeColors.bgDark },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              Detected Items
+            </Text>
+
             <View style={styles.tagBox}>
               {item.detectedItems.map((detectedItem, index) => (
-                <View key={index} style={styles.tag}>
-                  <Text style={styles.tagText}>{detectedItem}</Text>
+                <View
+                  key={index}
+                  style={[
+                    styles.tag,
+                    { backgroundColor: themeColors.blue },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tagText,
+                      { color: themeColors.text },
+                    ]}
+                  >
+                    {detectedItem}
+                  </Text>
                 </View>
               ))}
             </View>
           </View>
         )}
 
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Details</Text>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: themeColors.card, borderColor: themeColors.bgDark },
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: themeColors.text },
+            ]}
+          >
+            Details
+          </Text>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Item ID:</Text>
-            <Text style={styles.infoValue}>{item.id}</Text>
+            <Text
+              style={[
+                styles.infoLabel,
+                { color: themeColors.blueDark },
+              ]}
+            >
+              Item ID:
+            </Text>
+
+            <Text
+              style={[
+                styles.infoValue,
+                { color: themeColors.text },
+              ]}
+            >
+              {item.id}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Category:</Text>
-            <Text style={styles.infoValue}>{item.tag}</Text>
+            <Text
+              style={[
+                styles.infoLabel,
+                { color: themeColors.blueDark },
+              ]}
+            >
+              Category:
+            </Text>
+
+            <Text
+              style={[
+                styles.infoValue,
+                { color: themeColors.text },
+              ]}
+            >
+              {item.tag}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Total Items:</Text>
-            <Text style={styles.infoValue}>
+            <Text
+              style={[
+                styles.infoLabel,
+                { color: themeColors.blueDark },
+              ]}
+            >
+              Total Items:
+            </Text>
+
+            <Text
+              style={[
+                styles.infoValue,
+                { color: themeColors.text },
+              ]}
+            >
               {item.detectedItems?.length || 0} detected
             </Text>
           </View>
         </View>
 
         <TouchableOpacity
-          style={styles.backButton}
+          style={[
+            styles.backButton,
+            { backgroundColor: themeColors.button },
+          ]}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>Back to Wardrobe</Text>
+          <Text
+            style={[
+              styles.backButtonText,
+              { color: themeColors.white },
+            ]}
+          >
+            Back to Wardrobe
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -184,31 +342,34 @@ export default function HistoryDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
     backgroundColor: colors.card,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
   },
   content: {
     paddingBottom: 30,
   },
   center: {
     flex: 1,
+<<<<<<< HEAD
     backgroundColor: colors.card,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     justifyContent: "center",
     alignItems: "center",
   },
   loadingText: {
-    color: "#233443",
     fontSize: 16,
     marginTop: 12,
   },
   errorText: {
-    color: "#d0685f",
     fontSize: 16,
     fontWeight: "600",
   },
   mainImage: {
     width: "100%",
     height: 400,
-    backgroundColor: "#f0f0f0",
   },
   detailsSection: {
     padding: 20,
@@ -217,44 +378,38 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#233443",
     textTransform: "capitalize",
   },
-  dateContainer: {
-    backgroundColor: "#ffffff",
+  card: {
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#c0d1bf",
   },
   dateLabel: {
     fontSize: 12,
+<<<<<<< HEAD
     color: colors.blueDark,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     marginBottom: 4,
     textTransform: "uppercase",
     fontWeight: "600",
   },
   date: {
     fontSize: 16,
-    color: "#233443",
     fontWeight: "600",
   },
   time: {
     fontSize: 14,
+<<<<<<< HEAD
     color: colors.blueDark,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     marginTop: 2,
-  },
-  detectedSection: {
-    backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#c0d1bf",
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#233443",
     marginBottom: 12,
   },
   tagBox: {
@@ -263,23 +418,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   tag: {
+<<<<<<< HEAD
     backgroundColor: colors.blue,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
   },
   tagText: {
-    color: "#233443",
     fontWeight: "600",
     textTransform: "capitalize",
-  },
-  infoSection: {
-    backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#c0d1bf",
-    gap: 12,
   },
   infoRow: {
     flexDirection: "row",
@@ -288,23 +437,23 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
+<<<<<<< HEAD
     color: colors.blueDark,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     fontWeight: "500",
   },
   infoValue: {
     fontSize: 14,
-    color: "#233443",
     fontWeight: "600",
   },
   backButton: {
-    backgroundColor: "#c0d1bf",
     paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
     marginTop: 10,
   },
   backButtonText: {
-    color: "#233443",
     fontWeight: "700",
     fontSize: 16,
   },

@@ -1,6 +1,7 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { saveOutfitHistory } from "@/api/outfitHistory";
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -39,6 +40,7 @@ type ChatMessage = {
 export default function OutfitSuggestionScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { themeColors } = useAppTheme();
 
   const isLargeScreen = width >= 768;
 
@@ -253,354 +255,507 @@ ${question}
     }
   };
 
-  return (
-    <ScrollView
-      style={globalStyles.screen}
-      contentContainerStyle={
-        isLargeScreen
-          ? [styles.scrollContent, styles.largeScrollContent]
-          : styles.scrollContent
-      }
-    >
-      <View style={isLargeScreen ? globalStyles.dashboardContent : undefined}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)/mainMenu" as any)}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-
+return (
+  <ScrollView
+    style={[
+      globalStyles.screen,
+      { backgroundColor: themeColors.bg },
+    ]}
+    contentContainerStyle={
+      isLargeScreen
+        ? [styles.scrollContent, styles.largeScrollContent]
+        : styles.scrollContent
+    }
+  >
+    <View style={isLargeScreen ? globalStyles.dashboardContent : undefined}>
+      <TouchableOpacity
+        style={[
+          styles.backButton,
+          { backgroundColor: themeColors.bgDark },
+        ]}
+        onPress={() =>
+          router.canGoBack()
+            ? router.back()
+            : router.replace("/(tabs)/mainMenu" as any)
+        }
+      >
         <Text
-          style={
-            isLargeScreen
-              ? [globalStyles.pageTitle, globalStyles.largePageTitle]
-              : globalStyles.pageTitle
-          }
+          style={[
+            styles.backButtonText,
+            { color: themeColors.text },
+          ]}
         >
-          Outfit Suggestion
+          ← Back
         </Text>
+      </TouchableOpacity>
 
-        {showForm && (
-          <>
+      <Text
+        style={[
+          isLargeScreen
+            ? [globalStyles.pageTitle, globalStyles.largePageTitle]
+            : globalStyles.pageTitle,
+          { color: themeColors.text },
+        ]}
+      >
+        Outfit Suggestion
+      </Text>
+
+      {showForm && (
+        <>
+          <Text
+            style={[
+              isLargeScreen
+                ? [globalStyles.bodyText, globalStyles.largeCardText]
+                : globalStyles.bodyText,
+              { color: themeColors.muted },
+            ]}
+          >
+            Tell us your occasion and location — we'll pick the best outfit
+            from your wardrobe based on the weather.
+          </Text>
+
+          <View style={styles.inputGroup}>
             <Text
-              style={
+              style={[
                 isLargeScreen
-                  ? [globalStyles.bodyText, globalStyles.largeCardText]
-                  : globalStyles.bodyText
-              }
+                  ? [styles.label, styles.largeLabel]
+                  : styles.label,
+                { color: themeColors.text },
+              ]}
             >
-              Tell us your occasion and location — we'll pick the best outfit
-              from your wardrobe based on the weather.
+              Occasion
             </Text>
 
-            <View style={styles.inputGroup}>
-              <Text
-                style={
-                  isLargeScreen
-                    ? [styles.label, styles.largeLabel]
-                    : styles.label
-                }
-              >
-                Occasion
-              </Text>
+            <TextInput
+              style={[
+                isLargeScreen
+                  ? [globalStyles.input, globalStyles.largeInput]
+                  : globalStyles.input,
+                {
+                  backgroundColor: themeColors.input,
+                  color: themeColors.text,
+                  borderColor: themeColors.bgDark,
+                },
+              ]}
+              placeholder="e.g. casual, work, gym, date night"
+              placeholderTextColor={themeColors.blueDark}
+              value={occasion}
+              onChangeText={setOccasion}
+            />
+          </View>
 
-              <TextInput
-                style={
-                  isLargeScreen
-                    ? [globalStyles.input, globalStyles.largeInput]
-                    : globalStyles.input
-                }
-                placeholder="e.g. casual, work, gym, date night"
-                placeholderTextColor={colors.blueDark}
-                value={occasion}
-                onChangeText={setOccasion}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text
-                style={
-                  isLargeScreen
-                    ? [styles.label, styles.largeLabel]
-                    : styles.label
-                }
-              >
-                City
-              </Text>
-
-              <TextInput
-                style={
-                  isLargeScreen
-                    ? [globalStyles.input, globalStyles.largeInput]
-                    : globalStyles.input
-                }
-                placeholder="e.g. Toronto"
-                placeholderTextColor={colors.blueDark}
-                value={city}
-                onChangeText={setCity}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={
-                loading
-                  ? [globalStyles.primaryButton, styles.disabled]
-                  : globalStyles.primaryButton
-              }
-              onPress={handleSuggest}
-              disabled={loading}
+          <View style={styles.inputGroup}>
+            <Text
+              style={[
+                isLargeScreen
+                  ? [styles.label, styles.largeLabel]
+                  : styles.label,
+                { color: themeColors.text },
+              ]}
             >
-              {loading ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <Text
-                  style={
-                    isLargeScreen
-                      ? [
-                          globalStyles.primaryButtonText,
-                          globalStyles.largePrimaryButtonText,
-                        ]
-                      : globalStyles.primaryButtonText
-                  }
-                >
-                  Generate Outfit
-                </Text>
-              )}
-            </TouchableOpacity>
-          </>
-        )}
+              City
+            </Text>
 
-        {error && (
-          <Text
-            style={
-              isLargeScreen
-                ? [globalStyles.errorText, globalStyles.largeErrorText]
-                : globalStyles.errorText
-            }
+            <TextInput
+              style={[
+                isLargeScreen
+                  ? [globalStyles.input, globalStyles.largeInput]
+                  : globalStyles.input,
+                {
+                  backgroundColor: themeColors.input,
+                  color: themeColors.text,
+                  borderColor: themeColors.bgDark,
+                },
+              ]}
+              placeholder="e.g. Toronto"
+              placeholderTextColor={themeColors.blueDark}
+              value={city}
+              onChangeText={setCity}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[
+              loading
+                ? [globalStyles.primaryButton, styles.disabled]
+                : globalStyles.primaryButton,
+              { backgroundColor: themeColors.button },
+            ]}
+            onPress={handleSuggest}
+            disabled={loading}
           >
-            {error}
-          </Text>
-        )}
-
-        {!showForm && result && (
-          <View style={styles.resultContainer}>
-            {result.weatherSummary && (
-              <View style={globalStyles.dashboardCard}>
-                <Text style={styles.infoLabel}>Weather</Text>
-                <Text
-                  style={
-                    isLargeScreen
-                      ? [globalStyles.cardText, globalStyles.largeCardText]
-                      : globalStyles.cardText
-                  }
-                >
-                  {result.weatherSummary}
-                </Text>
-              </View>
+            {loading ? (
+              <ActivityIndicator color={themeColors.white} />
+            ) : (
+              <Text
+                style={[
+                  isLargeScreen
+                    ? [
+                        globalStyles.primaryButtonText,
+                        globalStyles.largePrimaryButtonText,
+                      ]
+                    : globalStyles.primaryButtonText,
+                  { color: themeColors.white },
+                ]}
+              >
+                Generate Outfit
+              </Text>
             )}
+          </TouchableOpacity>
+        </>
+      )}
 
-            {result.reasoning && (
-              <View style={globalStyles.dashboardCard}>
-                <Text style={styles.infoLabel}>Why this outfit?</Text>
-                <Text
-                  style={
-                    isLargeScreen
-                      ? [globalStyles.cardText, globalStyles.largeCardText]
-                      : globalStyles.cardText
-                  }
-                >
-                  {result.reasoning}
-                </Text>
-              </View>
-            )}
+      {error && (
+        <Text
+          style={[
+            isLargeScreen
+              ? [globalStyles.errorText, globalStyles.largeErrorText]
+              : globalStyles.errorText,
+            { color: themeColors.accent },
+          ]}
+        >
+          {error}
+        </Text>
+      )}
 
-            {result.selectedItems.length > 0 && (
-              <View>
-                <Text
-                  style={
-                    isLargeScreen
-                      ? [
-                          globalStyles.sectionTitle,
-                          globalStyles.largeSectionTitle,
-                        ]
-                      : globalStyles.sectionTitle
-                  }
-                >
-                  Your Outfit
-                </Text>
-
-                <View style={styles.itemsGrid}>
-                  {result.selectedItems.map((item) => (
-                    <View
-                      key={item.itemId}
-                      style={
-                        isLargeScreen
-                          ? [styles.itemCard, styles.largeItemCard]
-                          : styles.itemCard
-                      }
-                    >
-                      <Image
-                        source={{
-                          uri: `data:image/png;base64,${item.imageBase64}`,
-                        }}
-                        style={styles.itemImage}
-                      />
-
-                      <Text
-                        style={
-                          isLargeScreen
-                            ? [styles.itemType, styles.largeItemText]
-                            : styles.itemType
-                        }
-                      >
-                        {item.type}
-                      </Text>
-
-                      <Text
-                        style={
-                          isLargeScreen
-                            ? [styles.itemColor, styles.largeItemText]
-                            : styles.itemColor
-                        }
-                      >
-                        {item.color}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            <View style={styles.ratingSection}>
-              <Text style={styles.ratingTitle}>
-                How do you feel about this outfit?
+      {!showForm && result && (
+        <View style={styles.resultContainer}>
+          {result.weatherSummary && (
+            <View
+              style={[
+                globalStyles.dashboardCard,
+                { backgroundColor: themeColors.card },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.infoLabel,
+                  { color: themeColors.text },
+                ]}
+              >
+                Weather
               </Text>
 
-              <View style={styles.ratingRow}>
-                <TouchableOpacity
-                  style={[
-                    styles.ratingButton,
-                    rating === "up" && styles.selectedRatingButton,
-                  ]}
-                  onPress={() => {
-                    setRating("up");
-                    handleSaveOutfit();
-                  }}
-                >
-                  <Text style={styles.ratingText}>👍</Text>
-                </TouchableOpacity>
+              <Text
+                style={[
+                  isLargeScreen
+                    ? [globalStyles.cardText, globalStyles.largeCardText]
+                    : globalStyles.cardText,
+                  { color: themeColors.text },
+                ]}
+              >
+                {result.weatherSummary}
+              </Text>
+            </View>
+          )}
 
-                <TouchableOpacity
-                  style={[
-                    styles.ratingButton,
-                    rating === "down" && styles.selectedRatingButton,
-                  ]}
-                  onPress={() => setRating("down")}
-                >
-                  <Text style={styles.ratingText}>👎</Text>
-                </TouchableOpacity>
+          {result.reasoning && (
+            <View
+              style={[
+                globalStyles.dashboardCard,
+                { backgroundColor: themeColors.card },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.infoLabel,
+                  { color: themeColors.text },
+                ]}
+              >
+                Why this outfit?
+              </Text>
+
+              <Text
+                style={[
+                  isLargeScreen
+                    ? [globalStyles.cardText, globalStyles.largeCardText]
+                    : globalStyles.cardText,
+                  { color: themeColors.text },
+                ]}
+              >
+                {result.reasoning}
+              </Text>
+            </View>
+          )}
+
+          {result.selectedItems.length > 0 && (
+            <View>
+              <Text
+                style={[
+                  isLargeScreen
+                    ? [
+                        globalStyles.sectionTitle,
+                        globalStyles.largeSectionTitle,
+                      ]
+                    : globalStyles.sectionTitle,
+                  { color: themeColors.text },
+                ]}
+              >
+                Your Outfit
+              </Text>
+
+              <View style={styles.itemsGrid}>
+                {result.selectedItems.map((item) => (
+                  <View
+                    key={item.itemId}
+                    style={[
+                      isLargeScreen
+                        ? [styles.itemCard, styles.largeItemCard]
+                        : styles.itemCard,
+                      {
+                        backgroundColor: themeColors.card,
+                        borderColor: themeColors.bgDark,
+                      },
+                    ]}
+                  >
+                    <Image
+                      source={{
+                        uri: `data:image/png;base64,${item.imageBase64}`,
+                      }}
+                      style={styles.itemImage}
+                    />
+
+                    <Text
+                      style={[
+                        isLargeScreen
+                          ? [styles.itemType, styles.largeItemText]
+                          : styles.itemType,
+                        { color: themeColors.text },
+                      ]}
+                    >
+                      {item.type}
+                    </Text>
+
+                    <Text
+                      style={[
+                        isLargeScreen
+                          ? [styles.itemColor, styles.largeItemText]
+                          : styles.itemColor,
+                        { color: themeColors.blueDark },
+                      ]}
+                    >
+                      {item.color}
+                    </Text>
+                  </View>
+                ))}
               </View>
+            </View>
+          )}
 
-              {outfitSaved && (
-                <Text style={styles.savedText}>Outfit saved to your history!</Text>
-              )}
-              {savingOutfit && (
-                <ActivityIndicator color={colors.blueDark} style={{ marginTop: 6 }} />
-              )}
+          <View style={styles.ratingSection}>
+            <Text
+              style={[
+                styles.ratingTitle,
+                { color: themeColors.text },
+              ]}
+            >
+              How do you feel about this outfit?
+            </Text>
+
+            <View style={styles.ratingRow}>
+              <TouchableOpacity
+                style={[
+                  styles.ratingButton,
+                  {
+                    backgroundColor:
+                      rating === "up"
+                        ? themeColors.bgDark
+                        : themeColors.card,
+                    borderColor: themeColors.bgDark,
+                  },
+                ]}
+                onPress={() => {
+                  setRating("up");
+                  handleSaveOutfit();
+                }}
+              >
+                <Text style={styles.ratingText}>👍</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.ratingButton,
+                  {
+                    backgroundColor:
+                      rating === "down"
+                        ? themeColors.bgDark
+                        : themeColors.card,
+                    borderColor: themeColors.bgDark,
+                  },
+                ]}
+                onPress={() => setRating("down")}
+              >
+                <Text style={styles.ratingText}>👎</Text>
+              </TouchableOpacity>
             </View>
 
-            {rating === "down" && (
-              <TouchableOpacity
-                style={styles.retryButton}
-                onPress={handleRetry}
+            {outfitSaved && (
+              <Text
+                style={[
+                  styles.savedText,
+                  { color: themeColors.blueDark },
+                ]}
               >
-                <Text style={styles.retryButtonText}>
-                  Retry Outfit Generation
-                </Text>
-              </TouchableOpacity>
+                Outfit saved to your history!
+              </Text>
             )}
 
-            {!chatOpen && (
-              <TouchableOpacity
-                style={styles.followUpButton}
-                onPress={() => setChatOpen(true)}
-              >
-                <Text style={styles.followUpButtonText}>
-                  Chat with the bot about this outfit
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {chatOpen && (
-              <View style={globalStyles.dashboardCard}>
-                <Text
-                  style={
-                    isLargeScreen
-                      ? [globalStyles.cardTitle, globalStyles.largeCardTitle]
-                      : globalStyles.cardTitle
-                  }
-                >
-                  Ask about this outfit
-                </Text>
-
-                <View style={styles.chatMessages}>
-                  {chatMessages.map((message) => {
-                    const isUser = message.role === "user";
-
-                    return (
-                      <View
-                        key={message.id}
-                        style={isUser ? styles.userBubble : styles.botBubble}
-                      >
-                        <Text
-                          style={
-                            isUser
-                              ? styles.userBubbleText
-                              : styles.botBubbleText
-                          }
-                        >
-                          {message.text}
-                        </Text>
-                      </View>
-                    );
-                  })}
-
-                  {chatLoading && (
-                    <View style={styles.botBubble}>
-                      <ActivityIndicator color={colors.blueDark} />
-                    </View>
-                  )}
-                </View>
-
-                <View style={styles.chatInputRow}>
-                  <TextInput
-                    style={styles.chatInput}
-                    placeholder="Ask why this outfit works..."
-                    placeholderTextColor={colors.blueDark}
-                    value={chatInput}
-                    onChangeText={setChatInput}
-                    multiline
-                  />
-
-                  <Pressable
-                    style={
-                      canSendChat
-                        ? styles.sendButton
-                        : [styles.sendButton, styles.disabled]
-                    }
-                    onPress={sendChatMessage}
-                    disabled={!canSendChat}
-                  >
-                    <Text style={styles.sendButtonText}>Send</Text>
-                  </Pressable>
-                </View>
-              </View>
+            {savingOutfit && (
+              <ActivityIndicator
+                color={themeColors.blueDark}
+                style={{ marginTop: 6 }}
+              />
             )}
           </View>
-        )}
-      </View>
-    </ScrollView>
-  );
+
+          {rating === "down" && (
+            <TouchableOpacity
+              style={[
+                styles.retryButton,
+                { backgroundColor: themeColors.accent },
+              ]}
+              onPress={handleRetry}
+            >
+              <Text
+                style={[
+                  styles.retryButtonText,
+                  { color: themeColors.white },
+                ]}
+              >
+                Retry Outfit Generation
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {!chatOpen && (
+            <TouchableOpacity
+              style={[
+                styles.followUpButton,
+                { backgroundColor: themeColors.blueDark },
+              ]}
+              onPress={() => setChatOpen(true)}
+            >
+              <Text
+                style={[
+                  styles.followUpButtonText,
+                  { color: themeColors.white },
+                ]}
+              >
+                Chat with the bot about this outfit
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {chatOpen && (
+            <View
+              style={[
+                globalStyles.dashboardCard,
+                { backgroundColor: themeColors.card },
+              ]}
+            >
+              <Text
+                style={[
+                  isLargeScreen
+                    ? [globalStyles.cardTitle, globalStyles.largeCardTitle]
+                    : globalStyles.cardTitle,
+                  { color: themeColors.text },
+                ]}
+              >
+                Ask about this outfit
+              </Text>
+
+              <View style={styles.chatMessages}>
+                {chatMessages.map((message) => {
+                  const isUser = message.role === "user";
+
+                  return (
+                    <View
+                      key={message.id}
+                      style={[
+                        isUser
+                          ? styles.userBubble
+                          : styles.botBubble,
+                        {
+                          backgroundColor: isUser
+                            ? themeColors.blueDark
+                            : themeColors.input,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          isUser
+                            ? styles.userBubbleText
+                            : styles.botBubbleText,
+                          {
+                            color: isUser
+                              ? themeColors.white
+                              : themeColors.text,
+                          },
+                        ]}
+                      >
+                        {message.text}
+                      </Text>
+                    </View>
+                  );
+                })}
+
+                {chatLoading && (
+                  <View
+                    style={[
+                      styles.botBubble,
+                      { backgroundColor: themeColors.input },
+                    ]}
+                  >
+                    <ActivityIndicator color={themeColors.blueDark} />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.chatInputRow}>
+                <TextInput
+                  style={[
+                    styles.chatInput,
+                    {
+                      backgroundColor: themeColors.white,
+                      borderColor: themeColors.blueDark,
+                      color: themeColors.text,
+                    },
+                  ]}
+                  placeholder="Ask why this outfit works..."
+                  placeholderTextColor={themeColors.blueDark}
+                  value={chatInput}
+                  onChangeText={setChatInput}
+                  multiline
+                />
+
+                <Pressable
+                  style={[
+                    canSendChat
+                      ? styles.sendButton
+                      : [styles.sendButton, styles.disabled],
+                    { backgroundColor: themeColors.blueDark },
+                  ]}
+                  onPress={sendChatMessage}
+                  disabled={!canSendChat}
+                >
+                  <Text
+                    style={[
+                      styles.sendButtonText,
+                      { color: themeColors.white },
+                    ]}
+                  >
+                    Send
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
+    </View>
+  </ScrollView>
+);
 }
 
 const styles = StyleSheet.create({
@@ -625,7 +780,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.text,
   },
 
   largeLabel: {
@@ -644,7 +798,6 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.text,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -658,11 +811,9 @@ const styles = StyleSheet.create({
 
   itemCard: {
     width: "47%",
-    backgroundColor: colors.card,
     borderRadius: 14,
     padding: 10,
     borderWidth: 1,
-    borderColor: colors.bgDark,
     alignItems: "center",
     gap: 6,
   },
@@ -683,13 +834,11 @@ const styles = StyleSheet.create({
   itemType: {
     fontSize: 13,
     fontWeight: "600",
-    color: colors.text,
     textTransform: "capitalize",
   },
 
   itemColor: {
     fontSize: 12,
-    color: colors.blueDark,
     textTransform: "capitalize",
   },
 
@@ -705,7 +854,6 @@ const styles = StyleSheet.create({
   ratingTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: colors.text,
     textAlign: "center",
   },
 
@@ -716,17 +864,13 @@ const styles = StyleSheet.create({
   },
 
   ratingButton: {
-    backgroundColor: colors.card,
     borderRadius: 999,
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderWidth: 1,
-    borderColor: colors.bgDark,
   },
 
-  selectedRatingButton: {
-    backgroundColor: colors.bgDark,
-  },
+  selectedRatingButton: {},
 
   ratingText: {
     fontSize: 24,
@@ -734,13 +878,11 @@ const styles = StyleSheet.create({
 
   savedText: {
     fontSize: 13,
-    color: colors.blueDark,
     fontWeight: "600",
     marginTop: 6,
   },
 
   retryButton: {
-    backgroundColor: colors.accent,
     paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
@@ -748,13 +890,11 @@ const styles = StyleSheet.create({
   },
 
   retryButtonText: {
-    color: colors.white,
     fontWeight: "700",
     fontSize: 15,
   },
 
   followUpButton: {
-    backgroundColor: colors.blueDark,
     paddingVertical: 14,
     borderRadius: 999,
     alignItems: "center",
@@ -762,7 +902,6 @@ const styles = StyleSheet.create({
   },
 
   followUpButtonText: {
-    color: colors.white,
     fontWeight: "700",
     fontSize: 15,
   },
@@ -775,7 +914,6 @@ const styles = StyleSheet.create({
   botBubble: {
     alignSelf: "flex-start",
     maxWidth: "88%",
-    backgroundColor: colors.input,
     borderRadius: 16,
     borderBottomLeftRadius: 4,
     paddingVertical: 10,
@@ -785,7 +923,6 @@ const styles = StyleSheet.create({
   userBubble: {
     alignSelf: "flex-end",
     maxWidth: "88%",
-    backgroundColor: colors.blueDark,
     borderRadius: 16,
     borderBottomRightRadius: 4,
     paddingVertical: 10,
@@ -793,13 +930,11 @@ const styles = StyleSheet.create({
   },
 
   botBubbleText: {
-    color: colors.text,
     fontSize: 14,
     lineHeight: 20,
   },
 
   userBubbleText: {
-    color: colors.white,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -815,31 +950,25 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 48,
     maxHeight: 120,
-    backgroundColor: colors.white,
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: colors.blueDark,
-    color: colors.text,
     fontSize: 14,
   },
 
   sendButton: {
-    backgroundColor: colors.blueDark,
     paddingVertical: 14,
     paddingHorizontal: 18,
     borderRadius: 999,
   },
 
   sendButtonText: {
-    color: colors.white,
     fontWeight: "700",
   },
 
   backButton: {
     alignSelf: "flex-start",
-    backgroundColor: colors.bgDark,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 999,
@@ -847,7 +976,6 @@ const styles = StyleSheet.create({
   },
 
   backButtonText: {
-    color: colors.text,
     fontWeight: "600",
     fontSize: 14,
   },

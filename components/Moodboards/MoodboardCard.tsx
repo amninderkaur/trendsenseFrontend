@@ -12,7 +12,8 @@
 // ================
 
 import type { Moodboard } from "@/app/(tabs)/moodboards";
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
     Image,
@@ -28,8 +29,8 @@ import {
 // ================
 
 type Props = {
-  moodboard: Moodboard;
-  onPress: () => void;
+    moodboard: Moodboard;
+    onPress: () => void;
 };
 
 // ================
@@ -37,170 +38,192 @@ type Props = {
 // ================
 
 export default function MoodboardCard({
-  moodboard,
-  onPress,
+    moodboard,
+    onPress,
 }: Props) {
-  const { width } = useWindowDimensions();
+    const { width } = useWindowDimensions();
+    const { themeColors } = useAppTheme();
+    const isLargeScreen = width >= 768;
 
-  const isLargeScreen = width >= 768;
+    // Only display the first 4 images on the preview card
+    const previewImages = moodboard.images.slice(0, 4);
 
-  // Only display the first 4 images on the preview card
-  const previewImages = moodboard.images.slice(0, 4);
+    // ================
+    //     RENDER
+    // ================
 
-  // ================
-  //     RENDER
-  // ================
-  return (
-    <TouchableOpacity
-      style={[
-        globalStyles.card,
-        styles.card,
-        isLargeScreen && styles.largeCard,
-      ]}
-      onPress={onPress}
-      activeOpacity={0.9}
-    >
-      <View style={styles.imageGrid}>
-        {previewImages.length > 0 ? (
-          previewImages.map((image, index) => (
-            <Image
-              key={`${image}-${index}`}
-              source={{ uri: image }}
-              style={styles.previewImage}
-            />
-          ))
-        ) : (
-          <View style={styles.emptyPreview}>
-            <MaterialIcons
-              name="photo-library"
-              size={34}
-              color={colors.blueDark}
-            />
-
-            <Text style={styles.emptyPreviewText}>
-              No Images Yet
-            </Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.content}>
-        <Text
-          style={styles.title}
-          numberOfLines={1}
+    return (
+        <TouchableOpacity
+            style={[
+                globalStyles.card,
+                styles.card,
+                isLargeScreen && styles.largeCard,
+                { backgroundColor: themeColors.card },
+            ]}
+            onPress={onPress}
+            activeOpacity={0.9}
         >
-          {moodboard.name}
-        </Text>
+            <View
+                style={[
+                    styles.imageGrid,
+                    { backgroundColor: themeColors.input },
+                ]}
+            >
+                {previewImages.length > 0 ? (
+                    previewImages.map((image, index) => (
+                        <Image
+                            key={`${image}-${index}`}
+                            source={{ uri: image }}
+                            style={styles.previewImage}
+                        />
+                    ))
+                ) : (
+                    <View style={styles.emptyPreview}>
+                        <MaterialIcons
+                            name="photo-library"
+                            size={34}
+                            color={themeColors.blueDark}
+                        />
 
-        <Text
-          style={styles.description}
-          numberOfLines={2}
-        >
-          {moodboard.description}
-        </Text>
+                        <Text
+                            style={[
+                                styles.emptyPreviewText,
+                                { color: themeColors.muted },
+                            ]}
+                        >
+                            No Images Yet
+                        </Text>
+                    </View>
+                )}
+            </View>
 
-        <View style={styles.footer}>
-          <View style={styles.imageCountBadge}>
-            <MaterialIcons
-              name="collections"
-              size={16}
-              color={colors.white}
-            />
+            <View style={styles.content}>
+                <Text
+                    style={[
+                        styles.title,
+                        { color: themeColors.text },
+                    ]}
+                    numberOfLines={1}
+                >
+                    {moodboard.name}
+                </Text>
 
-            <Text style={styles.imageCountText}>
-              {moodboard.images.length}/12
-            </Text>
-          </View>
+                <Text
+                    style={[
+                        styles.description,
+                        { color: themeColors.muted },
+                    ]}
+                    numberOfLines={2}
+                >
+                    {moodboard.description}
+                </Text>
 
-          <MaterialIcons
-            name="arrow-forward-ios"
-            size={16}
-            color={colors.muted}
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+                <View style={styles.footer}>
+                    <View
+                        style={[
+                            styles.imageCountBadge,
+                            { backgroundColor: themeColors.blueDark },
+                        ]}
+                    >
+                        <MaterialIcons
+                            name="collections"
+                            size={16}
+                            color={themeColors.white}
+                        />
+
+                        <Text
+                            style={[
+                                styles.imageCountText,
+                                { color: themeColors.white },
+                            ]}
+                        >
+                            {moodboard.images.length}/12
+                        </Text>
+                    </View>
+
+                    <MaterialIcons
+                        name="arrow-forward-ios"
+                        size={16}
+                        color={themeColors.muted}
+                    />
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
 }
 
 // ================
 //     STYLES
 // ================
 const styles = StyleSheet.create({
-  card: {
-    width: "100%",
-    borderRadius: 24,
-    overflow: "hidden",
-    padding: 0,
-  },
+    card: {
+        width: "100%",
+        borderRadius: 24,
+        overflow: "hidden",
+        padding: 0,
+    },
 
-  largeCard: {
-    width: "48%",
-  },
+    largeCard: {
+        width: "48%",
+    },
 
-  imageGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    backgroundColor: colors.input,
-    minHeight: 180,
-  },
+    imageGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        minHeight: 180,
+    },
 
-  previewImage: {
-    width: "50%",
-    aspectRatio: 1,
-  },
+    previewImage: {
+        width: "50%",
+        aspectRatio: 1,
+    },
 
-  emptyPreview: {
-    flex: 1,
-    minHeight: 180,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-  },
+    emptyPreview: {
+        flex: 1,
+        minHeight: 180,
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+    },
 
-  emptyPreviewText: {
-    color: colors.muted,
-    fontWeight: "700",
-    fontSize: 15,
-  },
+    emptyPreviewText: {
+        fontWeight: "700",
+        fontSize: 15,
+    },
 
-  content: {
-    padding: 18,
-    gap: 10,
-  },
+    content: {
+        padding: 18,
+        gap: 10,
+    },
 
-  title: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: colors.text,
-  },
+    title: {
+        fontSize: 22,
+        fontWeight: "800",
+    },
 
-  description: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: colors.muted,
-  },
+    description: {
+        fontSize: 14,
+        lineHeight: 21,
+    },
 
-  footer: {
-    marginTop: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
+    footer: {
+        marginTop: 4,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
 
-  imageCountBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: colors.blueDark,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 999,
-  },
+    imageCountBadge: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 999,
+    },
 
-  imageCountText: {
-    color: colors.white,
-    fontWeight: "700",
-    fontSize: 13,
-  },
+    imageCountText: {
+        fontWeight: "700",
+        fontSize: 13,
+    },
 });

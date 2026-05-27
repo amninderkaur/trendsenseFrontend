@@ -14,7 +14,8 @@ import {
 } from "react-native";
 
 import { login } from "../../api/auth";
-import { colors, globalStyles } from "../../constants/globalStyles";
+import { globalStyles } from "../../constants/globalStyles";
+import { useAppTheme } from "../../context/ThemeContext";
 import {
   saveEmail,
   saveLoginTime,
@@ -26,6 +27,7 @@ import {
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { themeColors } = useAppTheme();
 
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
@@ -70,19 +72,27 @@ export default function LoginScreen() {
         // First-time login — go to OTP screen
         router.push({
           pathname: "/(auth)/otp",
-          params: { email, deliveryMethod: data.deliveryMethod ?? "email" },
+          params: {
+            email,
+            deliveryMethod: data.deliveryMethod ?? "email",
+          },
         });
       } else {
         // Returning user — token returned directly
         saveToken(data.token);
         saveUserId(data.userId);
+
         if (data.role) saveRole(data.role);
         if (data.name) saveName(data.name);
+
         saveEmail(email);
         saveLoginTime();
         // Admin goes to admin dashboard, regular users go to main menu
+
         router.replace(
-          data.role === "ADMIN" ? "/admin/dashboard" : "/(tabs)/mainMenu",
+          data.role === "ADMIN"
+            ? "/admin/dashboard"
+            : "/(tabs)/mainMenu"
         );
       }
     } catch (err: any) {
@@ -97,11 +107,17 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{ flex: 1 }}
     >
-      <View style={globalStyles.screen}>
+      <View
+        style={[
+          globalStyles.screen,
+          { backgroundColor: themeColors.bg },
+        ]}
+      >
         <View
           style={[
             globalStyles.topRightCircle,
             {
+              backgroundColor: themeColors.bgDark,
               width: circleSize,
               height: circleSize,
               borderRadius: circleSize / 2,
@@ -115,6 +131,7 @@ export default function LoginScreen() {
           style={[
             globalStyles.bottomLeftCircle,
             {
+              backgroundColor: themeColors.blue,
               width: smallCircleSize,
               height: smallCircleSize,
               borderRadius: smallCircleSize / 2,
@@ -129,12 +146,14 @@ export default function LoginScreen() {
             style={[
               globalStyles.formCard,
               isLargeScreen && globalStyles.largeFormCard,
+              { backgroundColor: themeColors.card },
             ]}
           >
             <Text
               style={[
                 globalStyles.pageTitle,
                 isLargeScreen && globalStyles.largePageTitle,
+                { color: themeColors.text },
               ]}
             >
               Log in
@@ -142,10 +161,15 @@ export default function LoginScreen() {
 
             <TextInput
               placeholder="email@domain.com"
-              placeholderTextColor={colors.muted}
+              placeholderTextColor={themeColors.muted}
               style={[
                 globalStyles.input,
                 isLargeScreen && globalStyles.largeInput,
+                {
+                  backgroundColor: themeColors.input,
+                  color: themeColors.text,
+                  borderColor: themeColors.bgDark,
+                },
               ]}
               value={email}
               onChangeText={setEmail}
@@ -158,14 +182,19 @@ export default function LoginScreen() {
                 globalStyles.input,
                 globalStyles.passwordContainer,
                 isLargeScreen && globalStyles.largeInput,
+                {
+                  backgroundColor: themeColors.input,
+                  borderColor: themeColors.bgDark,
+                },
               ]}
             >
               <TextInput
                 placeholder="••••••"
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={themeColors.muted}
                 style={[
                   globalStyles.passwordInput,
                   isLargeScreen && globalStyles.largePasswordInput,
+                  { color: themeColors.text },
                 ]}
                 secureTextEntry={secure}
                 value={password}
@@ -177,6 +206,7 @@ export default function LoginScreen() {
                   style={[
                     globalStyles.showText,
                     isLargeScreen && globalStyles.largeShowText,
+                    { color: themeColors.blueDark },
                   ]}
                 >
                   {secure ? "show" : "Hide"}
@@ -199,17 +229,20 @@ export default function LoginScreen() {
               style={[
                 globalStyles.primaryButton,
                 isLargeScreen && globalStyles.largePrimaryButton,
+                { backgroundColor: themeColors.button },
               ]}
               onPress={onSubmit}
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color={colors.white} />
+                <ActivityIndicator color={themeColors.white} />
               ) : (
                 <Text
                   style={[
                     globalStyles.primaryButtonText,
-                    isLargeScreen && globalStyles.largePrimaryButtonText,
+                    isLargeScreen &&
+                      globalStyles.largePrimaryButtonText,
+                    { color: themeColors.white },
                   ]}
                 >
                   Log In
@@ -219,12 +252,15 @@ export default function LoginScreen() {
 
             <Pressable
               style={globalStyles.centeredLink}
-              onPress={() => router.push("/(auth)/forgot-password" as any)}
+              onPress={() =>
+                router.push("/(auth)/forgot-password" as any)
+              }
             >
               <Text
                 style={[
                   globalStyles.linkText,
                   isLargeScreen && globalStyles.largeLinkText,
+                  { color: themeColors.blueDark },
                 ]}
               >
                 Forgot password?
@@ -237,6 +273,7 @@ export default function LoginScreen() {
                   style={[
                     globalStyles.linkText,
                     isLargeScreen && globalStyles.largeLinkText,
+                    { color: themeColors.blueDark },
                   ]}
                 >
                   Don&apos;t have an account?

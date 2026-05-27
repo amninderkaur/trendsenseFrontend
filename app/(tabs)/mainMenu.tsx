@@ -1,5 +1,15 @@
 import React from "react";
 import {
+<<<<<<< HEAD
+=======
+  Image,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
   View,
   Text,
   StyleSheet,
@@ -12,7 +22,21 @@ import {
 import { useRouter } from "expo-router";
 import { colors } from "../../constants/globalStyles";
 
+<<<<<<< HEAD
 const { width: SW } = Dimensions.get("window");
+=======
+import PersonalizationModal from "../(auth)/PersonalizationModal";
+import { getProfile } from "../../api/profile";
+import { globalStyles } from "../../constants/globalStyles";
+import { useAppTheme } from "../../context/ThemeContext";
+import {
+  getRole,
+  getToken,
+  removeEmail,
+  removeToken,
+  removeUserId,
+} from "../../utils/token";
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
 
 const TILES = [
   {
@@ -81,6 +105,7 @@ const TILES = [
   },
 ] as const;
 
+<<<<<<< HEAD
 const NAV = [
   { id: "home",     label: "Home",    icon: "🏠", route: "/(tabs)/mainMenu",      active: true  },
   { id: "wardrobe", label: "Wardrobe",icon: "👗", route: "/(tabs)/wardrobe",      active: false },
@@ -90,10 +115,16 @@ const NAV = [
 ] as const;
 
 export default function MainMenu() {
+=======
+export default function Dashboard() {
+  const { themeColors, isDarkMode, toggleDarkMode } = useAppTheme();
+
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
   const router = useRouter();
 <<<<<<< HEAD
 =======
   const { width } = useWindowDimensions();
+
   const isLargeScreen = !isWeb && width >= 768;
   const isLoggedIn = !!getToken();
   const isAdmin = getRole() === "ADMIN";
@@ -126,82 +157,23 @@ export default function MainMenu() {
     removeToken();
     removeUserId();
     removeEmail();
+
     router.replace("/(auth)/login");
   };
 
   const navItems = [
-    {
-      href: "/",
-      icon: "dashboard",
-      label: "Dashboard",
-      lib: "material",
-    },
-    {
-      href: "/upload-clothes",
-      icon: "add-a-photo",
-      label: "Upload Clothes",
-      lib: "material",
-    },
-    {
-      href: "/wardrobe",
-      icon: "checkroom",
-      label: "Wardrobe",
-      lib: "material",
-    },
-    {
-      href: "/upload-outfit",
-      icon: "style",
-      label: "Outfit Suggestion",
-      lib: "material",
-    },
-    {
-      href: "/outfit-review",
-      icon: "search",
-      label: "Outfit Review",
-      lib: "material",
-    },
-    {
-      href: "/history",
-      icon: "favorite",
-      label: "Saved Outfits",
-      lib: "material",
-    },
-    {
-      href: "/budgeting",
-      icon: "wallet",
-      label: "Budgeting",
-      lib: "fa5",
-    },
-    {
-      href: "/trip-packing",
-      icon: "luggage",
-      label: "Trip Packing",
-      lib: "material",
-    },
-    {
-      href: "/saved-items",
-      icon: "bookmark",
-      label: "Saved Items",
-      lib: "material",
-    },
-    {
-      href: "/colour-analysis",
-      icon: "palette",
-      label: "Colour Analysis",
-      lib: "material",
-    },
-    {
-      href: "/moodboards",
-      icon: "palette",
-      label: "Mood Boards",
-      lib: "material",
-    },
-    {
-      href: "/profile",
-      icon: "person",
-      label: "Account Profile",
-      lib: "material",
-    },
+    { href: "/", icon: "dashboard", label: "Dashboard", lib: "material" },
+    { href: "/upload-clothes", icon: "add-a-photo", label: "Upload Clothes", lib: "material" },
+    { href: "/wardrobe", icon: "checkroom", label: "Wardrobe", lib: "material" },
+    { href: "/upload-outfit", icon: "style", label: "Outfit Suggestion", lib: "material" },
+    { href: "/outfit-review", icon: "search", label: "Outfit Review", lib: "material" },
+    { href: "/history", icon: "favorite", label: "Saved Outfits", lib: "material" },
+    { href: "/budgeting", icon: "wallet", label: "Budgeting", lib: "fa5" },
+    { href: "/trip-packing", icon: "luggage", label: "Trip Packing", lib: "material" },
+    { href: "/saved-items", icon: "bookmark", label: "Saved Items", lib: "material" },
+    { href: "/colour-analysis", icon: "palette", label: "Colour Analysis", lib: "material" },
+    { href: "/moodboards", icon: "palette", label: "Mood Boards", lib: "material" },
+    { href: "/profile", icon: "person", label: "Account Profile", lib: "material" },
   ] as const;
 
   const StatsTiles = () => (
@@ -215,27 +187,36 @@ export default function MainMenu() {
         { n: "120", label: "Orders" },
         { n: "24", label: "New Customers" },
         { n: "8", label: "Pending" },
-      ].map((t) => (
+      ].map((tile) => (
         <View
-          key={t.label}
-          style={[styles.tile, isLargeScreen && styles.largeTile]}
+          key={tile.label}
+          style={[
+            styles.tile,
+            isLargeScreen && styles.largeTile,
+            {
+              backgroundColor: themeColors.card,
+              shadowColor: themeColors.text,
+            },
+          ]}
         >
           <Text
             style={[
               styles.tileNumber,
               isLargeScreen && styles.largeTileNumber,
+              { color: themeColors.blueDark },
             ]}
           >
-            {t.n}
+            {tile.n}
           </Text>
 
           <Text
             style={[
               styles.tileLabel,
               isLargeScreen && styles.largeTileLabel,
+              { color: themeColors.muted },
             ]}
           >
-            {t.label}
+            {tile.label}
           </Text>
         </View>
       ))}
@@ -260,15 +241,46 @@ export default function MainMenu() {
     </View>
   );
 
+  const ThemeToggle = () => (
+    <View
+      style={[
+        styles.themeToggle,
+        { backgroundColor: themeColors.card },
+      ]}
+    >
+      <Text style={[styles.themeToggleText, { color: themeColors.text }]}>
+        {isDarkMode ? "Dark Mode" : "Light Mode"}
+      </Text>
+
+      <Switch
+        value={isDarkMode}
+        onValueChange={toggleDarkMode}
+        thumbColor={themeColors.white}
+        trackColor={{
+          false: themeColors.input,
+          true: themeColors.blueDark,
+        }}
+      />
+    </View>
+  );
+
   if (isWeb) {
     return (
-      <View style={web.root}>
+      <View style={[web.root, { backgroundColor: themeColors.bg }]}>
         <PersonalizationModal
           visible={showPersonalization}
           onClose={() => setShowPersonalization(false)}
         />
 
-        <View style={web.sidebar}>
+        <View
+          style={[
+            web.sidebar,
+            {
+              backgroundColor: themeColors.card,
+              borderRightColor: themeColors.bgDark,
+            },
+          ]}
+        >
           <View style={web.logoContainer}>
             <Image
               source={require("../../assets/images/trendsense-logo.png")}
@@ -276,8 +288,12 @@ export default function MainMenu() {
               resizeMode="contain"
             />
 
-            <Text style={web.appName}>TrendSense</Text>
+            <Text style={[web.appName, { color: themeColors.blueDark }]}>
+              TrendSense
+            </Text>
           </View>
+
+          <ThemeToggle />
 
           {navItems.map((item) => (
             <Link key={item.href} href={item.href as any} asChild>
@@ -286,35 +302,39 @@ export default function MainMenu() {
                   <MaterialIcons
                     name={item.icon as any}
                     size={18}
-                    color={colors.blueDark}
+                    color={themeColors.blueDark}
                     style={styles.icon}
                   />
                 ) : (
                   <FontAwesome5
                     name={item.icon as any}
                     size={16}
-                    color={colors.blueDark}
+                    color={themeColors.blueDark}
                     style={styles.icon}
                   />
                 )}
 
-                <Text style={web.navLabel}>{item.label}</Text>
+                <Text style={[web.navLabel, { color: themeColors.text }]}>
+                  {item.label}
+                </Text>
               </Pressable>
             </Link>
           ))}
 
-          <View style={web.divider} />
+          <View style={[web.divider, { backgroundColor: themeColors.bgDark }]} />
 
           {isLoggedIn ? (
             <Pressable style={web.navItem} onPress={handleSignOut}>
               <MaterialIcons
                 name="logout"
                 size={18}
-                color={colors.blueDark}
+                color={themeColors.blueDark}
                 style={styles.icon}
               />
 
-              <Text style={web.navLabel}>Sign Out</Text>
+              <Text style={[web.navLabel, { color: themeColors.text }]}>
+                Sign Out
+              </Text>
             </Pressable>
           ) : (
             <Link href="/login" asChild>
@@ -322,30 +342,33 @@ export default function MainMenu() {
                 <MaterialIcons
                   name="login"
                   size={18}
-                  color={colors.blueDark}
+                  color={themeColors.blueDark}
                   style={styles.icon}
                 />
 
-                <Text style={web.navLabel}>Login</Text>
+                <Text style={[web.navLabel, { color: themeColors.text }]}>
+                  Login
+                </Text>
               </Pressable>
             </Link>
           )}
 
           {isAdmin && (
             <Pressable
-              style={styles.adminButton}
-              onPress={() =>
-                router.replace("/admin/dashboard" as any)
-              }
+              style={[
+                styles.adminButton,
+                { backgroundColor: themeColors.blueDark },
+              ]}
+              onPress={() => router.replace("/admin/dashboard" as any)}
             >
               <MaterialIcons
                 name="admin-panel-settings"
                 size={18}
-                color={colors.white}
+                color={themeColors.white}
                 style={styles.icon}
               />
 
-              <Text style={styles.adminButtonText}>
+              <Text style={[styles.adminButtonText, { color: themeColors.white }]}>
                 Go to Admin View
               </Text>
             </Pressable>
@@ -353,11 +376,11 @@ export default function MainMenu() {
         </View>
 
         <ScrollView
-          style={web.content}
+          style={[web.content, { backgroundColor: themeColors.bg }]}
           contentContainerStyle={web.contentInner}
         >
           {welcomeName ? (
-            <Text style={styles.welcome}>
+            <Text style={[styles.welcome, { color: themeColors.text }]}>
               Welcome, {welcomeName} 👋
             </Text>
           ) : null}
@@ -371,6 +394,7 @@ export default function MainMenu() {
 >>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
 
   return (
+<<<<<<< HEAD
     <SafeAreaView style={s.safe}>
 
       {/* HEADER */}
@@ -394,6 +418,128 @@ export default function MainMenu() {
               <Text style={{ fontSize: 16 }}>🔔</Text>
             </TouchableOpacity>
           </View>
+=======
+    <ScrollView
+      style={[globalStyles.screen, { backgroundColor: themeColors.bg }]}
+      contentContainerStyle={[
+        globalStyles.dashboardContainer,
+        isLargeScreen && globalStyles.largeDashboardContainer,
+      ]}
+    >
+      <PersonalizationModal
+        visible={showPersonalization}
+        onClose={() => setShowPersonalization(false)}
+      />
+
+      <View style={globalStyles.dashboardContent}>
+        {welcomeName ? (
+          <Text style={[styles.welcome, { color: themeColors.text }]}>
+            Welcome, {welcomeName} 👋
+          </Text>
+        ) : null}
+
+        <HeroVideo />
+        <StatsTiles />
+        <ThemeToggle />
+
+        <View style={styles.menu}>
+          <Text
+            style={[
+              globalStyles.sectionTitle,
+              isLargeScreen && globalStyles.largeSectionTitle,
+              { color: themeColors.text },
+            ]}
+          >
+            Menu
+          </Text>
+
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href as any} asChild>
+              <Pressable
+                style={[
+                  globalStyles.menuItem,
+                  isLargeScreen && globalStyles.largeMenuItem,
+                  { backgroundColor: themeColors.card },
+                ]}
+              >
+                {item.lib === "material" ? (
+                  <MaterialIcons
+                    name={item.icon as any}
+                    size={iconSize}
+                    color={themeColors.blueDark}
+                    style={styles.icon}
+                  />
+                ) : (
+                  <FontAwesome5
+                    name={item.icon as any}
+                    size={iconSize - 2}
+                    color={themeColors.blueDark}
+                    style={styles.icon}
+                  />
+                )}
+
+                <Text
+                  style={[
+                    globalStyles.menuText,
+                    isLargeScreen && globalStyles.largeMenuText,
+                    { color: themeColors.text },
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            </Link>
+          ))}
+
+          {isLoggedIn && (
+            <Pressable
+              style={[
+                globalStyles.menuItem,
+                isLargeScreen && globalStyles.largeMenuItem,
+                { backgroundColor: themeColors.card },
+              ]}
+              onPress={handleSignOut}
+            >
+              <MaterialIcons
+                name="logout"
+                size={iconSize}
+                color={themeColors.blueDark}
+                style={styles.icon}
+              />
+
+              <Text
+                style={[
+                  globalStyles.menuText,
+                  isLargeScreen && globalStyles.largeMenuText,
+                  { color: themeColors.text },
+                ]}
+              >
+                Sign Out
+              </Text>
+            </Pressable>
+          )}
+
+          {isAdmin && (
+            <Pressable
+              style={[
+                styles.adminButton,
+                { backgroundColor: themeColors.blueDark },
+              ]}
+              onPress={() => router.replace("/admin/dashboard" as any)}
+            >
+              <MaterialIcons
+                name="admin-panel-settings"
+                size={iconSize}
+                color={themeColors.white}
+                style={styles.icon}
+              />
+
+              <Text style={[styles.adminButtonText, { color: themeColors.white }]}>
+                Go to Admin View
+              </Text>
+            </Pressable>
+          )}
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
         </View>
         <TouchableOpacity
           style={s.search}
@@ -532,7 +678,10 @@ const s = StyleSheet.create({
     gap: 10,
   },
   tile: {
+<<<<<<< HEAD
     width: TILE_SIZE,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     borderRadius: 16,
     padding: 14,
     minHeight: 110,
@@ -546,6 +695,7 @@ const s = StyleSheet.create({
   quickRow: { flexDirection: "row", gap: 10 },
   quickBtn: {
     flex: 1,
+<<<<<<< HEAD
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -554,6 +704,8 @@ const s = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 13,
     shadowColor: colors.text,
+=======
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
@@ -562,6 +714,7 @@ const s = StyleSheet.create({
   quickBtnIco: { fontSize: 18 },
   quickBtnTxt: { fontSize: 13, fontWeight: "600", color: colors.text },
 
+<<<<<<< HEAD
   // Bottom nav
   bnav: {
     flexDirection: "row",
@@ -578,3 +731,133 @@ const s = StyleSheet.create({
   bniLbl: { fontSize: 9, color: "#B0BCB4", fontWeight: "500" },
   bniLblActive: { color: colors.accent, fontWeight: "700" },
 });
+=======
+  largeTile: {
+    padding: 28,
+    borderRadius: 24,
+  },
+
+  tileNumber: {
+    fontSize: 22,
+    fontWeight: "700",
+  },
+
+  largeTileNumber: {
+    fontSize: 34,
+  },
+
+  tileLabel: {
+    fontSize: 14,
+    textAlign: "center",
+  },
+
+  largeTileLabel: {
+    fontSize: 18,
+  },
+
+  welcome: {
+    fontSize: 22,
+    fontWeight: "700",
+    marginTop: 16,
+    marginBottom: 4,
+  },
+
+  menu: {
+    marginTop: 20,
+  },
+
+  icon: {
+    marginRight: 10,
+  },
+
+  themeToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 14,
+  },
+
+  themeToggleText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  adminButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginTop: 12,
+  },
+
+  adminButtonText: {
+    fontWeight: "800",
+    fontSize: 15,
+  },
+});
+
+const web = StyleSheet.create({
+  root: {
+    flex: 1,
+    flexDirection: "row",
+  },
+
+  sidebar: {
+    width: 220,
+    paddingTop: 24,
+    paddingHorizontal: 14,
+    paddingBottom: 24,
+    borderRightWidth: 1,
+  },
+
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+    paddingHorizontal: 6,
+  },
+
+  logo: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
+
+  appName: {
+    fontSize: 20,
+    fontWeight: "800",
+  },
+
+  navItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginBottom: 4,
+  },
+
+  navLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  divider: {
+    height: 1,
+    marginVertical: 12,
+  },
+
+  content: {
+    flex: 1,
+  },
+
+  contentInner: {
+    padding: 28,
+    maxWidth: 860,
+  },
+});
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)

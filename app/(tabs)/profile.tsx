@@ -22,8 +22,13 @@ import EditInfoSection from "@/components/Profile/EditInfoSection";
 import ProfileActionCards from "@/components/Profile/ProfileActionCards";
 import ProfileHeader from "@/components/Profile/ProfileHeader";
 import ReviewsSection from "@/components/Profile/ReviewSection";
+<<<<<<< HEAD
 import { colors, globalStyles } from "@/constants/globalStyles";
 >>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
+=======
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
+>>>>>>> fab4ee9 (Fixed Dark mode toggle)
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -39,7 +44,6 @@ import {
 } from "react-native";
 import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { deleteAccount, getMe, uploadProfilePicture } from "../../api/user";
-import { useAppTheme } from "../../context/ThemeContext";
 import {
   getEmail,
   getName,
@@ -236,129 +240,166 @@ export default function Profile() {
 // ================
 //     RENDER
 // ================
-  return (
-    <>
-      <PersonalizationModal
-        visible={showEdit}
-        onClose={() => setShowEdit(false)}
-      />
+ return (
+  <>
+    <PersonalizationModal
+      visible={showEdit}
+      onClose={() => setShowEdit(false)}
+    />
 
-      <ScrollView
-        style={[globalStyles.screen, { backgroundColor: themeColors.bg }]}
-        contentContainerStyle={styles.scrollContent}
+    <ScrollView
+      style={[
+        globalStyles.screen,
+        { backgroundColor: themeColors.bg },
+      ]}
+      contentContainerStyle={styles.scrollContent}
+    >
+      <View style={styles.pageContainer}>
+
+        {/* Profile Header always remains visible */}
+        <ProfileHeader
+          name={displayNameState}
+          email={email}
+          avatarUrl={avatarUri ?? undefined}
+          isEditing={activeSection === "editInfo"}
+          uploadingAvatar={uploadingPic}
+          onAvatarPress={handlePickImage}
+        />
+
+        {/* Animated content area switches
+            between cards, edit info, password
+            and reviews  */}
+        <Animated.View
+          style={[
+            styles.animatedSection,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateX: slideAnim }],
+            },
+          ]}
+        >
+
+          {/* Main profile action cards */}
+          {activeSection === "cards" && (
+            <ProfileActionCards
+              onEditInfo={() => openSection("editInfo")}
+              onPreferences={() => setShowEdit(true)}
+              onChangePassword={() => openSection("changePassword")}
+              onReview={() => openSection("review")}
+              onLogout={handleLogout}
+              onDelete={() => setShowDeleteConfirm(true)}
+              onDashboard={() => router.replace("/(tabs)/mainMenu")}
+              outfitsGenerated={profileStats.outfitsGenerated}
+              outfitsReviewed={profileStats.outfitsReviewed}
+              wardrobeItems={profileStats.wardrobeItems}
+            />
+          )}
+
+          {/* Edit Info Section */}
+          {activeSection === "editInfo" && (
+            <EditInfoSection
+              initialName={displayNameState}
+              onNameChange={setDisplayNameState}
+              onClose={closeSection}
+            />
+          )}
+
+          {/* Change Password Section */}
+          {activeSection === "changePassword" && (
+            <ChangePasswordSection
+              onClose={closeSection}
+              onPasswordChanged={() => router.replace("/(auth)/login")}
+            />
+          )}
+
+          {/* Reviews Section */}
+          {activeSection === "review" && (
+            <ReviewsSection onClose={closeSection} />
+          )}
+        </Animated.View>
+      </View>
+    </ScrollView>
+
+    {/* Delete Account Confirmation Modal */}
+    <Modal visible={showDeleteConfirm} transparent animationType="fade">
+      <View
+        style={[
+          styles.modalOverlay,
+          { backgroundColor: themeColors.blueDark },
+        ]}
       >
-        <View style={styles.pageContainer}>
-
-          {/* Profile Header always remains visible */}
-          <ProfileHeader
-            name={displayNameState}
-            email={email}
-            avatarUrl={avatarUri ?? undefined}
-            isEditing={activeSection === "editInfo"}
-            uploadingAvatar={uploadingPic}
-            onAvatarPress={handlePickImage}
-          />
-
-          {/* Animated content area switches
-              between cards, edit info, password
-              and reviews  */}
-          <Animated.View
+        <View
+          style={[
+            styles.modalBox,
+            { backgroundColor: themeColors.card },
+          ]}
+        >
+          <Text
             style={[
-              styles.animatedSection,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateX: slideAnim }],
-              },
+              styles.modalTitle,
+              { color: themeColors.text },
             ]}
           >
+            Delete Account
+          </Text>
 
-            {/* Main profile action cards */}
-            {activeSection === "cards" && (
-              <ProfileActionCards
-                onEditInfo={() => openSection("editInfo")}
-                onPreferences={() => setShowEdit(true)}
-                onChangePassword={() => openSection("changePassword")}
-                onReview={() => openSection("review")}
-                onLogout={handleLogout}
-                onDelete={() => setShowDeleteConfirm(true)}
-                onDashboard={() => router.replace("/(tabs)/mainMenu")}
-                outfitsGenerated={profileStats.outfitsGenerated}
-                outfitsReviewed={profileStats.outfitsReviewed}
-                wardrobeItems={profileStats.wardrobeItems}
-              />
+          <Text
+            style={[
+              styles.modalMessage,
+              { color: themeColors.muted },
+            ]}
+          >
+            You will not be able to access any of your data. This will
+            permanently delete your wardrobe, outfits, saved items, and
+            profile — you will have to start from the beginning to rebuild
+            your wardrobe. This cannot be undone.
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.modalDeleteBtn,
+              { backgroundColor: themeColors.accent },
+            ]}
+            onPress={confirmDelete}
+            disabled={deleting}
+          >
+            {deleting ? (
+              <ActivityIndicator color={themeColors.white} />
+            ) : (
+              <Text
+                style={[
+                  styles.modalBtnText,
+                  { color: themeColors.white },
+                ]}
+              >
+                Yes, Delete My Account
+              </Text>
             )}
+          </TouchableOpacity>
 
-            {/* Edit Info Section */}
-            {activeSection === "editInfo" && (
-              <EditInfoSection
-                initialName={displayNameState}
-                onNameChange={setDisplayNameState}
-                onClose={closeSection}
-              />
-            )}
-
-            {/* Change Password Section */}
-            {activeSection === "changePassword" && (
-              <ChangePasswordSection
-                onClose={closeSection}
-                onPasswordChanged={() => router.replace("/(auth)/login")}
-              />
-            )}
-            
-            {/* Reviews Section */}
-            {activeSection === "review" && (
-              <ReviewsSection onClose={closeSection} />
-            )}
-          </Animated.View>
-        </View>
-      </ScrollView>
-
-      {/* Delete Account Confirmation Modal */}
-      <Modal visible={showDeleteConfirm} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: themeColors.card }]}>
-            <Text style={[styles.modalTitle, { color: themeColors.text }]}>
-              Delete Account
-            </Text>
-
-            <Text style={[styles.modalMessage, { color: themeColors.muted }]}>
-              You will not be able to access any of your data. This will
-              permanently delete your wardrobe, outfits, saved items, and
-              profile — you will have to start from the beginning to rebuild
-              your wardrobe. This cannot be undone.
-            </Text>
-
-            <TouchableOpacity
-              style={styles.modalDeleteBtn}
-              onPress={confirmDelete}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <Text style={styles.modalBtnText}>
-                  Yes, Delete My Account
-                </Text>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
+          <TouchableOpacity
+            style={[
+              styles.modalCancelBtn,
+              { backgroundColor: themeColors.button },
+            ]}
+            onPress={() => setShowDeleteConfirm(false)}
+            disabled={deleting}
+          >
+            <Text
               style={[
-                styles.modalCancelBtn,
-                { backgroundColor: themeColors.button },
+                styles.modalBtnText,
+                { color: themeColors.white },
               ]}
-              onPress={() => setShowDeleteConfirm(false)}
-              disabled={deleting}
             >
-              <Text style={styles.modalBtnText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+              Cancel
+            </Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </>
-  );
+      </View>
+    </Modal>
+  </>
+);
 }
-
 // ================
 //     STYLES
 // ================
@@ -418,7 +459,6 @@ const styles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: colors.blueDark,
     justifyContent: "center",
     alignItems: "center",
     padding: 28,
@@ -430,7 +470,6 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 380,
 
-    shadowColor: colors.text,
     shadowOpacity: 0.08,
     shadowRadius: 10,
     shadowOffset: {
@@ -456,7 +495,6 @@ const styles = StyleSheet.create({
   },
 
   modalDeleteBtn: {
-    backgroundColor: colors.accent,
     paddingVertical: 18,
     borderRadius: 32,
     alignItems: "center",
@@ -470,7 +508,6 @@ const styles = StyleSheet.create({
   },
 
   modalBtnText: {
-    color: colors.white,
     fontWeight: "700",
     fontSize: 16,
   },

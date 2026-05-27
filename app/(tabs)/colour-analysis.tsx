@@ -18,8 +18,9 @@ import { clearColourAnalysis, getProfile } from "@/api/profile";
 import ColourAnalysisForm from "@/components/ColourAnalysis/ColourAnalysisForm";
 import ColourAnalysisHeader from "@/components/ColourAnalysis/ColourAnalysisHeader";
 import ColourAnalysisResult from "@/components/ColourAnalysis/ColourAnalysisResult";
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
 import { seasonPalettes } from "@/constants/seasonPalettes";
+import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -131,6 +132,7 @@ export default function ColourAnalysisScreen() {
     const router = useRouter();
     const { width } = useWindowDimensions();
     const isLargeScreen = width >= 768;
+    const { themeColors } = useAppTheme();
 
     // result state
     const [hasAnalysis, setHasAnalysis] = useState(false);
@@ -538,65 +540,86 @@ export default function ColourAnalysisScreen() {
     // ================
     //     RENDER
     // ================
-    return (
-        <ScrollView
-            style={globalStyles.screen}
-            contentContainerStyle={[
-                styles.scrollContent,
-                isLargeScreen && styles.largeScrollContent,
+     return (
+    <ScrollView
+      style={[
+        globalStyles.screen,
+        { backgroundColor: themeColors.bg },
+      ]}
+      contentContainerStyle={[
+        styles.scrollContent,
+        isLargeScreen && styles.largeScrollContent,
+      ]}
+    >
+      <View style={styles.pageContainer}>
+        <ColourAnalysisHeader
+          isLargeScreen={isLargeScreen}
+          onBack={goBack}
+        />
+
+        {loadingSaved ? (
+          <View
+            style={[
+              globalStyles.card,
+              styles.loadingCard,
+              { backgroundColor: themeColors.card },
             ]}
-        >
-            <View style={styles.pageContainer}>
-                <ColourAnalysisHeader
-                    isLargeScreen={isLargeScreen}
-                    onBack={goBack}
-                />
+          >
+            <ActivityIndicator size="large" color={themeColors.blueDark} />
 
-                {loadingSaved ? (
-                    <View style={[globalStyles.card, styles.loadingCard]}>
-                        <ActivityIndicator size="large" color={colors.blueDark} />
+            <Text
+              style={[
+                styles.loadingText,
+                { color: themeColors.muted },
+              ]}
+            >
+              Loading your saved colour analysis...
+            </Text>
+          </View>
+        ) : hasAnalysis ? (
+          <ColourAnalysisResult
+            result={analysisResult}
+            isSavedResult={isSavedResult}
+            clearing={clearing}
+            onRetake={retakeAnalysis}
+            onClearSaved={clearSavedAnalysis}
+          />
+        ) : (
+          <ColourAnalysisForm
+            selfies={selfies}
+            naturalHair={naturalHair}
+            currentHair={currentHair}
+            eyeColor={eyeColor}
+            jewelry={jewelry}
+            veins={veins}
+            sunReaction={sunReaction}
+            loading={analysing}
+            error={error}
+            onPickImage={pickImage}
+            onTakePhoto={takePhoto}
+            setNaturalHair={setNaturalHair}
+            setCurrentHair={setCurrentHair}
+            setEyeColor={setEyeColor}
+            setJewelry={setJewelry}
+            setVeins={setVeins}
+            setSunReaction={setSunReaction}
+            onGenerate={generateAnalysis}
+          />
+        )}
 
-                        <Text style={styles.loadingText}>
-                            Loading your saved colour analysis...
-                        </Text>
-                    </View>
-                ) : hasAnalysis ? (
-                    <ColourAnalysisResult
-                        result={analysisResult}
-                        isSavedResult={isSavedResult}
-                        clearing={clearing}
-                        onRetake={retakeAnalysis}
-                        onClearSaved={clearSavedAnalysis}
-                    />
-                ) : (
-                    <ColourAnalysisForm
-                        selfies={selfies}
-                        naturalHair={naturalHair}
-                        currentHair={currentHair}
-                        eyeColor={eyeColor}
-                        jewelry={jewelry}
-                        veins={veins}
-                        sunReaction={sunReaction}
-                        loading={analysing}
-                        error={error}
-                        onPickImage={pickImage}
-                        onTakePhoto={takePhoto}
-                        setNaturalHair={setNaturalHair}
-                        setCurrentHair={setCurrentHair}
-                        setEyeColor={setEyeColor}
-                        setJewelry={setJewelry}
-                        setVeins={setVeins}
-                        setSunReaction={setSunReaction}
-                        onGenerate={generateAnalysis}
-                    />
-                )}
-
-                {hasAnalysis && error ? (
-                    <Text style={globalStyles.errorText}>{error}</Text>
-                ) : null}
-            </View>
-        </ScrollView>
-    );
+        {hasAnalysis && error ? (
+          <Text
+            style={[
+              globalStyles.errorText,
+              { color: themeColors.accent },
+            ]}
+          >
+            {error}
+          </Text>
+        ) : null}
+      </View>
+    </ScrollView>
+  );
 }
 
 // ================
@@ -757,7 +780,6 @@ const styles = StyleSheet.create({
     },
 
     loadingText: {
-        color: colors.muted,
         fontSize: 15,
         fontWeight: "600",
     },
