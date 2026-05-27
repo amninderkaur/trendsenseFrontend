@@ -1,50 +1,170 @@
+<<<<<<< HEAD
 import { colors } from "../../constants/globalStyles";
 import { MaterialIcons } from "@expo/vector-icons";
+=======
+/* 
+* Profile Page
+* This page handles
+*  - Profile display (profile picture, name, email)
+*  - Profile editing (name, phone, profile picture)
+*  - Profile card animations and transitions
+*  - Password changing
+*  - Viewing and submitting reviews
+*  - Account deletion
+*  - Logging out
+*/
+
+// ================
+//     IMPORTS
+// ================
+import ChangePasswordSection from "@/components/Profile/ChangePasswordSection";
+import EditInfoSection from "@/components/Profile/EditInfoSection";
+import ProfileActionCards from "@/components/Profile/ProfileActionCards";
+import ProfileHeader from "@/components/Profile/ProfileHeader";
+import ReviewsSection from "@/components/Profile/ReviewSection";
+import { colors, globalStyles } from "@/constants/globalStyles";
+>>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
+  Animated,
   Modal,
-  Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-
 import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { deleteAccount, getMe, uploadProfilePicture } from "../../api/user";
 import { useAppTheme } from "../../context/ThemeContext";
-import { getEmail, getName, removeEmail, removeName, removeToken, removeUserId } from "../../utils/token";
+import {
+  getEmail,
+  getName,
+  removeEmail,
+  removeName,
+  removeToken,
+  removeUserId,
+} from "../../utils/token";
 
+// ================
+//     TYPES
+// ================
+type ProfileSection = "cards" | "editInfo" | "changePassword" | "review";
+
+
+// ================
+// PROFILE COMPONENT
+// ================
 export default function Profile() {
+
+  //Navigation / theming
   const router = useRouter();
-  const { isDarkMode, toggleDarkMode, themeColors } = useAppTheme();
+  const { themeColors } = useAppTheme();
+
+  // User information
   const email = getEmail() || "user@example.com";
   const displayName = getName() || "TrendSense User";
 
+  // Model state
   const [showEdit, setShowEdit] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Profile image state
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [uploadingPic, setUploadingPic] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
 
+  // section navigation state
+  const [activeSection, setActiveSection] = useState<ProfileSection>("cards");
+
+  // display state
+  const [displayNameState, setDisplayNameState] = useState(displayName);
+
+  // section transition animation
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // temporary placeholder stats until
+  // backend endpoints are implemented 
+  const profileStats = {
+    outfitsGenerated: 0,
+    outfitsReviewed: 0,
+    wardrobeItems: 0,
+  };
+
+  // animates the current section
+  // out, switches the section, 
+  // then animates the new section in
+  const animateToSection = (
+    nextSection: ProfileSection,
+    direction: "left" | "right"
+  ) => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 160,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: direction === "left" ? -60 : 60,
+        duration: 160,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setActiveSection(nextSection);
+
+      slideAnim.setValue(direction === "left" ? 60 : -60);
+      fadeAnim.setValue(0);
+
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
+
+  // open a profile section
+  const openSection = (section: ProfileSection) => {
+    animateToSection(section, "left");
+  };
+
+  // return to main cards view
+  const closeSection = () => {
+    animateToSection("cards", "right");
+  };
+
+  // initial profile load
   useEffect(() => {
     getMe()
       .then((data) => {
         if (data?.profilePicture) {
-          setAvatarUri(`data:${data.profilePictureType};base64,${data.profilePicture}`);
+          setAvatarUri(
+            `data:${data.profilePictureType};base64,${data.profilePicture}`
+          );
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        setProfileLoading(false);
+      });
   }, []);
 
+  // upload and update profile image
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
     if (status !== "granted") return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -57,17 +177,21 @@ export default function Profile() {
     if (result.canceled) return;
 
     const asset = result.assets[0];
+
     setUploadingPic(true);
+
     try {
       await uploadProfilePicture(asset.uri);
       setAvatarUri(asset.uri);
     } catch {
-      // silently fail — keep old image
+      // keep old image if upload fails
     } finally {
       setUploadingPic(false);
     }
   };
 
+  // log out user and clear 
+  // session data
   const handleLogout = () => {
     removeToken();
     removeUserId();
@@ -76,19 +200,42 @@ export default function Profile() {
     router.replace("/(auth)/login");
   };
 
+  // permanently delete account
   const confirmDelete = async () => {
     setDeleting(true);
+
     try {
       await deleteAccount();
     } catch {
-      // still clear local state even if request fails
+      // still clear local state even
+      // if request fails
     }
+
     removeToken();
     removeUserId();
     removeEmail();
+    removeName();
+
     router.replace("/(auth)/login");
   };
 
+  // loading state while fetching profile data
+  if (profileLoading) {
+    return (
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: themeColors.bg },
+        ]}
+      >
+        <ActivityIndicator size="large" color={themeColors.button} />
+      </View>
+    );
+  }
+
+// ================
+//     RENDER
+// ================
   return (
     <>
       <PersonalizationModal
@@ -97,110 +244,109 @@ export default function Profile() {
       />
 
       <ScrollView
-        style={[styles.container, { backgroundColor: themeColors.bg }]}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        style={[globalStyles.screen, { backgroundColor: themeColors.bg }]}
+        contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={[styles.backButton, { backgroundColor: themeColors.button }]}
-            onPress={() => router.back()}
+        <View style={styles.pageContainer}>
+
+          {/* Profile Header always remains visible */}
+          <ProfileHeader
+            name={displayNameState}
+            email={email}
+            avatarUrl={avatarUri ?? undefined}
+            isEditing={activeSection === "editInfo"}
+            uploadingAvatar={uploadingPic}
+            onAvatarPress={handlePickImage}
+          />
+
+          {/* Animated content area switches
+              between cards, edit info, password
+              and reviews  */}
+          <Animated.View
+            style={[
+              styles.animatedSection,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateX: slideAnim }],
+              },
+            ]}
           >
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerText, { color: themeColors.text }]}>Account Profile</Text>
-        </View>
 
-        <View style={[styles.card, { backgroundColor: themeColors.card }]}>
-          <TouchableOpacity onPress={handlePickImage} style={styles.avatarWrapper} disabled={uploadingPic}>
-            {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <MaterialIcons name="person" size={60} color="#fff" />
-              </View>
+            {/* Main profile action cards */}
+            {activeSection === "cards" && (
+              <ProfileActionCards
+                onEditInfo={() => openSection("editInfo")}
+                onPreferences={() => setShowEdit(true)}
+                onChangePassword={() => openSection("changePassword")}
+                onReview={() => openSection("review")}
+                onLogout={handleLogout}
+                onDelete={() => setShowDeleteConfirm(true)}
+                onDashboard={() => router.replace("/(tabs)/mainMenu")}
+                outfitsGenerated={profileStats.outfitsGenerated}
+                outfitsReviewed={profileStats.outfitsReviewed}
+                wardrobeItems={profileStats.wardrobeItems}
+              />
             )}
-            {uploadingPic ? (
-              <View style={styles.avatarOverlay}>
-                <ActivityIndicator color="#fff" />
-              </View>
-            ) : (
-              <View style={styles.avatarOverlay}>
-                <Text style={styles.avatarEditText}>Edit</Text>
-              </View>
+
+            {/* Edit Info Section */}
+            {activeSection === "editInfo" && (
+              <EditInfoSection
+                initialName={displayNameState}
+                onNameChange={setDisplayNameState}
+                onClose={closeSection}
+              />
             )}
-          </TouchableOpacity>
-          <Text style={[styles.name, { color: themeColors.text }]}>{displayName}</Text>
-          <Text style={[styles.email, { color: themeColors.muted }]}>{email}</Text>
+
+            {/* Change Password Section */}
+            {activeSection === "changePassword" && (
+              <ChangePasswordSection
+                onClose={closeSection}
+                onPasswordChanged={() => router.replace("/(auth)/login")}
+              />
+            )}
+            
+            {/* Reviews Section */}
+            {activeSection === "review" && (
+              <ReviewsSection onClose={closeSection} />
+            )}
+          </Animated.View>
         </View>
-
-        <View style={[styles.card, { backgroundColor: themeColors.card }]}>
-          <View style={styles.switchRow}>
-            <Text style={[styles.name, { color: themeColors.text }]}>Dark Mode</Text>
-            <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
-          </View>
-        </View>
-
-        <View style={styles.infoContainer}>
-          <View style={styles.infoCard}><Text style={styles.infoTitle}>Orders</Text><Text style={styles.infoNumber}>120</Text></View>
-          <View style={styles.infoCard}><Text style={styles.infoTitle}>Pending</Text><Text style={styles.infoNumber}>8</Text></View>
-          <View style={styles.infoCard}><Text style={styles.infoTitle}>Wishlist</Text><Text style={styles.infoNumber}>24</Text></View>
-        </View>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: themeColors.button }]}
-          onPress={() => router.push("/edit-info" as any)}
-        >
-          <Text style={styles.buttonText}>Edit Info</Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: themeColors.button }]}
-          onPress={() => router.push("/change-password" as any)}
-        >
-          <Text style={styles.buttonText}>Change Password</Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: themeColors.button }]}
-          onPress={() => setShowEdit(true)}
-        >
-          <Text style={styles.buttonText}>Edit Preferences</Text>
-        </Pressable>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: themeColors.button }]}
-          onPress={() => router.push("/reviews" as any)}
-        >
-          <Text style={styles.buttonText}>Leave / View Reviews</Text>
-        </Pressable>
-
-        <Pressable style={[styles.button, { backgroundColor: "#a3bfa9" }]} onPress={handleLogout}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </Pressable>
-
-        <TouchableOpacity style={[styles.button, { backgroundColor: "#c0726e" }]} onPress={() => setShowDeleteConfirm(true)}>
-          <Text style={styles.buttonText}>Delete Account</Text>
-        </TouchableOpacity>
       </ScrollView>
 
+      {/* Delete Account Confirmation Modal */}
       <Modal visible={showDeleteConfirm} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Delete Account</Text>
-            <Text style={styles.modalMessage}>
-              You will not be able to access any of your data. This will permanently delete your wardrobe, outfits, saved items, and profile — you will have to start from the beginning to rebuild your wardrobe. This cannot be undone.
+          <View style={[styles.modalBox, { backgroundColor: themeColors.card }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>
+              Delete Account
             </Text>
+
+            <Text style={[styles.modalMessage, { color: themeColors.muted }]}>
+              You will not be able to access any of your data. This will
+              permanently delete your wardrobe, outfits, saved items, and
+              profile — you will have to start from the beginning to rebuild
+              your wardrobe. This cannot be undone.
+            </Text>
+
             <TouchableOpacity
               style={styles.modalDeleteBtn}
               onPress={confirmDelete}
               disabled={deleting}
             >
-              {deleting
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.modalBtnText}>Yes, Delete My Account</Text>}
+              {deleting ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={styles.modalBtnText}>
+                  Yes, Delete My Account
+                </Text>
+              )}
             </TouchableOpacity>
+
             <TouchableOpacity
-              style={styles.modalCancelBtn}
+              style={[
+                styles.modalCancelBtn,
+                { backgroundColor: themeColors.button },
+              ]}
               onPress={() => setShowDeleteConfirm(false)}
               disabled={deleting}
             >
@@ -213,7 +359,11 @@ export default function Profile() {
   );
 }
 
+// ================
+//     STYLES
+// ================
 const styles = StyleSheet.create({
+<<<<<<< HEAD
   container: { flex: 1 },
   header: { padding: 20, alignItems: "center" },
   headerText: { fontSize: 24, fontWeight: "700" },
@@ -242,3 +392,87 @@ const styles = StyleSheet.create({
   modalCancelBtn: { backgroundColor: colors.bgDark, paddingVertical: 18, borderRadius: 32, alignItems: "center" },
   modalBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });
+=======
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  scrollContent: {
+    paddingVertical: 24,
+    paddingBottom: 40,
+  },
+
+  pageContainer: {
+    width: "100%",
+    maxWidth: 1900,
+    alignSelf: "center",
+    paddingHorizontal: 24,
+    gap: 20,
+  },
+
+  animatedSection: {
+    width: "100%",
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: colors.blueDark,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 28,
+  },
+
+  modalBox: {
+    borderRadius: 25,
+    padding: 28,
+    width: "100%",
+    maxWidth: 380,
+
+    shadowColor: colors.text,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    elevation: 5,
+  },
+
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+
+  modalMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+    marginBottom: 24,
+  },
+
+  modalDeleteBtn: {
+    backgroundColor: colors.accent,
+    paddingVertical: 18,
+    borderRadius: 32,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  modalCancelBtn: {
+    paddingVertical: 18,
+    borderRadius: 32,
+    alignItems: "center",
+  },
+
+  modalBtnText: {
+    color: colors.white,
+    fontWeight: "700",
+    fontSize: 16,
+  },
+});
+>>>>>>> bd722ab (Add moodboards API & refactor colour analysis)

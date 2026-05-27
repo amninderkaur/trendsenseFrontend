@@ -91,6 +91,284 @@ const NAV = [
 
 export default function MainMenu() {
   const router = useRouter();
+<<<<<<< HEAD
+=======
+  const { width } = useWindowDimensions();
+  const isLargeScreen = !isWeb && width >= 768;
+  const isLoggedIn = !!getToken();
+  const isAdmin = getRole() === "ADMIN";
+  const iconSize = isLargeScreen ? 28 : 20;
+
+  const [showPersonalization, setShowPersonalization] = React.useState(false);
+  const [welcomeName, setWelcomeName] = React.useState("");
+
+  React.useEffect(() => {
+    const checkProfile = async () => {
+      if (!isLoggedIn || isAdmin) return;
+
+      try {
+        const profile = await getProfile();
+
+        if (profile?.displayName) {
+          setWelcomeName(profile.displayName);
+        } else {
+          setShowPersonalization(true);
+        }
+      } catch {
+        setShowPersonalization(true);
+      }
+    };
+
+    checkProfile();
+  }, [isLoggedIn, isAdmin]);
+
+  const handleSignOut = () => {
+    removeToken();
+    removeUserId();
+    removeEmail();
+    router.replace("/(auth)/login");
+  };
+
+  const navItems = [
+    {
+      href: "/",
+      icon: "dashboard",
+      label: "Dashboard",
+      lib: "material",
+    },
+    {
+      href: "/upload-clothes",
+      icon: "add-a-photo",
+      label: "Upload Clothes",
+      lib: "material",
+    },
+    {
+      href: "/wardrobe",
+      icon: "checkroom",
+      label: "Wardrobe",
+      lib: "material",
+    },
+    {
+      href: "/upload-outfit",
+      icon: "style",
+      label: "Outfit Suggestion",
+      lib: "material",
+    },
+    {
+      href: "/outfit-review",
+      icon: "search",
+      label: "Outfit Review",
+      lib: "material",
+    },
+    {
+      href: "/history",
+      icon: "favorite",
+      label: "Saved Outfits",
+      lib: "material",
+    },
+    {
+      href: "/budgeting",
+      icon: "wallet",
+      label: "Budgeting",
+      lib: "fa5",
+    },
+    {
+      href: "/trip-packing",
+      icon: "luggage",
+      label: "Trip Packing",
+      lib: "material",
+    },
+    {
+      href: "/saved-items",
+      icon: "bookmark",
+      label: "Saved Items",
+      lib: "material",
+    },
+    {
+      href: "/colour-analysis",
+      icon: "palette",
+      label: "Colour Analysis",
+      lib: "material",
+    },
+    {
+      href: "/moodboards",
+      icon: "palette",
+      label: "Mood Boards",
+      lib: "material",
+    },
+    {
+      href: "/profile",
+      icon: "person",
+      label: "Account Profile",
+      lib: "material",
+    },
+  ] as const;
+
+  const StatsTiles = () => (
+    <View
+      style={[
+        styles.tilesContainer,
+        isLargeScreen && styles.largeTilesContainer,
+      ]}
+    >
+      {[
+        { n: "120", label: "Orders" },
+        { n: "24", label: "New Customers" },
+        { n: "8", label: "Pending" },
+      ].map((t) => (
+        <View
+          key={t.label}
+          style={[styles.tile, isLargeScreen && styles.largeTile]}
+        >
+          <Text
+            style={[
+              styles.tileNumber,
+              isLargeScreen && styles.largeTileNumber,
+            ]}
+          >
+            {t.n}
+          </Text>
+
+          <Text
+            style={[
+              styles.tileLabel,
+              isLargeScreen && styles.largeTileLabel,
+            ]}
+          >
+            {t.label}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+
+  const HeroVideo = () => (
+    <View
+      style={[
+        styles.videoCard,
+        isLargeScreen && styles.largeVideoCard,
+      ]}
+    >
+      <Video
+        source={require("../../assets/videos/dashboard.mp4")}
+        resizeMode="contain"
+        shouldPlay
+        isLooping
+        isMuted
+        style={styles.video}
+      />
+    </View>
+  );
+
+  if (isWeb) {
+    return (
+      <View style={web.root}>
+        <PersonalizationModal
+          visible={showPersonalization}
+          onClose={() => setShowPersonalization(false)}
+        />
+
+        <View style={web.sidebar}>
+          <View style={web.logoContainer}>
+            <Image
+              source={require("../../assets/images/trendsense-logo.png")}
+              style={web.logo}
+              resizeMode="contain"
+            />
+
+            <Text style={web.appName}>TrendSense</Text>
+          </View>
+
+          {navItems.map((item) => (
+            <Link key={item.href} href={item.href as any} asChild>
+              <Pressable style={web.navItem}>
+                {item.lib === "material" ? (
+                  <MaterialIcons
+                    name={item.icon as any}
+                    size={18}
+                    color={colors.blueDark}
+                    style={styles.icon}
+                  />
+                ) : (
+                  <FontAwesome5
+                    name={item.icon as any}
+                    size={16}
+                    color={colors.blueDark}
+                    style={styles.icon}
+                  />
+                )}
+
+                <Text style={web.navLabel}>{item.label}</Text>
+              </Pressable>
+            </Link>
+          ))}
+
+          <View style={web.divider} />
+
+          {isLoggedIn ? (
+            <Pressable style={web.navItem} onPress={handleSignOut}>
+              <MaterialIcons
+                name="logout"
+                size={18}
+                color={colors.blueDark}
+                style={styles.icon}
+              />
+
+              <Text style={web.navLabel}>Sign Out</Text>
+            </Pressable>
+          ) : (
+            <Link href="/login" asChild>
+              <Pressable style={web.navItem}>
+                <MaterialIcons
+                  name="login"
+                  size={18}
+                  color={colors.blueDark}
+                  style={styles.icon}
+                />
+
+                <Text style={web.navLabel}>Login</Text>
+              </Pressable>
+            </Link>
+          )}
+
+          {isAdmin && (
+            <Pressable
+              style={styles.adminButton}
+              onPress={() =>
+                router.replace("/admin/dashboard" as any)
+              }
+            >
+              <MaterialIcons
+                name="admin-panel-settings"
+                size={18}
+                color={colors.white}
+                style={styles.icon}
+              />
+
+              <Text style={styles.adminButtonText}>
+                Go to Admin View
+              </Text>
+            </Pressable>
+          )}
+        </View>
+
+        <ScrollView
+          style={web.content}
+          contentContainerStyle={web.contentInner}
+        >
+          {welcomeName ? (
+            <Text style={styles.welcome}>
+              Welcome, {welcomeName} 👋
+            </Text>
+          ) : null}
+
+          <HeroVideo />
+          <StatsTiles />
+        </ScrollView>
+      </View>
+    );
+  }
+>>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
 
   return (
     <SafeAreaView style={s.safe}>

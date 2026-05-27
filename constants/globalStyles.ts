@@ -13,6 +13,13 @@ export const colors = {
   muted: "#5A6E68",
   accent: "#FF6B4A",
   white: "#FFFFFF",
+  profileTintGreen: "#00ff0018",
+profileTintBeige: "#ff9d002c",
+profileTintPurple: "#5500ff1f",
+profileTintGold: "#ffee001e",
+profileTintBlue: "#0099ff27",
+profileTintRed: "#ff000042",
+profileTintPink: "#ff00b321",
 };
 
 export const globalStyles = StyleSheet.create({
