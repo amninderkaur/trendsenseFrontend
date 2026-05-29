@@ -449,9 +449,10 @@ const { width: SW } = Dimensions.get("window");
 const COL = (SW - 48) / 2;
 
 const NAV = [
-  { id: "home",    label: "Home",   icon: "⌂", route: "/(tabs)/mainMenu",       active: true  },
-  { id: "upload",  label: "Upload", icon: "+", route: "/(tabs)/upload-clothes",  active: false },
-  { id: "profile", label: "Me",     icon: "◯", route: "/(tabs)/profile",         active: false },
+  { id: "home",    label: "Home",    icon: "⌂", route: "/(tabs)/mainMenu",      active: true  },
+  { id: "upload",  label: "Upload",  icon: "+", route: "/(tabs)/upload-clothes", active: false },
+  { id: "trends",  label: "Trends",  icon: "✦", route: "/(tabs)/trends",         active: false },
+  { id: "profile", label: "Me",      icon: "◯", route: "/(tabs)/profile",        active: false },
 ] as const;
 
 export default function MainMenu() {

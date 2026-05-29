@@ -3,13 +3,20 @@ import { colors } from "../../../constants/globalStyles";
 import { getOutfitHistory, deleteOutfitHistory } from "@/api/outfitHistory";
 =======
 import { deleteOutfitHistory, getOutfitHistory } from "@/api/outfitHistory";
+import { getOutfitRatings, getTasteProfile, postOutfitRating } from "@/api/outfit";
+import StarRating from "@/components/StarRating";
 import { useAppTheme } from "@/context/ThemeContext";
+<<<<<<< HEAD
 >>>>>>> fab4ee9 (Fixed Dark mode toggle)
+=======
+import { useResponsiveWidth } from "@/utils/platform";
+>>>>>>> 2994732 (trends and outfit rating added)
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
   Image,
   Pressable,
   RefreshControl,
@@ -38,6 +45,7 @@ type OutfitRecord = {
 export default function SavedOutfitsIndex() {
   const router = useRouter();
   const { themeColors } = useAppTheme();
+  const responsiveWidth = useResponsiveWidth();
 
   const [outfits, setOutfits] = useState<OutfitRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,12 +53,54 @@ export default function SavedOutfitsIndex() {
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // ratings map: { [outfitHistoryId]: 0–5 }
+  const [ratingsMap, setRatingsMap] = useState<Record<string, number>>({});
+  const [ratingInProgress, setRatingInProgress] = useState<string | null>(null);
+
+  // toast
+  const [toastMsg, setToastMsg] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // taste-profile banner
+  const [showProfileBanner, setShowProfileBanner] = useState(false);
+  const bannerAnim = useRef(new Animated.Value(0)).current;
+  const bannerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(""), 3000);
+  };
+
+  const triggerBanner = () => {
+    setShowProfileBanner(true);
+    Animated.timing(bannerAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    if (bannerTimer.current) clearTimeout(bannerTimer.current);
+    bannerTimer.current = setTimeout(() => {
+      Animated.timing(bannerAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start(() =>
+        setShowProfileBanner(false)
+      );
+    }, 3000);
+  };
+
   const load = async () => {
     setError("");
-
     try {
-      const data = await getOutfitHistory();
+      const [data, ratingsData] = await Promise.all([
+        getOutfitHistory(),
+        getOutfitRatings().catch(() => []),
+      ]);
       setOutfits(Array.isArray(data) ? data : []);
+
+      const map: Record<string, number> = {};
+      if (Array.isArray(ratingsData)) {
+        ratingsData.forEach((r: any) => {
+          if (r.outfitHistoryId != null && r.rating != null) {
+            map[String(r.outfitHistoryId)] = r.rating;
+          }
+        });
+      }
+      setRatingsMap(map);
     } catch {
       setError("Could not load saved outfits.");
     } finally {
@@ -66,12 +116,49 @@ export default function SavedOutfitsIndex() {
     }, [])
   );
 
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      if (bannerTimer.current) clearTimeout(bannerTimer.current);
+    };
+  }, []);
+
+  const handleRate = async (outfitHistoryId: string, rating: number) => {
+    const prev = ratingsMap[outfitHistoryId] ?? 0;
+    // optimistic update
+    setRatingsMap((m) => ({ ...m, [outfitHistoryId]: rating }));
+    setRatingInProgress(outfitHistoryId);
+
+    try {
+      await postOutfitRating({ outfitHistoryId, rating });
+      // check taste profile
+      try {
+        const profile = await getTasteProfile();
+        if (profile && profile.totalRatings != null) {
+          triggerBanner();
+        }
+      } catch {
+        // taste profile not ready yet — silent
+      }
+    } catch {
+      // revert optimistic update
+      setRatingsMap((m) => ({ ...m, [outfitHistoryId]: prev }));
+      showToast("Could not save, try again");
+    } finally {
+      setRatingInProgress(null);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     setDeletingId(id);
-
     try {
       await deleteOutfitHistory(id);
       setOutfits((prev) => prev.filter((o) => o.id !== id));
+      setRatingsMap((m) => {
+        const next = { ...m };
+        delete next[id];
+        return next;
+      });
     } catch {
       // silently fail
     } finally {
@@ -88,210 +175,175 @@ export default function SavedOutfitsIndex() {
   };
 
   return (
-    <ScrollView
-      style={[
-        styles.container,
-        { backgroundColor: themeColors.bg },
-      ]}
-      contentContainerStyle={styles.content}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          tintColor={themeColors.text}
-          colors={[themeColors.text]}
-          onRefresh={() => {
-            setRefreshing(true);
-            load();
-          }}
-        />
-      }
-    >
-      <Pressable
-        style={[
-          styles.backButton,
-          { backgroundColor: themeColors.bgDark },
-        ]}
-        onPress={goBack}
-      >
-        <Text
+    <View style={[styles.flex, { backgroundColor: themeColors.bg }]}>
+      {/* Taste-profile update banner */}
+      {showProfileBanner && (
+        <Animated.View
           style={[
-            styles.backButtonText,
-            { color: themeColors.text },
+            styles.banner,
+            { backgroundColor: themeColors.bgDark, opacity: bannerAnim },
           ]}
         >
-          ← Back
-        </Text>
-      </Pressable>
-
-      <Text
-        style={[
-          styles.title,
-          { color: themeColors.text },
-        ]}
-      >
-        Saved Outfits
-      </Text>
-
-      <Text
-        style={[
-          styles.subtitle,
-          { color: themeColors.blueDark },
-        ]}
-      >
-        Outfits you liked from AI suggestions.
-      </Text>
-
-      {loading && (
-        <ActivityIndicator
-          color={themeColors.text}
-          size="large"
-          style={{ marginTop: 40 }}
-        />
+          <Text style={[styles.bannerText, { color: themeColors.white }]}>
+            ✨ Taste profile updated — future suggestions will improve
+          </Text>
+        </Animated.View>
       )}
 
-      {!!error && (
-        <Text
-          style={[
-            styles.errorText,
-            { color: themeColors.accent },
-          ]}
-        >
-          {error}
-        </Text>
-      )}
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={themeColors.text}
+            colors={[themeColors.text]}
+            onRefresh={() => {
+              setRefreshing(true);
+              load();
+            }}
+          />
+        }
+      >
+        <View style={responsiveWidth}>
+          <Pressable
+            style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
+            onPress={goBack}
+          >
+            <Text style={[styles.backButtonText, { color: themeColors.text }]}>
+              ← Back
+            </Text>
+          </Pressable>
 
-      {!loading && outfits.length === 0 && !error && (
-        <Text
-          style={[
-            styles.emptyText,
-            { color: themeColors.text },
-          ]}
-        >
-          No saved outfits yet. Like an outfit suggestion to save it here.
-        </Text>
-      )}
+          <Text style={[styles.title, { color: themeColors.text }]}>
+            Saved Outfits
+          </Text>
 
-      {outfits.map((outfit) => (
-        <View
-          key={outfit.id}
-          style={[
-            styles.card,
-            {
-              backgroundColor: themeColors.card,
-              borderColor: themeColors.bgDark,
-            },
-          ]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={{ flex: 1 }}>
-              <Text
-                style={[
-                  styles.occasion,
-                  { color: themeColors.text },
-                ]}
-              >
-                {outfit.occasion}
-              </Text>
+          <Text style={[styles.subtitle, { color: themeColors.blueDark }]}>
+            Outfits you liked from AI suggestions.
+          </Text>
 
-              <Text
-                style={[
-                  styles.city,
-                  { color: themeColors.blueDark },
-                ]}
-              >
-                {outfit.city}
-              </Text>
-            </View>
+          {loading && (
+            <ActivityIndicator
+              color={themeColors.text}
+              size="large"
+              style={{ marginTop: 40 }}
+            />
+          )}
 
-            <Pressable
-              style={[
-                styles.deleteButton,
-                { backgroundColor: themeColors.accent },
-              ]}
-              onPress={() => handleDelete(outfit.id)}
-              disabled={deletingId === outfit.id}
-            >
-              {deletingId === outfit.id ? (
-                <ActivityIndicator color={themeColors.white} size="small" />
-              ) : (
-                <Text
-                  style={[
-                    styles.deleteText,
-                    { color: themeColors.white },
-                  ]}
-                >
-                  Remove
-                </Text>
-              )}
-            </Pressable>
-          </View>
-
-          {!!outfit.weatherSummary && (
-            <Text
-              style={[
-                styles.weather,
-                { color: themeColors.blueDark },
-              ]}
-            >
-              {outfit.weatherSummary}
+          {!!error && (
+            <Text style={[styles.errorText, { color: themeColors.accent }]}>
+              {error}
             </Text>
           )}
 
-          {!!outfit.reasoning && (
-            <Text
-              style={[
-                styles.reasoning,
-                { color: themeColors.text },
-              ]}
-            >
-              {outfit.reasoning}
+          {!loading && outfits.length === 0 && !error && (
+            <Text style={[styles.emptyText, { color: themeColors.text }]}>
+              No saved outfits yet. Like an outfit suggestion to save it here.
             </Text>
           )}
 
-          {outfit.selectedItems?.length > 0 && (
-            <View style={styles.itemsGrid}>
-              {outfit.selectedItems.map((item) => (
-                <View
-                  key={item.itemId}
-                  style={[
-                    styles.itemCard,
-                    { backgroundColor: themeColors.blue },
-                  ]}
-                >
-                  <Image
-                    source={{
-                      uri: `data:image/png;base64,${item.imageBase64}`,
-                    }}
-                    style={[
-                      styles.itemImage,
-                      { backgroundColor: themeColors.input },
-                    ]}
-                  />
-
-                  <Text
-                    style={[
-                      styles.itemType,
-                      { color: themeColors.text },
-                    ]}
-                  >
-                    {item.color} {item.type}
+          {outfits.map((outfit) => (
+            <View
+              key={outfit.id}
+              style={[
+                styles.card,
+                {
+                  backgroundColor: themeColors.card,
+                  borderColor: themeColors.bgDark,
+                },
+              ]}
+            >
+              <View style={styles.cardHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.occasion, { color: themeColors.text }]}>
+                    {outfit.occasion}
+                  </Text>
+                  <Text style={[styles.city, { color: themeColors.blueDark }]}>
+                    {outfit.city}
                   </Text>
                 </View>
-              ))}
+
+                <Pressable
+                  style={[styles.deleteButton, { backgroundColor: themeColors.accent }]}
+                  onPress={() => handleDelete(outfit.id)}
+                  disabled={deletingId === outfit.id}
+                >
+                  {deletingId === outfit.id ? (
+                    <ActivityIndicator color={themeColors.white} size="small" />
+                  ) : (
+                    <Text style={[styles.deleteText, { color: themeColors.white }]}>
+                      Remove
+                    </Text>
+                  )}
+                </Pressable>
+              </View>
+
+              {!!outfit.weatherSummary && (
+                <Text style={[styles.weather, { color: themeColors.blueDark }]}>
+                  {outfit.weatherSummary}
+                </Text>
+              )}
+
+              {!!outfit.reasoning && (
+                <Text style={[styles.reasoning, { color: themeColors.text }]}>
+                  {outfit.reasoning}
+                </Text>
+              )}
+
+              {outfit.selectedItems?.length > 0 && (
+                <View style={styles.itemsGrid}>
+                  {outfit.selectedItems.map((item) => (
+                    <View
+                      key={item.itemId}
+                      style={[styles.itemCard, { backgroundColor: themeColors.blue }]}
+                    >
+                      <Image
+                        source={{ uri: `data:image/png;base64,${item.imageBase64}` }}
+                        style={[styles.itemImage, { backgroundColor: themeColors.input }]}
+                      />
+                      <Text style={[styles.itemType, { color: themeColors.text }]}>
+                        {item.color} {item.type}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Star rating */}
+              <StarRating
+                outfitHistoryId={outfit.id}
+                currentRating={ratingsMap[outfit.id] ?? 0}
+                onRate={handleRate}
+                disabled={ratingInProgress === outfit.id}
+              />
             </View>
-          )}
+          ))}
         </View>
-      ))}
-    </ScrollView>
+      </ScrollView>
+
+      {/* Error toast */}
+      {!!toastMsg && (
+        <View style={[styles.toast, { backgroundColor: themeColors.bgDark }]}>
+          <Text style={[styles.toastText, { color: themeColors.white }]}>
+            {toastMsg}
+          </Text>
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
 <<<<<<< HEAD
+<<<<<<< HEAD
   container: { flex: 1, backgroundColor: colors.card },
   content: { padding: 20, paddingBottom: 40 },
 =======
   container: {
+=======
+  flex: {
+>>>>>>> 2994732 (trends and outfit rating added)
     flex: 1,
   },
   content: {
@@ -409,5 +461,34 @@ const styles = StyleSheet.create({
   deleteText: {
     fontWeight: "700",
     fontSize: 13,
+  },
+  banner: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  bannerText: {
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  toast: {
+    position: "absolute",
+    bottom: 32,
+    left: 24,
+    right: 24,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  toastText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
