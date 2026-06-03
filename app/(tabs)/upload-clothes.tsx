@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { colors } from "../../constants/globalStyles";
-=======
 import { useAppTheme } from "@/context/ThemeContext";
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -327,26 +323,6 @@ return (
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  scrollContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 32, gap: 16, backgroundColor: colors.card },
-  title: { fontSize: 22, fontWeight: "700", color: "#233443" },
-  subtitle: { fontSize: 14, color: colors.blueDark, marginBottom: 4 },
-  buttonRow: { flexDirection: "row", gap: 12, marginTop: 10 },
-  button: { flex: 1, backgroundColor: "#c0d1bf", paddingVertical: 12, borderRadius: 999, alignItems: "center" },
-  buttonText: { color: "#233443", fontWeight: "600" },
-  buttonOutline: { flex: 1, borderColor: "#a3bfa9", borderWidth: 1, paddingVertical: 12, borderRadius: 999, alignItems: "center" },
-  buttonOutlineText: { color: "#233443", fontWeight: "600" },
-  previewContainer: { marginTop: 24 },
-  previewImage: { width: "100%", aspectRatio: 3 / 4, borderRadius: 16, marginTop: 8, borderWidth: 2, borderColor: "#a3bfa9" },
-  sectionTitle: { fontSize: 16, fontWeight: "600", marginBottom: 4, color: "#233443" },
-  uploadButton: { marginTop: 24, backgroundColor: colors.blue, paddingVertical: 14, borderRadius: 999, alignItems: "center" },
-  uploadButtonText: { color: "#233443", fontWeight: "700", fontSize: 15 },
-  resultBox: { backgroundColor: "#c0d1bf", marginTop: 20, borderRadius: 14, padding: 16 },
-  resultItem: { color: "#233443", marginBottom: 4, fontWeight: "500" },
-  errorText: { color: "#d0685f", marginTop: 12, fontSize: 14, fontWeight: "600" },
-  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
-  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
-=======
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 24,
@@ -452,5 +428,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
 });

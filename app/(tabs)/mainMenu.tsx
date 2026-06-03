@@ -1,23 +1,16 @@
-<<<<<<< HEAD
 import React from "react";
-import {
-<<<<<<< HEAD
-=======
-  Image,
-=======
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
   Dimensions,
->>>>>>> 2a922e7 (ui)
   Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
-<<<<<<< HEAD
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
+  Image,
   View,
   Text,
   StyleSheet,
@@ -29,22 +22,9 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { colors } from "../../constants/globalStyles";
-
-<<<<<<< HEAD
+import { getRole } from "../../utils/token";
 const { width: SW } = Dimensions.get("window");
-=======
-import PersonalizationModal from "../(auth)/PersonalizationModal";
-import { getProfile } from "../../api/profile";
-import { globalStyles } from "../../constants/globalStyles";
-import { useAppTheme } from "../../context/ThemeContext";
-import {
-  getRole,
-  getToken,
-  removeEmail,
-  removeToken,
-  removeUserId,
-} from "../../utils/token";
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
+const COL = (SW - 48) / 2;
 
 const TILES = [
   {
@@ -113,345 +93,13 @@ const TILES = [
   },
 ] as const;
 
-<<<<<<< HEAD
-const NAV = [
-  { id: "home",     label: "Home",    icon: "🏠", route: "/(tabs)/mainMenu",      active: true  },
-  { id: "wardrobe", label: "Wardrobe",icon: "👗", route: "/(tabs)/wardrobe",      active: false },
-  { id: "upload",   label: "Upload",  icon: "📷", route: "/(tabs)/upload-clothes",active: false },
-  { id: "chat",     label: "Chat",    icon: "💬", route: "/chatbot",              active: false },
-  { id: "profile",  label: "Profile", icon: "👤", route: "/(tabs)/profile",       active: false },
-] as const;
-
-export default function MainMenu() {
-=======
-export default function Dashboard() {
-  const { themeColors, isDarkMode, toggleDarkMode } = useAppTheme();
-
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
-  const router = useRouter();
-<<<<<<< HEAD
-=======
-  const { width } = useWindowDimensions();
-
-  const isLargeScreen = !isWeb && width >= 768;
-  const isLoggedIn = !!getToken();
-  const isAdmin = getRole() === "ADMIN";
-  const iconSize = isLargeScreen ? 28 : 20;
-
-  const [showPersonalization, setShowPersonalization] = React.useState(false);
-  const [welcomeName, setWelcomeName] = React.useState("");
-
-  React.useEffect(() => {
-    const checkProfile = async () => {
-      if (!isLoggedIn || isAdmin) return;
-
-      try {
-        const profile = await getProfile();
-
-        if (profile?.displayName) {
-          setWelcomeName(profile.displayName);
-        } else {
-          setShowPersonalization(true);
-        }
-      } catch {
-        setShowPersonalization(true);
-      }
-    };
-
-    checkProfile();
-  }, [isLoggedIn, isAdmin]);
-
-  const handleSignOut = () => {
-    removeToken();
-    removeUserId();
-    removeEmail();
-
-    router.replace("/(auth)/login");
-  };
-
-  const navItems = [
-    { href: "/", icon: "dashboard", label: "Dashboard", lib: "material" },
-    { href: "/upload-clothes", icon: "add-a-photo", label: "Upload Clothes", lib: "material" },
-    { href: "/wardrobe", icon: "checkroom", label: "Wardrobe", lib: "material" },
-    { href: "/upload-outfit", icon: "style", label: "Outfit Suggestion", lib: "material" },
-    { href: "/outfit-review", icon: "search", label: "Outfit Review", lib: "material" },
-    { href: "/history", icon: "favorite", label: "Saved Outfits", lib: "material" },
-    { href: "/budgeting", icon: "wallet", label: "Budgeting", lib: "fa5" },
-    { href: "/trip-packing", icon: "luggage", label: "Trip Packing", lib: "material" },
-    { href: "/saved-items", icon: "bookmark", label: "Saved Items", lib: "material" },
-    { href: "/colour-analysis", icon: "palette", label: "Colour Analysis", lib: "material" },
-    { href: "/moodboards", icon: "palette", label: "Mood Boards", lib: "material" },
-    { href: "/profile", icon: "person", label: "Account Profile", lib: "material" },
-  ] as const;
-
-  const StatsTiles = () => (
-    <View
-      style={[
-        styles.tilesContainer,
-        isLargeScreen && styles.largeTilesContainer,
-      ]}
-    >
-      {[
-        { n: "120", label: "Orders" },
-        { n: "24", label: "New Customers" },
-        { n: "8", label: "Pending" },
-      ].map((tile) => (
-        <View
-          key={tile.label}
-          style={[
-            styles.tile,
-            isLargeScreen && styles.largeTile,
-            {
-              backgroundColor: themeColors.card,
-              shadowColor: themeColors.text,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.tileNumber,
-              isLargeScreen && styles.largeTileNumber,
-              { color: themeColors.blueDark },
-            ]}
-          >
-            {tile.n}
-          </Text>
-
-          <Text
-            style={[
-              styles.tileLabel,
-              isLargeScreen && styles.largeTileLabel,
-              { color: themeColors.muted },
-            ]}
-          >
-            {tile.label}
-          </Text>
-        </View>
-      ))}
-    </View>
-  );
-
-  const HeroVideo = () => (
-    <View
-      style={[
-        styles.videoCard,
-        isLargeScreen && styles.largeVideoCard,
-      ]}
-    >
-      <Video
-        source={require("../../assets/videos/dashboard.mp4")}
-        resizeMode="contain"
-        shouldPlay
-        isLooping
-        isMuted
-        style={styles.video}
-      />
-    </View>
-  );
-
-  const ThemeToggle = () => (
-    <View
-      style={[
-        styles.themeToggle,
-        { backgroundColor: themeColors.card },
-      ]}
-    >
-      <Text style={[styles.themeToggleText, { color: themeColors.text }]}>
-        {isDarkMode ? "Dark Mode" : "Light Mode"}
-      </Text>
-
-      <Switch
-        value={isDarkMode}
-        onValueChange={toggleDarkMode}
-        thumbColor={themeColors.white}
-        trackColor={{
-          false: themeColors.input,
-          true: themeColors.blueDark,
-        }}
-      />
-    </View>
-  );
-
-  if (isWeb) {
-    return (
-      <View style={[web.root, { backgroundColor: themeColors.bg }]}>
-        <PersonalizationModal
-          visible={showPersonalization}
-          onClose={() => setShowPersonalization(false)}
-        />
-
-        <View
-          style={[
-            web.sidebar,
-            {
-              backgroundColor: themeColors.card,
-              borderRightColor: themeColors.bgDark,
-            },
-          ]}
-        >
-          <View style={web.logoContainer}>
-            <Image
-              source={require("../../assets/images/trendsense-logo.png")}
-              style={web.logo}
-              resizeMode="contain"
-            />
-
-            <Text style={[web.appName, { color: themeColors.blueDark }]}>
-              TrendSense
-            </Text>
-          </View>
-
-          <ThemeToggle />
-
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href as any} asChild>
-              <Pressable style={web.navItem}>
-                {item.lib === "material" ? (
-                  <MaterialIcons
-                    name={item.icon as any}
-                    size={18}
-                    color={themeColors.blueDark}
-                    style={styles.icon}
-                  />
-                ) : (
-                  <FontAwesome5
-                    name={item.icon as any}
-                    size={16}
-                    color={themeColors.blueDark}
-                    style={styles.icon}
-                  />
-                )}
-
-                <Text style={[web.navLabel, { color: themeColors.text }]}>
-                  {item.label}
-                </Text>
-              </Pressable>
-            </Link>
-          ))}
-
-          <View style={[web.divider, { backgroundColor: themeColors.bgDark }]} />
-
-          {isLoggedIn ? (
-            <Pressable style={web.navItem} onPress={handleSignOut}>
-              <MaterialIcons
-                name="logout"
-                size={18}
-                color={themeColors.blueDark}
-                style={styles.icon}
-              />
-
-              <Text style={[web.navLabel, { color: themeColors.text }]}>
-                Sign Out
-              </Text>
-            </Pressable>
-          ) : (
-            <Link href="/login" asChild>
-              <Pressable style={web.navItem}>
-                <MaterialIcons
-                  name="login"
-                  size={18}
-                  color={themeColors.blueDark}
-                  style={styles.icon}
-                />
-
-                <Text style={[web.navLabel, { color: themeColors.text }]}>
-                  Login
-                </Text>
-              </Pressable>
-            </Link>
-          )}
-
-          {isAdmin && (
-            <Pressable
-              style={[
-                styles.adminButton,
-                { backgroundColor: themeColors.blueDark },
-              ]}
-              onPress={() => router.replace("/admin/dashboard" as any)}
-            >
-              <MaterialIcons
-                name="admin-panel-settings"
-                size={18}
-                color={themeColors.white}
-                style={styles.icon}
-              />
-
-              <Text style={[styles.adminButtonText, { color: themeColors.white }]}>
-                Go to Admin View
-              </Text>
-            </Pressable>
-          )}
-        </View>
-
-        <ScrollView
-          style={[web.content, { backgroundColor: themeColors.bg }]}
-          contentContainerStyle={web.contentInner}
-        >
-          {welcomeName ? (
-            <Text style={[styles.welcome, { color: themeColors.text }]}>
-              Welcome, {welcomeName} 👋
-            </Text>
-          ) : null}
-
-          <HeroVideo />
-          <StatsTiles />
-        </ScrollView>
-      </View>
-    );
-  }
->>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
-
-  return (
-<<<<<<< HEAD
-    <SafeAreaView style={s.safe}>
-
-      {/* HEADER */}
-      <View style={s.header}>
-        <View style={s.headerTop}>
-          <View>
-            <Text style={s.greet}>Welcome back,</Text>
-            <Text style={s.name}>TrendSense</Text>
-          </View>
-          <View style={s.headerIcons}>
-            <TouchableOpacity
-              style={s.headerIconBtn}
-              onPress={() => router.push("/(tabs)/saved-items" as any)}
-            >
-              <Text style={{ fontSize: 16 }}>🛍️</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={s.headerIconBtn}
-              onPress={() => router.push("/(tabs)/profile" as any)}
-            >
-              <Text style={{ fontSize: 16 }}>🔔</Text>
-            </TouchableOpacity>
-          </View>
-=======
-    <ScrollView
-      style={[globalStyles.screen, { backgroundColor: themeColors.bg }]}
-      contentContainerStyle={[
-        globalStyles.dashboardContainer,
-        isLargeScreen && globalStyles.largeDashboardContainer,
-      ]}
-    >
-      <PersonalizationModal
-        visible={showPersonalization}
-        onClose={() => setShowPersonalization(false)}
-      />
-=======
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { colors } from "../../constants/globalStyles";
-import { getRole } from "../../utils/token";
-
-const { width: SW } = Dimensions.get("window");
-const COL = (SW - 48) / 2;
 
 const NAV = [
   { id: "home",    label: "Home",    icon: "⌂", route: "/(tabs)/mainMenu",      active: true  },
+  { id: "wardrobe", label: "Wardrobe",icon: "👗", route: "/(tabs)/wardrobe",      active: false },
   { id: "upload",  label: "Upload",  icon: "+", route: "/(tabs)/upload-clothes", active: false },
   { id: "trends",  label: "Trends",  icon: "✦", route: "/(tabs)/trends",         active: false },
+  { id: "chat",     label: "Chat",    icon: "💬", route: "/chatbot",              active: false },
   { id: "profile", label: "Me",      icon: "◯", route: "/(tabs)/profile",        active: false },
 ] as const;
 
@@ -459,9 +107,9 @@ export default function MainMenu() {
   const router = useRouter();
   const isAdmin = getRole() === "ADMIN";
 
+
   return (
     <SafeAreaView style={s.safe}>
->>>>>>> 2a922e7 (ui)
 
       {isAdmin && (
         <TouchableOpacity
@@ -519,120 +167,7 @@ export default function MainMenu() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={s.heroCard}
-            >
-<<<<<<< HEAD
-              <MaterialIcons
-                name="logout"
-                size={iconSize}
-                color={themeColors.blueDark}
-                style={styles.icon}
-              />
 
-              <Text
-                style={[
-                  globalStyles.menuText,
-                  isLargeScreen && globalStyles.largeMenuText,
-                  { color: themeColors.text },
-                ]}
-              >
-                Sign Out
-              </Text>
-            </Pressable>
-          )}
-
-          {isAdmin && (
-            <Pressable
-              style={[
-                styles.adminButton,
-                { backgroundColor: themeColors.blueDark },
-              ]}
-              onPress={() => router.replace("/admin/dashboard" as any)}
-            >
-              <MaterialIcons
-                name="admin-panel-settings"
-                size={iconSize}
-                color={themeColors.white}
-                style={styles.icon}
-              />
-
-              <Text style={[styles.adminButtonText, { color: themeColors.white }]}>
-                Go to Admin View
-              </Text>
-            </Pressable>
-          )}
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
-        </View>
-        <TouchableOpacity
-          style={s.search}
-          onPress={() => router.push("/(tabs)/wardrobe" as any)}
-        >
-          <Text style={s.searchIco}>🔍</Text>
-          <Text style={s.searchTxt}>Search your wardrobe...</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* SCROLLABLE CONTENT */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={s.scroll}
-      >
-        <Text style={s.sec}>FEATURES</Text>
-
-        <View style={s.grid}>
-          {TILES.map((tile) => (
-            <TouchableOpacity
-              key={tile.id}
-              style={[s.tile, { backgroundColor: tile.tileBg }]}
-              activeOpacity={0.75}
-              onPress={() => router.push(tile.route as any)}
-            >
-              <Text style={s.tileIcon}>{tile.icon}</Text>
-              <Text style={s.tileLabel}>{tile.label}</Text>
-              <Text style={s.tileSub}>{tile.sub}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={[s.sec, { marginTop: 14 }]}>QUICK ADD</Text>
-        <View style={s.quickRow}>
-          <TouchableOpacity
-            style={s.quickBtn}
-            onPress={() => router.push("/(tabs)/upload-clothes" as any)}
-          >
-            <Text style={s.quickBtnIco}>📷</Text>
-            <Text style={s.quickBtnTxt}>Upload Clothes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={s.quickBtn}
-            onPress={() => router.push("/(tabs)/upload-outfit" as any)}
-          >
-            <Text style={s.quickBtnIco}>✨</Text>
-            <Text style={s.quickBtnTxt}>Upload Outfit</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
-      {/* BOTTOM NAV */}
-      <View style={s.bnav}>
-        {NAV.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={s.bni}
-            onPress={() => {
-              if (!item.active) router.push(item.route as any);
-            }}
-          >
-            <View style={[s.bniPill, item.active && s.bniPillActive]}>
-              <Text style={s.bniIco}>{item.icon}</Text>
-            </View>
-            <Text style={[s.bniLbl, item.active && s.bniLblActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-=======
               <View style={s.heroDecDot1} />
               <View style={s.heroDecDot2} />
               <View style={s.heroContent}>
@@ -794,19 +329,27 @@ export default function MainMenu() {
           </TouchableOpacity>
         ))}
       </View>
-
->>>>>>> 2a922e7 (ui)
     </SafeAreaView>
   );
 }
 
-<<<<<<< HEAD
-const TILE_SIZE = (SW - 44) / 2;
-
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  //safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: "#F5F2EE" },
 
-  // Header
+  scroll: { paddingBottom: 32 },
+
+   header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 22,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+              
+  /*
   header: {
     backgroundColor: colors.bgDark,
     paddingHorizontal: 16,
@@ -815,6 +358,7 @@ const s = StyleSheet.create({
     borderBottomLeftRadius: 22,
     borderBottomRightRadius: 22,
   },
+              */
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -863,11 +407,8 @@ const s = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
   },
+        */ // From older version
   tile: {
-<<<<<<< HEAD
-    width: TILE_SIZE,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     borderRadius: 16,
     padding: 14,
     minHeight: 110,
@@ -881,7 +422,6 @@ const s = StyleSheet.create({
   quickRow: { flexDirection: "row", gap: 10 },
   quickBtn: {
     flex: 1,
-<<<<<<< HEAD
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -890,8 +430,6 @@ const s = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 13,
     shadowColor: colors.text,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
@@ -900,25 +438,7 @@ const s = StyleSheet.create({
   quickBtnIco: { fontSize: 18 },
   quickBtnTxt: { fontSize: 13, fontWeight: "600", color: colors.text },
 
-<<<<<<< HEAD
-  // Bottom nav
-  bnav: {
-    flexDirection: "row",
-    backgroundColor: colors.card,
-    borderTopWidth: 1,
-    borderTopColor: "#E8EDE9",
-    paddingTop: 8,
-    paddingBottom: Platform.OS === "ios" ? 22 : 12,
-  },
-  bni:  { flex: 1, alignItems: "center", gap: 2 },
-  bniPill: { paddingHorizontal: 12, paddingVertical: 3, borderRadius: 16 },
-  bniPillActive: { backgroundColor: "#DCE9D8" },
-  bniIco: { fontSize: 19 },
-  bniLbl: { fontSize: 9, color: "#B0BCB4", fontWeight: "500" },
-  bniLblActive: { color: colors.accent, fontWeight: "700" },
-});
-=======
-  largeTile: {
+  /* largeTile: {
     padding: 28,
     borderRadius: 24,
   },
@@ -1012,13 +532,7 @@ const web = StyleSheet.create({
     height: 40,
     marginRight: 10,
   },
-
-=======
-const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F5F2EE" },
-
-  scroll: { paddingBottom: 32 },
-
+ */ //Older styles DELETE if not needed
   // Admin
   adminBanner: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
@@ -1027,16 +541,6 @@ const s = StyleSheet.create({
   adminBannerText: { color: "#fff", fontWeight: "600", fontSize: 13 },
   adminBannerLink: { color: "#a8d0f0", fontWeight: "700", fontSize: 12 },
 
-  // Header
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 22,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    overflow: "hidden",
-    marginBottom: 20,
-  },
   decCircle1: {
     position: "absolute", width: 180, height: 180, borderRadius: 90,
     backgroundColor: "rgba(255,255,255,0.03)", top: -60, right: -40,
@@ -1049,13 +553,14 @@ const s = StyleSheet.create({
     flexDirection: "row", justifyContent: "space-between",
     alignItems: "flex-start", marginBottom: 16,
   },
->>>>>>> 2a922e7 (ui)
   appName: {
     fontSize: 24, fontWeight: "800", color: "#fff", letterSpacing: 5,
   },
   tagline: {
     fontSize: 10, color: colors.blueDark, letterSpacing: 1.5,
     marginTop: 4, fontStyle: "italic",
+    //fontSize: 20,
+    //fontWeight: "800",
   },
   avatarBtn: {
     width: 38, height: 38, borderRadius: 19,
@@ -1079,7 +584,6 @@ const s = StyleSheet.create({
     fontSize: 9, fontWeight: "700", color: colors.muted,
     letterSpacing: 2.5, marginBottom: 12, textTransform: "uppercase",
   },
-
   // Hero card
   heroCard: {
     borderRadius: 24, padding: 20, overflow: "hidden",
@@ -1141,12 +645,20 @@ const s = StyleSheet.create({
     position: "absolute", top: 14, right: 14,
     backgroundColor: "rgba(0,0,0,0.12)",
     borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3,
+      }
+  navLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  divider: {
+    height: 1,
+    marginVertical: 12,
   },
   cardBadgeTxt: { fontSize: 9, fontWeight: "800", color: "#5A3A2A", letterSpacing: 1 },
   cardIcon: { fontSize: 22, marginBottom: 8, color: colors.text },
   cardLabel: { fontSize: 13, fontWeight: "700", color: colors.text, letterSpacing: 0.2, marginBottom: 3 },
   cardSub: { fontSize: 11, color: colors.muted, lineHeight: 15 },
-
   // Quick add
   quickRow: { flexDirection: "row", gap: 10 },
   quickBtnLight: {
@@ -1162,29 +674,40 @@ const s = StyleSheet.create({
   },
   quickIco: { fontSize: 16 },
   quickTxt: { fontSize: 13, fontWeight: "600", color: colors.text, letterSpacing: 0.2 },
-
-  // Bottom nav
-  bnav: {
+  content: {
+    flex: 1,
+  },
+  contentInner: {
+    padding: 28,
+    maxWidth: 860,
+  },
+    bnav: {
+    flexDirection: "row",
+    backgroundColor: colors.card,
+    borderTopWidth: 1,
+    borderTopColor: "#E8EDE9",
+    paddingTop: 8,
+    paddingBottom: Platform.OS === "ios" ? 22 : 12,
+  },
+  bni:  { flex: 1, alignItems: "center", gap: 2 },
+  bniPill: { paddingHorizontal: 12, paddingVertical: 3, borderRadius: 16 },
+  bniPillActive: { backgroundColor: "#DCE9D8" },
+  bniIco: { fontSize: 19 },
+  bniLbl: { fontSize: 9, color: "#B0BCB4", fontWeight: "500" },
+  bniLblActive: { color: colors.accent, fontWeight: "700" },
+      
+  /*    
+   bnav: {
     flexDirection: "row", backgroundColor: "#fff",
     borderTopWidth: 1, borderTopColor: "#EDEAE6",
     paddingTop: 10, paddingBottom: Platform.OS === "ios" ? 26 : 12,
     shadowColor: "#000", shadowOpacity: 0.05,
     shadowRadius: 10, shadowOffset: { width: 0, height: -3 },
-  },
-<<<<<<< HEAD
-
-  contentInner: {
-    padding: 28,
-    maxWidth: 860,
-  },
-});
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
-=======
   bni: { flex: 1, alignItems: "center", gap: 3 },
   bniPill: { paddingHorizontal: 14, paddingVertical: 5, borderRadius: 20 },
   bniPillActive: { paddingHorizontal: 14, paddingVertical: 5, borderRadius: 20 },
   bniIco: { fontSize: 17, color: "#B8BDB9" },
   bniLbl: { fontSize: 9, color: "#B8BDB9", fontWeight: "500", letterSpacing: 0.5 },
   bniLblActive: { color: "#2A3530", fontWeight: "700" },
+      */ //older styles
 });
->>>>>>> 2a922e7 (ui)

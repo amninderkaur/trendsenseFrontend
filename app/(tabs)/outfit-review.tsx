@@ -32,6 +32,7 @@ type AnalysisResult = {
 export default function OutfitReview() {
   const router = useRouter();
   const { themeColors } = useAppTheme();
+
   const params = useLocalSearchParams<{ trendContext?: string }>();
 
   // trendContext banner (from TrendsScreen navigation)
@@ -253,6 +254,98 @@ return (
       >
         <Text style={[styles.trendBannerText, { color: themeColors.white }]}>
           ✨ Trending now: {trendBanner}
+    <TouchableOpacity
+      style={[
+        styles.backButton,
+        { backgroundColor: themeColors.bgDark },
+      ]}
+      onPress={goBack}
+    >
+      <Text
+        style={[
+          styles.backButtonText,
+          { color: themeColors.white },
+        ]}
+      >
+        ← Back
+      </Text>
+    </TouchableOpacity>
+
+    <Text
+      style={[
+        styles.title,
+        { color: themeColors.text },
+      ]}
+    >
+      Outfit Review
+    </Text>
+
+    <Text
+      style={[
+        styles.subtitle,
+        { color: themeColors.muted },
+      ]}
+    >
+      Upload a photo of your outfit and get AI feedback on your style, fit for
+      the occasion, and weather suitability.
+    </Text>
+
+    {/* Image picker */}
+    <TouchableOpacity
+      style={[
+        styles.imagePicker,
+        { borderColor: themeColors.bgDark },
+      ]}
+      onPress={pickImage}
+    >
+      {imageUri ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.previewImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View
+          style={[
+            styles.imagePlaceholder,
+            { backgroundColor: themeColors.card },
+          ]}
+        >
+          <Text style={styles.imagePlaceholderIcon}>📸</Text>
+
+          <Text
+            style={[
+              styles.imagePlaceholderText,
+              { color: themeColors.text },
+            ]}
+          >
+            Tap to select outfit photo
+          </Text>
+
+          <Text
+            style={[
+              styles.imagePlaceholderSub,
+              { color: themeColors.muted },
+            ]}
+          >
+            JPEG, PNG, or WebP
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+
+    {imageUri && (
+      <TouchableOpacity
+        style={styles.changePhoto}
+        onPress={pickImage}
+      >
+        <Text
+          style={[
+            styles.changePhotoText,
+            { color: themeColors.blueDark },
+          ]}
+        >
+          Change photo
         </Text>
       </TouchableOpacity>
     )}
@@ -271,8 +364,31 @@ return (
         ]}
       >
         ← Back
-      </Text>
+        </Text>
     </TouchableOpacity>
+    {/* Form */}
+    <View
+      style={[
+        styles.formCard,
+        { backgroundColor: themeColors.card },
+      ]}
+    >
+      <Text
+        style={[
+          styles.label,
+          { color: themeColors.text },
+        ]}
+      >
+        Occasion{" "}
+        <Text
+          style={[
+            styles.required,
+            { color: themeColors.accent },
+          ]}
+        >
+          *
+        </Text>
+      </Text>
 
     <Text
       style={[

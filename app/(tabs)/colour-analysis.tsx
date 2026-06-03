@@ -193,28 +193,12 @@ export default function ColourAnalysisScreen() {
                 fallbackAnalysis.undertone
             ),
 
-<<<<<<< HEAD
-      {loadingSaved && (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color={colors.blueDark} />
-          <Text style={styles.loadingText}>Loading your saved profile...</Text>
-        </View>
-      )}
-
-      {analysing && (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color={colors.blueDark} />
-          <Text style={styles.loadingText}>Analysing your colours...</Text>
-        </View>
-      )}
-=======
             contrast: safeString(
                 data.contrast || data.colourContrast,
                 fallbackAnalysis.contrast
             ),
 
             bestJewelry: safeString(data.bestJewelry, fallbackAnalysis.bestJewelry),
->>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
 
             summary: safeString(
                 data.summary || data.colourSummary || data.analysis,
@@ -626,137 +610,6 @@ export default function ColourAnalysisScreen() {
 //     STYLES
 // ================
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 40,
-    gap: 16,
-    backgroundColor: colors.card,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    backgroundColor: "#c0d1bf",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 4,
-  },
-  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
-  title: { fontSize: 22, fontWeight: "700", color: "#233443" },
-  subtitle: { fontSize: 14, color: colors.blueDark, marginBottom: 4 },
-  imagePicker: {
-    width: "100%",
-    borderRadius: 18,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: colors.bgDark,
-    borderStyle: "dashed",
-    marginBottom: 8,
-  },
-  previewImage: { width: "100%", height: 320 },
-  imagePlaceholder: {
-    height: 220,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.card,
-    gap: 8,
-  },
-  imagePlaceholderIcon: { fontSize: 40 },
-  imagePlaceholderText: { fontSize: 15, fontWeight: "600", color: colors.text },
-  imagePlaceholderSub: { fontSize: 12, color: colors.muted },
-  imageActions: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 20,
-    marginBottom: 8,
-  },
-  imageActionLink: { color: colors.blueDark, fontWeight: "600", fontSize: 13 },
-  analyseButton: {
-    marginTop: 8,
-    backgroundColor: colors.blue,
-    paddingVertical: 14,
-    borderRadius: 999,
-    alignItems: "center",
-  },
-  analyseButtonText: { color: "#233443", fontWeight: "700", fontSize: 15 },
-  loadingBox: { alignItems: "center", paddingVertical: 24, gap: 12 },
-  loadingText: { color: colors.blueDark, fontSize: 14, fontWeight: "500" },
-  errorText: { color: "#d0685f", marginTop: 4, fontSize: 14, fontWeight: "600" },
-  resultCard: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 20,
-    gap: 16,
-    shadowColor: "#233443",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  resultTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#233443",
-    marginBottom: 4,
-  },
-  seasonBadge: {
-    backgroundColor: colors.blue,
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    alignItems: "center",
-  },
-  seasonText: { fontSize: 22, fontWeight: "800", color: "#233443" },
-  subSeasonText: { fontSize: 14, color: "#4a6572", marginTop: 2 },
-  resultSection: { gap: 6 },
-  resultLabel: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.blueDark,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  resultValue: { fontSize: 15, color: "#233443", fontWeight: "500" },
-  analysisText: { fontSize: 14, color: "#4a6572", lineHeight: 22 },
-  listRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  colourSwatch: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.12)",
-  },
-  listItem: { fontSize: 14, color: "#233443", flexShrink: 1 },
-  categoryBlock: { marginTop: 6, gap: 4 },
-  categoryTitle: { fontSize: 13, fontWeight: "600", color: "#4a6572", marginBottom: 2 },
-  savedBadge: {
-    alignSelf: "center",
-    backgroundColor: "#c0d1bf",
-    paddingVertical: 4,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-  },
-  savedBadgeText: { fontSize: 12, fontWeight: "600", color: "#233443" },
-  resetButton: {
-    marginTop: 8,
-    backgroundColor: "#c0d1bf",
-    paddingVertical: 12,
-    borderRadius: 999,
-    alignItems: "center",
-  },
-  resetButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
-  clearButton: {
-    marginTop: 4,
-    paddingVertical: 12,
-    borderRadius: 999,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#d0a09a",
-  },
-  clearButtonText: { color: "#c0726e", fontWeight: "600", fontSize: 14 },
-});
-=======
     scrollContent: {
         padding: 24,
         paddingBottom: 40,
@@ -784,4 +637,3 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
 });
->>>>>>> bd722ab (Add moodboards API & refactor colour analysis)

@@ -1,16 +1,10 @@
-<<<<<<< HEAD
-import { colors } from "../../../constants/globalStyles";
-import { getOutfitHistory, deleteOutfitHistory } from "@/api/outfitHistory";
-=======
 import { deleteOutfitHistory, getOutfitHistory } from "@/api/outfitHistory";
 import { getOutfitRatings, getTasteProfile, postOutfitRating } from "@/api/outfit";
 import StarRating from "@/components/StarRating";
 import { useAppTheme } from "@/context/ThemeContext";
-<<<<<<< HEAD
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
-=======
 import { useResponsiveWidth } from "@/utils/platform";
->>>>>>> 2994732 (trends and outfit rating added)
+import { deleteOutfitHistory, getOutfitHistory } from "@/api/outfitHistory";
+import { useAppTheme } from "@/context/ThemeContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -85,6 +79,7 @@ export default function SavedOutfitsIndex() {
 
   const load = async () => {
     setError("");
+
     try {
       const [data, ratingsData] = await Promise.all([
         getOutfitHistory(),
@@ -151,6 +146,7 @@ export default function SavedOutfitsIndex() {
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
+
     try {
       await deleteOutfitHistory(id);
       setOutfits((prev) => prev.filter((o) => o.id !== id));
@@ -261,6 +257,193 @@ export default function SavedOutfitsIndex() {
                   </Text>
                   <Text style={[styles.city, { color: themeColors.blueDark }]}>
                     {outfit.city}
+    <ScrollView
+      style={[
+        styles.container,
+        { backgroundColor: themeColors.bg },
+      ]}
+      contentContainerStyle={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          tintColor={themeColors.text}
+          colors={[themeColors.text]}
+          onRefresh={() => {
+            setRefreshing(true);
+            load();
+          }}
+        />
+      }
+    >
+      <Pressable
+        style={[
+          styles.backButton,
+          { backgroundColor: themeColors.bgDark },
+        ]}
+        onPress={goBack}
+      >
+        <Text
+          style={[
+            styles.backButtonText,
+            { color: themeColors.text },
+          ]}
+        >
+          ← Back
+        </Text>
+      </Pressable>
+
+      <Text
+        style={[
+          styles.title,
+          { color: themeColors.text },
+        ]}
+      >
+        Saved Outfits
+      </Text>
+
+      <Text
+        style={[
+          styles.subtitle,
+          { color: themeColors.blueDark },
+        ]}
+      >
+        Outfits you liked from AI suggestions.
+      </Text>
+
+      {loading && (
+        <ActivityIndicator
+          color={themeColors.text}
+          size="large"
+          style={{ marginTop: 40 }}
+        />
+      )}
+
+      {!!error && (
+        <Text
+          style={[
+            styles.errorText,
+            { color: themeColors.accent },
+          ]}
+        >
+          {error}
+        </Text>
+      )}
+
+      {!loading && outfits.length === 0 && !error && (
+        <Text
+          style={[
+            styles.emptyText,
+            { color: themeColors.text },
+          ]}
+        >
+          No saved outfits yet. Like an outfit suggestion to save it here.
+        </Text>
+      )}
+
+      {outfits.map((outfit) => (
+        <View
+          key={outfit.id}
+          style={[
+            styles.card,
+            {
+              backgroundColor: themeColors.card,
+              borderColor: themeColors.bgDark,
+            },
+          ]}
+        >
+          <View style={styles.cardHeader}>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={[
+                  styles.occasion,
+                  { color: themeColors.text },
+                ]}
+              >
+                {outfit.occasion}
+              </Text>
+
+              <Text
+                style={[
+                  styles.city,
+                  { color: themeColors.blueDark },
+                ]}
+              >
+                {outfit.city}
+              </Text>
+            </View>
+
+            <Pressable
+              style={[
+                styles.deleteButton,
+                { backgroundColor: themeColors.accent },
+              ]}
+              onPress={() => handleDelete(outfit.id)}
+              disabled={deletingId === outfit.id}
+            >
+              {deletingId === outfit.id ? (
+                <ActivityIndicator color={themeColors.white} size="small" />
+              ) : (
+                <Text
+                  style={[
+                    styles.deleteText,
+                    { color: themeColors.white },
+                  ]}
+                >
+                  Remove
+                </Text>
+              )}
+            </Pressable>
+          </View>
+
+          {!!outfit.weatherSummary && (
+            <Text
+              style={[
+                styles.weather,
+                { color: themeColors.blueDark },
+              ]}
+            >
+              {outfit.weatherSummary}
+            </Text>
+          )}
+
+          {!!outfit.reasoning && (
+            <Text
+              style={[
+                styles.reasoning,
+                { color: themeColors.text },
+              ]}
+            >
+              {outfit.reasoning}
+            </Text>
+          )}
+
+          {outfit.selectedItems?.length > 0 && (
+            <View style={styles.itemsGrid}>
+              {outfit.selectedItems.map((item) => (
+                <View
+                  key={item.itemId}
+                  style={[
+                    styles.itemCard,
+                    { backgroundColor: themeColors.blue },
+                  ]}
+                >
+                  <Image
+                    source={{
+                      uri: `data:image/png;base64,${item.imageBase64}`,
+                    }}
+                    style={[
+                      styles.itemImage,
+                      { backgroundColor: themeColors.input },
+                    ]}
+                  />
+
+                  <Text
+                    style={[
+                      styles.itemType,
+                      { color: themeColors.text },
+                    ]}
+                  >
+                    {item.color} {item.type}
                   </Text>
                 </View>
 
@@ -335,22 +518,13 @@ export default function SavedOutfitsIndex() {
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-<<<<<<< HEAD
-  container: { flex: 1, backgroundColor: colors.card },
-  content: { padding: 20, paddingBottom: 40 },
-=======
   container: {
-=======
-  flex: {
->>>>>>> 2994732 (trends and outfit rating added)
     flex: 1,
   },
   content: {
     padding: 20,
     paddingBottom: 40,
   },
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
   backButton: {
     alignSelf: "flex-start",
     paddingVertical: 8,
@@ -358,12 +532,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     marginBottom: 12,
   },
-<<<<<<< HEAD
-  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
-  title: { fontSize: 26, fontWeight: "700", color: "#233443", marginBottom: 4 },
-  subtitle: { fontSize: 14, color: colors.blueDark, marginBottom: 16 },
-  errorText: { color: "#d0685f", fontSize: 15, textAlign: "center", marginTop: 20 },
-=======
   backButtonText: {
     fontWeight: "600",
     fontSize: 14,
@@ -382,7 +550,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
   emptyText: {
     fontSize: 15,
     opacity: 0.7,
@@ -406,15 +573,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textTransform: "capitalize",
   },
-<<<<<<< HEAD
-  city: { fontSize: 13, color: colors.blueDark, marginTop: 2 },
-  weather: { fontSize: 13, color: "#5a8a8d", marginBottom: 6 },
-  reasoning: { fontSize: 14, color: "#233443", marginBottom: 10, lineHeight: 20 },
-  itemsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   itemCard: {
     width: "47%",
-    backgroundColor: colors.blue,
-=======
+     },
   city: {
     fontSize: 13,
     marginTop: 2,
@@ -435,7 +596,6 @@ const styles = StyleSheet.create({
   },
   itemCard: {
     width: "47%",
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     borderRadius: 12,
     padding: 8,
     alignItems: "center",

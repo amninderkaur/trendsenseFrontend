@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { colors } from "../../constants/globalStyles";
-import { MaterialIcons } from "@expo/vector-icons";
-=======
 /* 
 * Profile Page
 * This page handles
@@ -22,20 +18,9 @@ import EditInfoSection from "@/components/Profile/EditInfoSection";
 import ProfileActionCards from "@/components/Profile/ProfileActionCards";
 import ProfileHeader from "@/components/Profile/ProfileHeader";
 import ReviewsSection from "@/components/Profile/ReviewSection";
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { colors, globalStyles } from "@/constants/globalStyles";
->>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
-=======
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
-=======
 import TasteProfileCard from "@/components/TasteProfileCard";
-import { globalStyles } from "@/constants/globalStyles";
-import { useAppTheme } from "@/context/ThemeContext";
-import { getTasteProfile } from "@/api/outfit";
->>>>>>> 2994732 (trends and outfit rating added)
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -64,7 +49,6 @@ import {
 //     TYPES
 // ================
 type ProfileSection = "cards" | "editInfo" | "changePassword" | "review";
-
 
 // ================
 // PROFILE COMPONENT
@@ -473,36 +457,6 @@ export default function Profile() {
 //     STYLES
 // ================
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  container: { flex: 1 },
-  header: { padding: 20, alignItems: "center" },
-  headerText: { fontSize: 24, fontWeight: "700" },
-  backButton: { alignSelf: "flex-start", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 12 },
-  backButtonText: { color: "#fff", fontWeight: "600", fontSize: 14 },
-  card: { borderRadius: 16, alignItems: "center", padding: 20, marginHorizontal: 20, marginBottom: 20, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 5, shadowOffset: { width: 0, height: 2 } },
-  avatarWrapper: { width: 100, height: 100, borderRadius: 50, marginBottom: 12, overflow: "hidden" },
-  avatar: { width: 100, height: 100, borderRadius: 50 },
-  avatarPlaceholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: "#b0c4cc", justifyContent: "center", alignItems: "center" },
-  avatarOverlay: { position: "absolute", bottom: 0, left: 0, right: 0, height: 32, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", alignItems: "center" },
-  avatarEditText: { color: "#fff", fontSize: 12, fontWeight: "700" },
-  name: { fontSize: 20, fontWeight: "700" },
-  email: { fontSize: 14, marginTop: 4 },
-  switchRow: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  infoContainer: { flexDirection: "row", justifyContent: "space-around", marginBottom: 20 },
-  infoCard: { backgroundColor: colors.blue, padding: 15, borderRadius: 12, alignItems: "center", width: 100 },
-  infoTitle: { fontSize: 14, color: "#222", marginBottom: 5 },
-  infoNumber: { fontSize: 18, fontWeight: "700", color: "#233443" },
-  button: { paddingVertical: 14, marginHorizontal: 20, borderRadius: 30, alignItems: "center", marginBottom: 10 },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", padding: 28 },
-  modalBox: { backgroundColor: colors.card, borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
-  modalTitle: { fontSize: 24, fontWeight: "700", color: "#000", textAlign: "center", marginBottom: 12 },
-  modalMessage: { fontSize: 15, color: colors.muted, lineHeight: 22, textAlign: "center", marginBottom: 24 },
-  modalDeleteBtn: { backgroundColor: "#c0726e", paddingVertical: 18, borderRadius: 32, alignItems: "center", marginBottom: 10 },
-  modalCancelBtn: { backgroundColor: colors.bgDark, paddingVertical: 18, borderRadius: 32, alignItems: "center" },
-  modalBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
-});
-=======
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -532,7 +486,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 28,
   },
-
   modalBox: {
     borderRadius: 25,
     padding: 28,
@@ -580,10 +533,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
-<<<<<<< HEAD
-});
->>>>>>> bd722ab (Add moodboards API & refactor colour analysis)
-=======
 
   // Taste profile
   tasteSectionWrapper: {
@@ -632,4 +581,3 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
->>>>>>> 2994732 (trends and outfit rating added)

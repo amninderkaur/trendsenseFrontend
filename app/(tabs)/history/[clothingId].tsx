@@ -342,20 +342,12 @@ export default function HistoryDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: colors.card,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
   },
   content: {
     paddingBottom: 30,
   },
   center: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: colors.card,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     justifyContent: "center",
     alignItems: "center",
   },
@@ -387,10 +379,6 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     fontSize: 12,
-<<<<<<< HEAD
-    color: colors.blueDark,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     marginBottom: 4,
     textTransform: "uppercase",
     fontWeight: "600",
@@ -401,10 +389,6 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 14,
-<<<<<<< HEAD
-    color: colors.blueDark,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     marginTop: 2,
   },
   sectionTitle: {
@@ -418,10 +402,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   tag: {
-<<<<<<< HEAD
-    backgroundColor: colors.blue,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -437,10 +417,6 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-<<<<<<< HEAD
-    color: colors.blueDark,
-=======
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
     fontWeight: "500",
   },
   infoValue: {

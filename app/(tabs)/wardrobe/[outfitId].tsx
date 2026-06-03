@@ -112,10 +112,6 @@ export default function ClothingDetails() {
             ← Back
           </Text>
         </TouchableOpacity>
-<<<<<<< HEAD
-        <ActivityIndicator size="large" color={colors.blueDark} />
-        <Text style={styles.loadingText}>Loading...</Text>
-=======
 
         <ActivityIndicator size="large" color={themeColors.blueDark} />
 
@@ -127,7 +123,6 @@ export default function ClothingDetails() {
         >
           Loading...
         </Text>
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
       </View>
     );
   }
@@ -366,34 +361,6 @@ export default function ClothingDetails() {
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  container: { flex: 1, backgroundColor: colors.card },
-  content: { padding: 20, paddingBottom: 40 },
-  center: { flex: 1, backgroundColor: colors.card, alignItems: "center", justifyContent: "center", padding: 20 },
-  loadingText: { fontSize: 16, color: colors.blueDark, marginTop: 12 },
-  image: { width: "100%", aspectRatio: 3 / 4, borderRadius: 18, marginVertical: 16, borderWidth: 2, borderColor: "#a3bfa9" },
-  itemName: { fontSize: 22, fontWeight: "700", color: "#233443", marginBottom: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: "600", color: "#233443", marginTop: 16, marginBottom: 6 },
-  detail: { fontSize: 14, color: "#5a8a8d", textTransform: "capitalize" },
-  tagContainer: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  tag: { backgroundColor: colors.blue, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 20 },
-  tagText: { fontSize: 13, color: "#233443", fontWeight: "600", textTransform: "capitalize" },
-  deleteButton: { backgroundColor: "#c0726e", paddingVertical: 14, borderRadius: 999, alignItems: "center", marginTop: 28 },
-  deleteText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  errorText: { color: "#d0685f", textAlign: "center", marginTop: 20, fontSize: 14 },
-  backButton: { alignSelf: "flex-start", backgroundColor: "#c0d1bf", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, marginBottom: 16 },
-  backButtonText: { color: "#233443", fontWeight: "600", fontSize: 14 },
-  // Modal
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", padding: 28 },
-  modalBox: { backgroundColor: colors.card, borderRadius: 25, padding: 28, width: "100%", maxWidth: 380, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
-  modalTitle: { fontSize: 24, fontWeight: "700", color: "#000", textAlign: "center", marginBottom: 12 },
-  modalMessage: { fontSize: 15, color: colors.muted, lineHeight: 22, textAlign: "center", marginBottom: 24 },
-  modalDeleteBtn: { backgroundColor: "#c0726e", paddingVertical: 18, borderRadius: 32, alignItems: "center", marginBottom: 10 },
-  modalDeleteText: { color: "#fff", fontWeight: "700", fontSize: 16 },
-  modalCancelBtn: { backgroundColor: colors.bgDark, paddingVertical: 18, borderRadius: 32, alignItems: "center" },
-  modalCancelText: { color: "#fff", fontWeight: "700", fontSize: 16 },
-});
-=======
   container: {
     flex: 1,
   },
@@ -524,4 +491,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
->>>>>>> fab4ee9 (Fixed Dark mode toggle)
