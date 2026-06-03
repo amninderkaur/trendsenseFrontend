@@ -14,6 +14,7 @@ import {
 import { useAppTheme } from "@/context/ThemeContext";
 import api from "../../api/axios";
 import { getToken } from "../../utils/token";
+import LocationAutocomplete from "../../components/LocationAutocomplete";
 
 type PackingCategories = {
     tops: string[];
@@ -100,6 +101,7 @@ export default function TripPacking() {
             { backgroundColor: themeColors.bg },
         ]}
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
     >
         <Pressable
             style={[
@@ -142,19 +144,24 @@ export default function TripPacking() {
                 { backgroundColor: themeColors.card },
             ]}
         >
-            <TextInput
-                style={[
+            <LocationAutocomplete
+                containerStyle={{ marginBottom: 12 }}
+                inputStyle={[
                     styles.input,
                     {
                         backgroundColor: themeColors.white,
                         borderColor: themeColors.input,
                         color: themeColors.text,
+                        marginBottom: 0,
                     },
                 ]}
                 placeholder="Destination (e.g. Paris, France)"
                 placeholderTextColor={themeColors.muted}
                 value={destination}
                 onChangeText={setDestination}
+                dropdownBg={themeColors.white}
+                dropdownText={themeColors.text}
+                dropdownBorder={themeColors.input}
             />
 
             <TextInput

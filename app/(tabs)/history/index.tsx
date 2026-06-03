@@ -3,8 +3,6 @@ import { getOutfitRatings, getTasteProfile, postOutfitRating } from "@/api/outfi
 import StarRating from "@/components/StarRating";
 import { useAppTheme } from "@/context/ThemeContext";
 import { useResponsiveWidth } from "@/utils/platform";
-import { deleteOutfitHistory, getOutfitHistory } from "@/api/outfitHistory";
-import { useAppTheme } from "@/context/ThemeContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -257,193 +255,6 @@ export default function SavedOutfitsIndex() {
                   </Text>
                   <Text style={[styles.city, { color: themeColors.blueDark }]}>
                     {outfit.city}
-    <ScrollView
-      style={[
-        styles.container,
-        { backgroundColor: themeColors.bg },
-      ]}
-      contentContainerStyle={styles.content}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          tintColor={themeColors.text}
-          colors={[themeColors.text]}
-          onRefresh={() => {
-            setRefreshing(true);
-            load();
-          }}
-        />
-      }
-    >
-      <Pressable
-        style={[
-          styles.backButton,
-          { backgroundColor: themeColors.bgDark },
-        ]}
-        onPress={goBack}
-      >
-        <Text
-          style={[
-            styles.backButtonText,
-            { color: themeColors.text },
-          ]}
-        >
-          ← Back
-        </Text>
-      </Pressable>
-
-      <Text
-        style={[
-          styles.title,
-          { color: themeColors.text },
-        ]}
-      >
-        Saved Outfits
-      </Text>
-
-      <Text
-        style={[
-          styles.subtitle,
-          { color: themeColors.blueDark },
-        ]}
-      >
-        Outfits you liked from AI suggestions.
-      </Text>
-
-      {loading && (
-        <ActivityIndicator
-          color={themeColors.text}
-          size="large"
-          style={{ marginTop: 40 }}
-        />
-      )}
-
-      {!!error && (
-        <Text
-          style={[
-            styles.errorText,
-            { color: themeColors.accent },
-          ]}
-        >
-          {error}
-        </Text>
-      )}
-
-      {!loading && outfits.length === 0 && !error && (
-        <Text
-          style={[
-            styles.emptyText,
-            { color: themeColors.text },
-          ]}
-        >
-          No saved outfits yet. Like an outfit suggestion to save it here.
-        </Text>
-      )}
-
-      {outfits.map((outfit) => (
-        <View
-          key={outfit.id}
-          style={[
-            styles.card,
-            {
-              backgroundColor: themeColors.card,
-              borderColor: themeColors.bgDark,
-            },
-          ]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={{ flex: 1 }}>
-              <Text
-                style={[
-                  styles.occasion,
-                  { color: themeColors.text },
-                ]}
-              >
-                {outfit.occasion}
-              </Text>
-
-              <Text
-                style={[
-                  styles.city,
-                  { color: themeColors.blueDark },
-                ]}
-              >
-                {outfit.city}
-              </Text>
-            </View>
-
-            <Pressable
-              style={[
-                styles.deleteButton,
-                { backgroundColor: themeColors.accent },
-              ]}
-              onPress={() => handleDelete(outfit.id)}
-              disabled={deletingId === outfit.id}
-            >
-              {deletingId === outfit.id ? (
-                <ActivityIndicator color={themeColors.white} size="small" />
-              ) : (
-                <Text
-                  style={[
-                    styles.deleteText,
-                    { color: themeColors.white },
-                  ]}
-                >
-                  Remove
-                </Text>
-              )}
-            </Pressable>
-          </View>
-
-          {!!outfit.weatherSummary && (
-            <Text
-              style={[
-                styles.weather,
-                { color: themeColors.blueDark },
-              ]}
-            >
-              {outfit.weatherSummary}
-            </Text>
-          )}
-
-          {!!outfit.reasoning && (
-            <Text
-              style={[
-                styles.reasoning,
-                { color: themeColors.text },
-              ]}
-            >
-              {outfit.reasoning}
-            </Text>
-          )}
-
-          {outfit.selectedItems?.length > 0 && (
-            <View style={styles.itemsGrid}>
-              {outfit.selectedItems.map((item) => (
-                <View
-                  key={item.itemId}
-                  style={[
-                    styles.itemCard,
-                    { backgroundColor: themeColors.blue },
-                  ]}
-                >
-                  <Image
-                    source={{
-                      uri: `data:image/png;base64,${item.imageBase64}`,
-                    }}
-                    style={[
-                      styles.itemImage,
-                      { backgroundColor: themeColors.input },
-                    ]}
-                  />
-
-                  <Text
-                    style={[
-                      styles.itemType,
-                      { color: themeColors.text },
-                    ]}
-                  >
-                    {item.color} {item.type}
                   </Text>
                 </View>
 
@@ -493,7 +304,6 @@ export default function SavedOutfitsIndex() {
                 </View>
               )}
 
-              {/* Star rating */}
               <StarRating
                 outfitHistoryId={outfit.id}
                 currentRating={ratingsMap[outfit.id] ?? 0}
@@ -519,6 +329,9 @@ export default function SavedOutfitsIndex() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  flex: {
     flex: 1,
   },
   content: {

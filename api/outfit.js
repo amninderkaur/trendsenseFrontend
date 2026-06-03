@@ -18,6 +18,6 @@ export const postOutfitRating = async ({ outfitHistoryId, rating }) => {
 };
 
 export const getTasteProfile = async () => {
-  const response = await api.get("/api/outfit/taste-profile", { headers: authHeader() });
+  const response = await api.get("/api/outfit/rating/taste-profile", { headers: authHeader() });
   return response.data;
 };

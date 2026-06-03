@@ -3,6 +3,7 @@ import { saveOutfitHistory } from "@/api/outfitHistory";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
+import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
@@ -266,6 +267,7 @@ return (
         ? [styles.scrollContent, styles.largeScrollContent]
         : styles.scrollContent
     }
+    keyboardShouldPersistTaps="handled"
   >
     <View style={isLargeScreen ? globalStyles.dashboardContent : undefined}>
       <TouchableOpacity
@@ -356,8 +358,9 @@ return (
               City
             </Text>
 
-            <TextInput
-              style={[
+            <LocationAutocomplete
+              containerStyle={{ marginBottom: 0 }}
+              inputStyle={[
                 isLargeScreen
                   ? [globalStyles.input, globalStyles.largeInput]
                   : globalStyles.input,
@@ -365,12 +368,16 @@ return (
                   backgroundColor: themeColors.input,
                   color: themeColors.text,
                   borderColor: themeColors.bgDark,
+                  marginBottom: 0,
                 },
               ]}
               placeholder="e.g. Toronto"
               placeholderTextColor={themeColors.blueDark}
               value={city}
               onChangeText={setCity}
+              dropdownBg={themeColors.card}
+              dropdownText={themeColors.text}
+              dropdownBorder={themeColors.bgDark}
             />
           </View>
 
