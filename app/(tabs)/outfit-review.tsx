@@ -1,10 +1,11 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import { getTasteProfile } from "@/api/outfit";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -31,6 +32,27 @@ type AnalysisResult = {
 export default function OutfitReview() {
   const router = useRouter();
   const { themeColors } = useAppTheme();
+
+  const params = useLocalSearchParams<{ trendContext?: string }>();
+
+  // trendContext banner (from TrendsScreen navigation)
+  const [trendBanner, setTrendBanner] = useState<string | null>(
+    params.trendContext ? String(params.trendContext) : null
+  );
+  const trendBannerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // personalised badge
+  const [showPersonalisedBadge, setShowPersonalisedBadge] = useState(false);
+
+  useEffect(() => {
+    if (trendBanner) {
+      trendBannerTimer.current = setTimeout(() => setTrendBanner(null), 4000);
+    }
+    return () => {
+      if (trendBannerTimer.current) clearTimeout(trendBannerTimer.current);
+    };
+  }, []);
+
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageMime, setImageMime] = useState<string>("image/jpeg");
   const [occasion, setOccasion] = useState("");
@@ -178,6 +200,16 @@ User question: ${question}
 
       const data: AnalysisResult = JSON.parse(responseText);
       setResult(data);
+
+      // check taste profile for personalised badge
+      try {
+        const profile = await getTasteProfile();
+        if (profile?.totalRatings >= 3) {
+          setShowPersonalisedBadge(true);
+        }
+      } catch {
+        // taste profile not available yet
+      }
     } catch (err: any) {
       setError(err.message ?? "Something went wrong. Please try again.");
     } finally {
@@ -198,7 +230,7 @@ User question: ${question}
 
   const verdictColor = (verdict: string) => {
     if (verdict === "suitable") return "#5a9e6f";
-    if (verdict === "unknown") return "#96b7bc";
+    if (verdict === "unknown") return colors.blueDark;
     return "#c0726e";
   };
 
@@ -213,6 +245,15 @@ return (
     ]}
     contentContainerStyle={styles.content}
   >
+    {/* Trending now banner (from TrendsScreen) */}
+    {!!trendBanner && (
+      <TouchableOpacity
+        style={[styles.trendBanner, { backgroundColor: themeColors.bgDark }]}
+        onPress={() => setTrendBanner(null)}
+        activeOpacity={0.85}
+      >
+        <Text style={[styles.trendBannerText, { color: themeColors.white }]}>
+          ✨ Trending now: {trendBanner}
     <TouchableOpacity
       style={[
         styles.backButton,
@@ -229,6 +270,125 @@ return (
         ← Back
       </Text>
     </TouchableOpacity>
+
+    <Text
+      style={[
+        styles.title,
+        { color: themeColors.text },
+      ]}
+    >
+      Outfit Review
+    </Text>
+
+    <Text
+      style={[
+        styles.subtitle,
+        { color: themeColors.muted },
+      ]}
+    >
+      Upload a photo of your outfit and get AI feedback on your style, fit for
+      the occasion, and weather suitability.
+    </Text>
+
+    {/* Image picker */}
+    <TouchableOpacity
+      style={[
+        styles.imagePicker,
+        { borderColor: themeColors.bgDark },
+      ]}
+      onPress={pickImage}
+    >
+      {imageUri ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.previewImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View
+          style={[
+            styles.imagePlaceholder,
+            { backgroundColor: themeColors.card },
+          ]}
+        >
+          <Text style={styles.imagePlaceholderIcon}>📸</Text>
+
+          <Text
+            style={[
+              styles.imagePlaceholderText,
+              { color: themeColors.text },
+            ]}
+          >
+            Tap to select outfit photo
+          </Text>
+
+          <Text
+            style={[
+              styles.imagePlaceholderSub,
+              { color: themeColors.muted },
+            ]}
+          >
+            JPEG, PNG, or WebP
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+
+    {imageUri && (
+      <TouchableOpacity
+        style={styles.changePhoto}
+        onPress={pickImage}
+      >
+        <Text
+          style={[
+            styles.changePhotoText,
+            { color: themeColors.blueDark },
+          ]}
+        >
+          Change photo
+        </Text>
+      </TouchableOpacity>
+    )}
+
+    <TouchableOpacity
+      style={[
+        styles.backButton,
+        { backgroundColor: themeColors.bgDark },
+      ]}
+      onPress={goBack}
+    >
+      <Text
+        style={[
+          styles.backButtonText,
+          { color: themeColors.white },
+        ]}
+      >
+        ← Back
+        </Text>
+    </TouchableOpacity>
+    {/* Form */}
+    <View
+      style={[
+        styles.formCard,
+        { backgroundColor: themeColors.card },
+      ]}
+    >
+      <Text
+        style={[
+          styles.label,
+          { color: themeColors.text },
+        ]}
+      >
+        Occasion{" "}
+        <Text
+          style={[
+            styles.required,
+            { color: themeColors.accent },
+          ]}
+        >
+          *
+        </Text>
+      </Text>
 
     <Text
       style={[
@@ -418,6 +578,15 @@ return (
     {/* Result */}
     {result && (
       <View style={styles.resultContainer}>
+        {/* Personalised badge */}
+        {showPersonalisedBadge && (
+          <View style={styles.personalisedBadge}>
+            <Text style={styles.personalisedBadgeText}>
+              ✨ Personalised to your taste
+            </Text>
+          </View>
+        )}
+
         {/* Score */}
         <View
           style={[
@@ -1074,6 +1243,33 @@ const styles = StyleSheet.create({
   },
 
   sendButtonText: {
+    fontWeight: "700",
+  },
+
+  trendBanner: {
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    alignItems: "center",
+  },
+  trendBannerText: {
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  personalisedBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#E8F5E9",
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    marginBottom: 4,
+  },
+  personalisedBadgeText: {
+    color: "#2E7D32",
+    fontSize: 12,
     fontWeight: "700",
   },
 });

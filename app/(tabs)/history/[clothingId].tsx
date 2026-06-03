@@ -1,3 +1,4 @@
+import { colors } from "../../../constants/globalStyles";
 import { BASE_URL } from "@/api/axios";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";

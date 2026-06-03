@@ -1,3 +1,4 @@
+import { colors } from "../constants/globalStyles";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -28,6 +29,6 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#c1d1bf" },
+  container: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg },
   logo: { width: 240, height: 240 },
 });
