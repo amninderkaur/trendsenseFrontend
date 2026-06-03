@@ -218,6 +218,7 @@ export default function TrendsScreen() {
 
   const [data, setData] = useState<TrendsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   const isWeb = Platform.OS === "web";
@@ -225,16 +226,25 @@ export default function TrendsScreen() {
   const trendCardWidth = windowWidth - 48;
   const matchCardWidth = (windowWidth - 48) / 2;
 
-  const fetchTrends = async () => {
-    setLoading(true);
+  const fetchTrends = async (forceRefresh = false) => {
+    if (forceRefresh) setRefreshing(true);
+    else setLoading(true);
     setError("");
     try {
-      const result = await getTrends();
-      setData(result);
+      const result = await getTrends({ forceRefresh });
+      if (!result || (!result.trends?.length && !result.summary)) {
+        setError("No trend data available right now. Please try again later.");
+      } else {
+        setData(result);
+      }
     } catch {
-      setError("Could not load trends");
+      if (!data) {
+        // Only show error if we have nothing to display
+        setError("Could not load trends. Check your connection and try again.");
+      }
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -287,19 +297,35 @@ export default function TrendsScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={responsiveWidth}>
-        {/* Back button */}
-        <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
-          onPress={goBack}
-        >
-          <Text style={[styles.backButtonText, { color: themeColors.white }]}>
-            ← Back
-          </Text>
-        </TouchableOpacity>
+        {/* Back + Refresh row */}
+        <View style={styles.topRow}>
+          <TouchableOpacity
+            style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
+            onPress={goBack}
+          >
+            <Text style={[styles.backButtonText, { color: themeColors.white }]}>
+              ← Back
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.refreshButton, { backgroundColor: themeColors.bgDark }]}
+            onPress={() => fetchTrends(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <ActivityIndicator size="small" color={themeColors.white} />
+            ) : (
+              <Text style={[styles.backButtonText, { color: themeColors.white }]}>
+                ↻ Refresh
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
         {/* Header */}
         <Text style={[styles.pageTitle, { color: themeColors.text }]}>
-          {data?.season ?? "Latest"} Trends
+          {data?.season ? `${data.season} Trends` : "Latest Trends"}
         </Text>
         {!!data?.summary && (
           <Text style={[styles.pageSummary, { color: themeColors.muted }]}>
@@ -425,12 +451,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 14,
   },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
   backButton: {
-    alignSelf: "flex-start",
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 999,
-    marginBottom: 12,
+  },
+  refreshButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    minWidth: 90,
+    alignItems: "center",
   },
   backButtonText: {
     fontWeight: "700",

@@ -1,5 +1,6 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { getTasteProfile } from "@/api/outfit";
+import LocationAutocomplete from "@/components/LocationAutocomplete";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
@@ -37,7 +38,7 @@ export default function OutfitReview() {
 
   // trendContext banner (from TrendsScreen navigation)
   const [trendBanner, setTrendBanner] = useState<string | null>(
-    params.trendContext ? String(params.trendContext) : null
+    params.trendContext ? String(params.trendContext) : null,
   );
   const trendBannerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -64,15 +65,25 @@ export default function OutfitReview() {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const [chatMessages, setChatMessages] = useState<{ id: string; role: "user" | "assistant"; text: string }[]>([
-    { id: "welcome", role: "assistant", text: "Ask me anything about this outfit review — why the score, how to improve it, what to add, or how to make it work for the weather." },
+  const [chatMessages, setChatMessages] = useState<
+    { id: string; role: "user" | "assistant"; text: string }[]
+  >([
+    {
+      id: "welcome",
+      role: "assistant",
+      text: "Ask me anything about this outfit review — why the score, how to improve it, what to add, or how to make it work for the weather.",
+    },
   ]);
 
   const resetChat = () => {
     setChatOpen(false);
     setChatInput("");
     setChatMessages([
-      { id: "welcome", role: "assistant", text: "Ask me anything about this outfit review — why the score, how to improve it, what to add, or how to make it work for the weather." },
+      {
+        id: "welcome",
+        role: "assistant",
+        text: "Ask me anything about this outfit review — why the score, how to improve it, what to add, or how to make it work for the weather.",
+      },
     ]);
   };
 
@@ -99,10 +110,17 @@ User question: ${question}
     const trimmed = chatInput.trim();
     if (!trimmed || chatLoading) return;
 
-    const userMsg = { id: `${Date.now()}-user`, role: "user" as const, text: trimmed };
+    const userMsg = {
+      id: `${Date.now()}-user`,
+      role: "user" as const,
+      text: trimmed,
+    };
     const history = chatMessages
       .filter((m) => m.id !== "welcome")
-      .map((m) => ({ role: m.role === "assistant" ? "model" : "user", text: m.text }));
+      .map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        text: m.text,
+      }));
 
     setChatMessages((prev) => [...prev, userMsg]);
     setChatInput("");
@@ -112,13 +130,26 @@ User question: ${question}
       const token = getToken();
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ message: buildChatContext(trimmed), history }),
       });
       const data = await response.json();
-      setChatMessages((prev) => [...prev, { id: `${Date.now()}-assistant`, role: "assistant", text: data.reply }]);
+      setChatMessages((prev) => [
+        ...prev,
+        { id: `${Date.now()}-assistant`, role: "assistant", text: data.reply },
+      ]);
     } catch {
-      setChatMessages((prev) => [...prev, { id: `${Date.now()}-error`, role: "assistant", text: "Sorry, I couldn't answer that right now. Please try again." }]);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-error`,
+          role: "assistant",
+          text: "Sorry, I couldn't answer that right now. Please try again.",
+        },
+      ]);
     } finally {
       setChatLoading(false);
     }
@@ -167,10 +198,13 @@ User question: ${question}
       const fileName = uriParts[uriParts.length - 1] || "outfit.jpg";
       const ext = fileName.split(".").pop()?.toLowerCase();
       const mimeType =
-        ext === "jpg" || ext === "jpeg" ? "image/jpeg" :
-        ext === "png" ? "image/png" :
-        ext === "webp" ? "image/webp" :
-        imageMime || "image/jpeg";
+        ext === "jpg" || ext === "jpeg"
+          ? "image/jpeg"
+          : ext === "png"
+            ? "image/png"
+            : ext === "webp"
+              ? "image/webp"
+              : imageMime || "image/jpeg";
 
       const formData = new FormData();
 
@@ -180,7 +214,11 @@ User question: ${question}
         const file = new File([blob], fileName, { type: mimeType });
         formData.append("image", file);
       } else {
-        formData.append("image", { uri: imageUri, name: fileName, type: mimeType } as any);
+        formData.append("image", {
+          uri: imageUri,
+          name: fileName,
+          type: mimeType,
+        } as any);
       }
 
       formData.append("occasion", occasion.trim());
@@ -230,714 +268,449 @@ User question: ${question}
 
   const verdictColor = (verdict: string) => {
     if (verdict === "suitable") return "#5a9e6f";
-    if (verdict === "unknown") return colors.blueDark;
+    if (verdict === "unknown") return themeColors.blueDark;
     return "#c0726e";
   };
 
   // ============
   // RENDER
   // ============
-return (
-  <ScrollView
-    style={[
-      styles.container,
-      { backgroundColor: themeColors.bg },
-    ]}
-    contentContainerStyle={styles.content}
-  >
-    {/* Trending now banner (from TrendsScreen) */}
-    {!!trendBanner && (
-      <TouchableOpacity
-        style={[styles.trendBanner, { backgroundColor: themeColors.bgDark }]}
-        onPress={() => setTrendBanner(null)}
-        activeOpacity={0.85}
-      >
-        <Text style={[styles.trendBannerText, { color: themeColors.white }]}>
-          ✨ Trending now: {trendBanner}
-    <TouchableOpacity
-      style={[
-        styles.backButton,
-        { backgroundColor: themeColors.bgDark },
-      ]}
-      onPress={goBack}
+  return (
+    <ScrollView
+      style={[styles.container, { backgroundColor: themeColors.bg }]}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
     >
-      <Text
-        style={[
-          styles.backButtonText,
-          { color: themeColors.white },
-        ]}
-      >
-        ← Back
-      </Text>
-    </TouchableOpacity>
-
-    <Text
-      style={[
-        styles.title,
-        { color: themeColors.text },
-      ]}
-    >
-      Outfit Review
-    </Text>
-
-    <Text
-      style={[
-        styles.subtitle,
-        { color: themeColors.muted },
-      ]}
-    >
-      Upload a photo of your outfit and get AI feedback on your style, fit for
-      the occasion, and weather suitability.
-    </Text>
-
-    {/* Image picker */}
-    <TouchableOpacity
-      style={[
-        styles.imagePicker,
-        { borderColor: themeColors.bgDark },
-      ]}
-      onPress={pickImage}
-    >
-      {imageUri ? (
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.previewImage}
-          resizeMode="cover"
-        />
-      ) : (
-        <View
-          style={[
-            styles.imagePlaceholder,
-            { backgroundColor: themeColors.card },
-          ]}
+      {/* Trending now banner (from TrendsScreen) */}
+      {!!trendBanner && (
+        <TouchableOpacity
+          style={[styles.trendBanner, { backgroundColor: themeColors.bgDark }]}
+          onPress={() => setTrendBanner(null)}
+          activeOpacity={0.85}
         >
-          <Text style={styles.imagePlaceholderIcon}>📸</Text>
-
-          <Text
-            style={[
-              styles.imagePlaceholderText,
-              { color: themeColors.text },
-            ]}
-          >
-            Tap to select outfit photo
+          <Text style={[styles.trendBannerText, { color: themeColors.white }]}>
+            ✨ Trending now: {trendBanner}
           </Text>
-
-          <Text
-            style={[
-              styles.imagePlaceholderSub,
-              { color: themeColors.muted },
-            ]}
-          >
-            JPEG, PNG, or WebP
-          </Text>
-        </View>
+        </TouchableOpacity>
       )}
-    </TouchableOpacity>
 
-    {imageUri && (
       <TouchableOpacity
-        style={styles.changePhoto}
-        onPress={pickImage}
+        style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
+        onPress={goBack}
       >
-        <Text
-          style={[
-            styles.changePhotoText,
-            { color: themeColors.blueDark },
-          ]}
-        >
-          Change photo
+        <Text style={[styles.backButtonText, { color: themeColors.white }]}>
+          ← Back
         </Text>
       </TouchableOpacity>
-    )}
 
-    <TouchableOpacity
-      style={[
-        styles.backButton,
-        { backgroundColor: themeColors.bgDark },
-      ]}
-      onPress={goBack}
-    >
-      <Text
-        style={[
-          styles.backButtonText,
-          { color: themeColors.white },
-        ]}
-      >
-        ← Back
-        </Text>
-    </TouchableOpacity>
-    {/* Form */}
-    <View
-      style={[
-        styles.formCard,
-        { backgroundColor: themeColors.card },
-      ]}
-    >
-      <Text
-        style={[
-          styles.label,
-          { color: themeColors.text },
-        ]}
-      >
-        Occasion{" "}
-        <Text
-          style={[
-            styles.required,
-            { color: themeColors.accent },
-          ]}
-        >
-          *
-        </Text>
+      <Text style={[styles.title, { color: themeColors.text }]}>
+        Outfit Review
       </Text>
 
-    <Text
-      style={[
-        styles.title,
-        { color: themeColors.text },
-      ]}
-    >
-      Outfit Review
-    </Text>
+      <Text style={[styles.subtitle, { color: themeColors.muted }]}>
+        Upload a photo of your outfit and get AI feedback on your style, fit for
+        the occasion, and weather suitability.
+      </Text>
 
-    <Text
-      style={[
-        styles.subtitle,
-        { color: themeColors.muted },
-      ]}
-    >
-      Upload a photo of your outfit and get AI feedback on your style, fit for
-      the occasion, and weather suitability.
-    </Text>
-
-    {/* Image picker */}
-    <TouchableOpacity
-      style={[
-        styles.imagePicker,
-        { borderColor: themeColors.bgDark },
-      ]}
-      onPress={pickImage}
-    >
-      {imageUri ? (
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.previewImage}
-          resizeMode="cover"
-        />
-      ) : (
-        <View
-          style={[
-            styles.imagePlaceholder,
-            { backgroundColor: themeColors.card },
-          ]}
-        >
-          <Text style={styles.imagePlaceholderIcon}>📸</Text>
-
-          <Text
-            style={[
-              styles.imagePlaceholderText,
-              { color: themeColors.text },
-            ]}
-          >
-            Tap to select outfit photo
-          </Text>
-
-          <Text
-            style={[
-              styles.imagePlaceholderSub,
-              { color: themeColors.muted },
-            ]}
-          >
-            JPEG, PNG, or WebP
-          </Text>
-        </View>
-      )}
-    </TouchableOpacity>
-
-    {imageUri && (
+      {/* Image picker */}
       <TouchableOpacity
-        style={styles.changePhoto}
+        style={[styles.imagePicker, { borderColor: themeColors.bgDark }]}
         onPress={pickImage}
       >
-        <Text
-          style={[
-            styles.changePhotoText,
-            { color: themeColors.blueDark },
-          ]}
-        >
-          Change photo
-        </Text>
-      </TouchableOpacity>
-    )}
-
-    {/* Form */}
-    <View
-      style={[
-        styles.formCard,
-        { backgroundColor: themeColors.card },
-      ]}
-    >
-      <Text
-        style={[
-          styles.label,
-          { color: themeColors.text },
-        ]}
-      >
-        Occasion{" "}
-        <Text
-          style={[
-            styles.required,
-            { color: themeColors.accent },
-          ]}
-        >
-          *
-        </Text>
-      </Text>
-
-      <TextInput
-        style={[
-          styles.input,
-          {
-            backgroundColor: themeColors.white,
-            borderColor: themeColors.input,
-            color: themeColors.text,
-          },
-        ]}
-        placeholder="e.g. job interview, casual brunch, wedding"
-        placeholderTextColor={themeColors.muted}
-        value={occasion}
-        onChangeText={setOccasion}
-      />
-
-      <Text
-        style={[
-          styles.label,
-          { color: themeColors.text },
-        ]}
-      >
-        City{" "}
-        <Text
-          style={[
-            styles.optional,
-            { color: themeColors.muted },
-          ]}
-        >
-          (optional)
-        </Text>
-      </Text>
-
-      <TextInput
-        style={[
-          styles.input,
-          {
-            backgroundColor: themeColors.white,
-            borderColor: themeColors.input,
-            color: themeColors.text,
-          },
-        ]}
-        placeholder="e.g. Toronto — for weather check"
-        placeholderTextColor={themeColors.muted}
-        value={city}
-        onChangeText={setCity}
-      />
-
-      {!!error && (
-        <Text
-          style={[
-            globalStyles.errorText,
-            { color: themeColors.accent },
-          ]}
-        >
-          {error}
-        </Text>
-      )}
-
-      <Pressable
-        style={[
-          styles.analyzeButton,
-          { backgroundColor: themeColors.blueDark },
-          loading && { opacity: 0.6 },
-        ]}
-        onPress={handleAnalyze}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color={themeColors.white} />
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.previewImage}
+            resizeMode="cover"
+          />
         ) : (
-          <Text
+          <View
             style={[
-              styles.analyzeButtonText,
-              { color: themeColors.white },
+              styles.imagePlaceholder,
+              { backgroundColor: themeColors.card },
             ]}
           >
-            Analyse Outfit
-          </Text>
-        )}
-      </Pressable>
-    </View>
+            <Text style={styles.imagePlaceholderIcon}>📸</Text>
 
-    {/* Result */}
-    {result && (
-      <View style={styles.resultContainer}>
-        {/* Personalised badge */}
-        {showPersonalisedBadge && (
-          <View style={styles.personalisedBadge}>
-            <Text style={styles.personalisedBadgeText}>
-              ✨ Personalised to your taste
+            <Text
+              style={[styles.imagePlaceholderText, { color: themeColors.text }]}
+            >
+              Tap to select outfit photo
+            </Text>
+
+            <Text
+              style={[styles.imagePlaceholderSub, { color: themeColors.muted }]}
+            >
+              JPEG, PNG, or WebP
             </Text>
           </View>
         )}
+      </TouchableOpacity>
 
-        {/* Score */}
-        <View
+      {imageUri && (
+        <TouchableOpacity style={styles.changePhoto} onPress={pickImage}>
+          <Text
+            style={[styles.changePhotoText, { color: themeColors.blueDark }]}
+          >
+            Change photo
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Form */}
+      <View style={[styles.formCard, { backgroundColor: themeColors.card }]}>
+        <Text style={[styles.label, { color: themeColors.text }]}>
+          Occasion{" "}
+          <Text style={[styles.required, { color: themeColors.accent }]}>
+            *
+          </Text>
+        </Text>
+
+        <TextInput
           style={[
-            styles.scoreCard,
-            { backgroundColor: themeColors.card },
+            styles.input,
+            {
+              backgroundColor: themeColors.white,
+              borderColor: themeColors.input,
+              color: themeColors.text,
+            },
           ]}
-        >
-          <Text
-            style={[
-              styles.scoreLabel,
-              { color: themeColors.muted },
-            ]}
-          >
-            Style Score
+          placeholder="e.g. job interview, casual brunch, wedding"
+          placeholderTextColor={themeColors.muted}
+          value={occasion}
+          onChangeText={setOccasion}
+        />
+
+        <Text style={[styles.label, { color: themeColors.text }]}>
+          City{" "}
+          <Text style={[styles.optional, { color: themeColors.muted }]}>
+            (optional)
           </Text>
+        </Text>
 
-          <Text
-            style={[
-              styles.scoreValue,
-              { color: scoreColor(result.styleScore) },
-            ]}
-          >
-            {result.styleScore}/10
+        <LocationAutocomplete
+          containerStyle={{ marginBottom: 12 }}
+          inputStyle={[
+            styles.input,
+            {
+              backgroundColor: themeColors.white,
+              borderColor: themeColors.input,
+              color: themeColors.text,
+              marginBottom: 0,
+            },
+          ]}
+          placeholder="e.g. Toronto — for weather check"
+          placeholderTextColor={themeColors.muted}
+          value={city}
+          onChangeText={setCity}
+          dropdownBg={themeColors.white}
+          dropdownText={themeColors.text}
+          dropdownBorder={themeColors.input}
+        />
+
+        {!!error && (
+          <Text style={[globalStyles.errorText, { color: themeColors.accent }]}>
+            {error}
           </Text>
-
-          <Text
-            style={[
-              styles.scoreOccasion,
-              { color: themeColors.text },
-            ]}
-          >
-            {result.occasion}
-          </Text>
-        </View>
-
-        {/* Overall verdict */}
-        {!!result.overallVerdict && (
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: themeColors.text },
-              ]}
-            >
-              Overall Verdict
-            </Text>
-
-            <Text
-              style={[
-                styles.verdictText,
-                { color: themeColors.text },
-              ]}
-            >
-              {result.overallVerdict}
-            </Text>
-          </View>
-        )}
-
-        {/* Weather */}
-        {result.currentWeather && (
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: themeColors.text },
-              ]}
-            >
-              Weather Check
-            </Text>
-
-            <Text
-              style={[
-                styles.weatherInfo,
-                { color: themeColors.muted },
-              ]}
-            >
-              {result.currentWeather}
-            </Text>
-
-            <View
-              style={[
-                styles.verdictBadge,
-                {
-                  backgroundColor: verdictColor(
-                    result.weatherVerdict
-                  ),
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.verdictBadgeText,
-                  { color: themeColors.white },
-                ]}
-              >
-                {result.weatherVerdict === "suitable"
-                  ? "Suitable for the weather"
-                  : result.weatherVerdict === "not suitable"
-                  ? "Not suitable for the weather"
-                  : "Weather check skipped"}
-              </Text>
-            </View>
-
-            {!!result.weatherReason && (
-              <Text
-                style={[
-                  styles.weatherReason,
-                  { color: themeColors.text },
-                ]}
-              >
-                {result.weatherReason}
-              </Text>
-            )}
-          </View>
-        )}
-
-        {/* What works well */}
-        {result.whatWorksWell?.length > 0 && (
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: themeColors.text },
-              ]}
-            >
-              What Works Well
-            </Text>
-
-            {result.whatWorksWell.map((point, i) => (
-              <View key={i} style={styles.bulletRow}>
-                <Text style={styles.bulletGreen}>✓</Text>
-
-                <Text
-                  style={[
-                    styles.bulletText,
-                    { color: themeColors.text },
-                  ]}
-                >
-                  {point}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Suggestions */}
-        {result.suggestions?.length > 0 && (
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: themeColors.text },
-              ]}
-            >
-              Suggestions
-            </Text>
-
-            {result.suggestions.map((s, i) => (
-              <View key={i} style={styles.bulletRow}>
-                <Text
-                  style={[
-                    styles.bulletBlue,
-                    { color: themeColors.blueDark },
-                  ]}
-                >
-                  →
-                </Text>
-
-                <Text
-                  style={[
-                    styles.bulletText,
-                    { color: themeColors.text },
-                  ]}
-                >
-                  {s}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {!chatOpen && (
-          <TouchableOpacity
-            style={[
-              styles.chatButton,
-              { backgroundColor: themeColors.blueDark },
-            ]}
-            onPress={() => setChatOpen(true)}
-          >
-            <Text
-              style={[
-                styles.chatButtonText,
-                { color: themeColors.white },
-              ]}
-            >
-              Chat with the bot about this review
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {chatOpen && (
-          <View
-            style={[
-              styles.chatCard,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <Text
-              style={[
-                styles.chatTitle,
-                { color: themeColors.text },
-              ]}
-            >
-              Ask about this outfit
-            </Text>
-
-            <View style={styles.chatMessages}>
-              {chatMessages.map((msg) => {
-                const isUser = msg.role === "user";
-
-                return (
-                  <View
-                    key={msg.id}
-                    style={[
-                      isUser
-                        ? styles.userBubble
-                        : styles.botBubble,
-                      {
-                        backgroundColor: isUser
-                          ? themeColors.blueDark
-                          : themeColors.input,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        isUser
-                          ? styles.userBubbleText
-                          : styles.botBubbleText,
-                        {
-                          color: isUser
-                            ? themeColors.white
-                            : themeColors.text,
-                        },
-                      ]}
-                    >
-                      {msg.text}
-                    </Text>
-                  </View>
-                );
-              })}
-
-              {chatLoading && (
-                <View
-                  style={[
-                    styles.botBubble,
-                    { backgroundColor: themeColors.input },
-                  ]}
-                >
-                  <ActivityIndicator color={themeColors.blueDark} />
-                </View>
-              )}
-            </View>
-
-            <View style={styles.chatInputRow}>
-              <TextInput
-                style={[
-                  styles.chatInput,
-                  {
-                    backgroundColor: themeColors.white,
-                    borderColor: themeColors.blueDark,
-                    color: themeColors.text,
-                  },
-                ]}
-                placeholder="Ask why the score, how to improve..."
-                placeholderTextColor={themeColors.muted}
-                value={chatInput}
-                onChangeText={setChatInput}
-                multiline
-              />
-
-              <Pressable
-                style={[
-                  styles.sendButton,
-                  { backgroundColor: themeColors.blueDark },
-                  (!chatInput.trim() || chatLoading) && {
-                    opacity: 0.5,
-                  },
-                ]}
-                onPress={sendChatMessage}
-                disabled={!chatInput.trim() || chatLoading}
-              >
-                <Text
-                  style={[
-                    styles.sendButtonText,
-                    { color: themeColors.white },
-                  ]}
-                >
-                  Send
-                </Text>
-              </Pressable>
-            </View>
-          </View>
         )}
 
         <Pressable
           style={[
-            styles.retryButton,
-            { backgroundColor: themeColors.bgDark },
+            styles.analyzeButton,
+            { backgroundColor: themeColors.blueDark },
+            loading && { opacity: 0.6 },
           ]}
-          onPress={() => {
-            setResult(null);
-            setImageUri(null);
-            setOccasion("");
-            setCity("");
-            resetChat();
-          }}
+          onPress={handleAnalyze}
+          disabled={loading}
         >
-          <Text
-            style={[
-              styles.retryButtonText,
-              { color: themeColors.white },
-            ]}
-          >
-            Analyse Another Outfit
-          </Text>
+          {loading ? (
+            <ActivityIndicator color={themeColors.white} />
+          ) : (
+            <Text
+              style={[styles.analyzeButtonText, { color: themeColors.white }]}
+            >
+              Analyse Outfit
+            </Text>
+          )}
         </Pressable>
       </View>
-    )}
-  </ScrollView>
-);
+
+      {/* Result */}
+      {result && (
+        <View style={styles.resultContainer}>
+          {/* Personalised badge */}
+          {showPersonalisedBadge && (
+            <View style={styles.personalisedBadge}>
+              <Text style={styles.personalisedBadgeText}>
+                ✨ Personalised to your taste
+              </Text>
+            </View>
+          )}
+
+          {/* Score */}
+          <View
+            style={[styles.scoreCard, { backgroundColor: themeColors.card }]}
+          >
+            <Text style={[styles.scoreLabel, { color: themeColors.muted }]}>
+              Style Score
+            </Text>
+
+            <Text
+              style={[
+                styles.scoreValue,
+                { color: scoreColor(result.styleScore) },
+              ]}
+            >
+              {result.styleScore}/10
+            </Text>
+
+            <Text style={[styles.scoreOccasion, { color: themeColors.text }]}>
+              {result.occasion}
+            </Text>
+          </View>
+
+          {/* Overall verdict */}
+          {!!result.overallVerdict && (
+            <View
+              style={[styles.section, { backgroundColor: themeColors.card }]}
+            >
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+                Overall Verdict
+              </Text>
+
+              <Text style={[styles.verdictText, { color: themeColors.text }]}>
+                {result.overallVerdict}
+              </Text>
+            </View>
+          )}
+
+          {/* Weather */}
+          {result.currentWeather && (
+            <View
+              style={[styles.section, { backgroundColor: themeColors.card }]}
+            >
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+                Weather Check
+              </Text>
+
+              <Text style={[styles.weatherInfo, { color: themeColors.muted }]}>
+                {result.currentWeather}
+              </Text>
+
+              <View
+                style={[
+                  styles.verdictBadge,
+                  {
+                    backgroundColor: verdictColor(result.weatherVerdict),
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.verdictBadgeText,
+                    { color: themeColors.white },
+                  ]}
+                >
+                  {result.weatherVerdict === "suitable"
+                    ? "Suitable for the weather"
+                    : result.weatherVerdict === "not suitable"
+                      ? "Not suitable for the weather"
+                      : "Weather check skipped"}
+                </Text>
+              </View>
+
+              {!!result.weatherReason && (
+                <Text
+                  style={[styles.weatherReason, { color: themeColors.text }]}
+                >
+                  {result.weatherReason}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {/* What works well */}
+          {result.whatWorksWell?.length > 0 && (
+            <View
+              style={[styles.section, { backgroundColor: themeColors.card }]}
+            >
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+                What Works Well
+              </Text>
+
+              {result.whatWorksWell.map((point, i) => (
+                <View key={i} style={styles.bulletRow}>
+                  <Text style={styles.bulletGreen}>✓</Text>
+
+                  <Text
+                    style={[styles.bulletText, { color: themeColors.text }]}
+                  >
+                    {point}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Suggestions */}
+          {result.suggestions?.length > 0 && (
+            <View
+              style={[styles.section, { backgroundColor: themeColors.card }]}
+            >
+              <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+                Suggestions
+              </Text>
+
+              {result.suggestions.map((s, i) => (
+                <View key={i} style={styles.bulletRow}>
+                  <Text
+                    style={[styles.bulletBlue, { color: themeColors.blueDark }]}
+                  >
+                    →
+                  </Text>
+
+                  <Text
+                    style={[styles.bulletText, { color: themeColors.text }]}
+                  >
+                    {s}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {!chatOpen && (
+            <TouchableOpacity
+              style={[
+                styles.chatButton,
+                { backgroundColor: themeColors.blueDark },
+              ]}
+              onPress={() => setChatOpen(true)}
+            >
+              <Text
+                style={[styles.chatButtonText, { color: themeColors.white }]}
+              >
+                Chat with the bot about this review
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {chatOpen && (
+            <View
+              style={[styles.chatCard, { backgroundColor: themeColors.card }]}
+            >
+              <Text style={[styles.chatTitle, { color: themeColors.text }]}>
+                Ask about this outfit
+              </Text>
+
+              <View style={styles.chatMessages}>
+                {chatMessages.map((msg) => {
+                  const isUser = msg.role === "user";
+
+                  return (
+                    <View
+                      key={msg.id}
+                      style={[
+                        isUser ? styles.userBubble : styles.botBubble,
+                        {
+                          backgroundColor: isUser
+                            ? themeColors.blueDark
+                            : themeColors.input,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          isUser ? styles.userBubbleText : styles.botBubbleText,
+                          {
+                            color: isUser
+                              ? themeColors.white
+                              : themeColors.text,
+                          },
+                        ]}
+                      >
+                        {msg.text}
+                      </Text>
+                    </View>
+                  );
+                })}
+
+                {chatLoading && (
+                  <View
+                    style={[
+                      styles.botBubble,
+                      { backgroundColor: themeColors.input },
+                    ]}
+                  >
+                    <ActivityIndicator color={themeColors.blueDark} />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.chatInputRow}>
+                <TextInput
+                  style={[
+                    styles.chatInput,
+                    {
+                      backgroundColor: themeColors.white,
+                      borderColor: themeColors.blueDark,
+                      color: themeColors.text,
+                    },
+                  ]}
+                  placeholder="Ask why the score, how to improve..."
+                  placeholderTextColor={themeColors.muted}
+                  value={chatInput}
+                  onChangeText={setChatInput}
+                  multiline
+                />
+
+                <Pressable
+                  style={[
+                    styles.sendButton,
+                    { backgroundColor: themeColors.blueDark },
+                    (!chatInput.trim() || chatLoading) && {
+                      opacity: 0.5,
+                    },
+                  ]}
+                  onPress={sendChatMessage}
+                  disabled={!chatInput.trim() || chatLoading}
+                >
+                  <Text
+                    style={[
+                      styles.sendButtonText,
+                      { color: themeColors.white },
+                    ]}
+                  >
+                    Send
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
+          <Pressable
+            style={[
+              styles.retryButton,
+              { backgroundColor: themeColors.bgDark },
+            ]}
+            onPress={() => {
+              setResult(null);
+              setImageUri(null);
+              setOccasion("");
+              setCity("");
+              resetChat();
+            }}
+          >
+            <Text
+              style={[styles.retryButtonText, { color: themeColors.white }]}
+            >
+              Analyse Another Outfit
+            </Text>
+          </Pressable>
+        </View>
+      )}
+    </ScrollView>
+  );
 }
 const styles = StyleSheet.create({
   container: {
@@ -1021,6 +794,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     marginBottom: 20,
+    overflow: "visible",
   },
 
   label: {

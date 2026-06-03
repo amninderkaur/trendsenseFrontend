@@ -23,7 +23,8 @@ import { useAppTheme } from "@/context/ThemeContext";
 import TasteProfileCard from "@/components/TasteProfileCard";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -36,6 +37,7 @@ import {
 } from "react-native";
 import PersonalizationModal from "../(auth)/PersonalizationModal";
 import { deleteAccount, getMe, uploadProfilePicture } from "../../api/user";
+import { getTasteProfile } from "../../api/outfit";
 import {
   getEmail,
   getName,
@@ -162,7 +164,8 @@ export default function Profile() {
   }, []);
 
   // load taste profile
-  useEffect(() => {
+  const loadTasteProfile = useCallback(() => {
+    setTasteProfileLoading(true);
     getTasteProfile()
       .then((data) => {
         setTasteProfile(data);
@@ -170,15 +173,15 @@ export default function Profile() {
       })
       .catch((err: any) => {
         const status = err?.response?.status;
-        if (status === 404) {
-          setTasteProfileLocked(true);
-        }
-        // other errors: show nothing
+        setTasteProfile(null);
+        setTasteProfileLocked(status === 404 || status === 400);
       })
       .finally(() => {
         setTasteProfileLoading(false);
       });
   }, []);
+
+  useFocusEffect(loadTasteProfile);
 
   // upload and update profile image
   const handlePickImage = async () => {
@@ -364,6 +367,14 @@ export default function Profile() {
                 >
                   <Text style={[styles.tasteLockedBtnText, { color: themeColors.white }]}>
                     Go to Outfit History
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ marginTop: 8 }}
+                  onPress={loadTasteProfile}
+                >
+                  <Text style={{ color: themeColors.muted, fontSize: 13 }}>
+                    Already rated? Check again ↻
                   </Text>
                 </TouchableOpacity>
               </View>
