@@ -1,4 +1,5 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import { getProfile } from "@/api/profile";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import * as FileSystem from "expo-file-system/legacy";
@@ -6,8 +7,10 @@ import * as Haptics from "expo-haptics";
 import { pickImageFromCamera, pickImageFromGallery } from "@/utils/imagePicker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Image,
@@ -125,6 +128,9 @@ export default function BodyAnalysisScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [analysing, setAnalysing] = useState(false);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [hasResult, setHasResult] = useState(false);
+  const [isSavedResult, setIsSavedResult] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<BodyAnalysisResult | null>(null);
 
@@ -134,6 +140,38 @@ export default function BodyAnalysisScreen() {
   const [chest, setChest] = useState("");
   const [waist, setWaist] = useState("");
   const [hips, setHips] = useState("");
+
+  // Load saved body analysis on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      const loadSaved = async () => {
+        setLoadingSaved(true);
+        try {
+          const profile = await getProfile();
+          if (profile?.bodyShape) {
+            setResult({
+              bodyShape: profile.bodyShape,
+              summary: profile.bodyAnalysisSummary ?? "",
+              bestStyles: profile.bodyBestStyles ?? [],
+              stylesToAvoid: profile.bodyStylesToAvoid ?? [],
+              tips: [],
+            });
+            setHasResult(true);
+            setIsSavedResult(true);
+          } else {
+            setHasResult(false);
+            setIsSavedResult(false);
+          }
+        } catch {
+          setHasResult(false);
+          setIsSavedResult(false);
+        } finally {
+          setLoadingSaved(false);
+        }
+      };
+      loadSaved();
+    }, [])
+  );
 
   const handlePickImage = async () => {
     const picked = await pickImageFromGallery();
@@ -186,6 +224,8 @@ export default function BodyAnalysisScreen() {
 
       const data: BodyAnalysisResult = JSON.parse(text);
       setResult(data);
+      setHasResult(true);
+      setIsSavedResult(false);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -198,41 +238,140 @@ export default function BodyAnalysisScreen() {
 
   const shapeColor = result ? (SHAPE_COLORS[result.bodyShape] ?? "#C9A96E") : "#C9A96E";
 
+  const Header = () => (
+    <View style={s.header}>
+      <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+        <Text style={[s.backArrow, { color: themeColors.text }]}>←</Text>
+      </TouchableOpacity>
+      <Text style={[s.headerTitle, { color: themeColors.text }]}>Body Analysis</Text>
+      <View style={s.backBtn} />
+    </View>
+  );
+
+  // Loading saved result
+  if (loadingSaved) {
+    return (
+      <SafeAreaView style={[s.root, { backgroundColor: themeColors.bg }]}>
+        <Header />
+        <View style={s.centerWrap}>
+          <ActivityIndicator size="large" color={themeColors.blueDark} />
+          <Text style={[s.loadingText, { color: themeColors.muted }]}>
+            Loading your saved analysis...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Saved / fresh result view
+  if (hasResult && result) {
+    return (
+      <SafeAreaView style={[s.root, { backgroundColor: themeColors.bg }]}>
+        <Header />
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+
+          {isSavedResult && (
+            <View style={[s.savedBanner, { backgroundColor: themeColors.bgDark }]}>
+              <Text style={[s.savedBannerText, { color: themeColors.muted }]}>
+                ◈  Saved result — your last body analysis
+              </Text>
+              <TouchableOpacity onPress={() => { setHasResult(false); setIsSavedResult(false); setImageUri(null); setImageBase64(null); setError(null); }}>
+                <Text style={s.redoLink}>Redo Analysis →</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={s.resultsWrap}>
+            {/* Shape badge */}
+            <View style={[s.shapeBadge, { backgroundColor: shapeColor + "22", borderColor: shapeColor }]}>
+              <Text style={s.shapeIcon}>◆</Text>
+              <Text style={[s.shapeLabel, { color: shapeColor }]}>{result.bodyShape}</Text>
+            </View>
+
+            {/* Summary */}
+            {!!result.summary && (
+              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
+                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>About Your Shape</Text>
+                <Text style={[s.resultCardBody, { color: themeColors.muted }]}>{result.summary}</Text>
+              </View>
+            )}
+
+            {/* Best styles */}
+            {result.bestStyles.length > 0 && (
+              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
+                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>✓  Styles That Flatter You</Text>
+                {result.bestStyles.map((style, i) => (
+                  <View key={i} style={s.listRow}>
+                    <View style={[s.listDot, { backgroundColor: shapeColor }]} />
+                    <Text style={[s.listText, { color: themeColors.text }]}>{style}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Styles to avoid */}
+            {result.stylesToAvoid.length > 0 && (
+              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
+                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>✕  Styles to Avoid</Text>
+                {result.stylesToAvoid.map((style, i) => (
+                  <View key={i} style={s.listRow}>
+                    <View style={[s.listDot, { backgroundColor: "#E07B6A" }]} />
+                    <Text style={[s.listText, { color: themeColors.text }]}>{style}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Tips */}
+            {result.tips.length > 0 && (
+              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
+                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>✦  Style Tips</Text>
+                {result.tips.map((tip, i) => (
+                  <View key={i} style={s.listRow}>
+                    <View style={[s.listDot, { backgroundColor: "#C9A96E" }]} />
+                    <Text style={[s.listText, { color: themeColors.text }]}>{tip}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Redo button at bottom */}
+            {!isSavedResult && (
+              <TouchableOpacity
+                style={[s.redoBtn, { borderColor: themeColors.input }]}
+                onPress={() => { setHasResult(false); setImageUri(null); setImageBase64(null); setError(null); }}
+              >
+                <Text style={[s.redoBtnText, { color: themeColors.muted }]}>↺  Redo Analysis</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // Form view
   return (
     <SafeAreaView style={[s.root, { backgroundColor: themeColors.bg }]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Header */}
-        <View style={s.header}>
-          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
-            <Text style={[s.backArrow, { color: themeColors.text }]}>←</Text>
-          </TouchableOpacity>
-          <Text style={[s.headerTitle, { color: themeColors.text }]}>Body Analysis</Text>
-          <View style={s.backBtn} />
-        </View>
+        <Header />
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
 
-          {/* Intro */}
           <Text style={[s.intro, { color: themeColors.muted }]}>
             Upload a full body photo in fitted clothes (head to toe) to discover your body shape and get personalised style tips.
           </Text>
 
           {/* Photo section */}
           <View style={s.pickRow}>
-            <TouchableOpacity
-              style={[s.pickBtn, { backgroundColor: themeColors.bgDark }]}
-              onPress={handlePickImage}
-            >
+            <TouchableOpacity style={[s.pickBtn, { backgroundColor: themeColors.bgDark }]} onPress={handlePickImage}>
               <Text style={s.pickIcon}>🖼</Text>
               <Text style={[s.pickLabel, { color: themeColors.text }]}>Gallery</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.pickBtn, { backgroundColor: themeColors.bgDark }]}
-              onPress={handleTakePhoto}
-            >
+            <TouchableOpacity style={[s.pickBtn, { backgroundColor: themeColors.bgDark }]} onPress={handleTakePhoto}>
               <Text style={s.pickIcon}>📷</Text>
               <Text style={[s.pickLabel, { color: themeColors.text }]}>Camera</Text>
             </TouchableOpacity>
@@ -251,7 +390,7 @@ export default function BodyAnalysisScreen() {
             </View>
           )}
 
-          {/* Measurements section */}
+          {/* Measurements */}
           <View style={[s.measureCard, { backgroundColor: themeColors.bgDark, borderColor: themeColors.input }]}>
             <View style={s.measureHeader}>
               <Text style={[s.measureTitle, { color: themeColors.text }]}>Measurements</Text>
@@ -262,14 +401,13 @@ export default function BodyAnalysisScreen() {
             <Text style={[s.measureHint, { color: themeColors.muted }]}>
               Adding measurements improves accuracy — recommended for better results.
             </Text>
-
             <View style={s.measureGrid}>
               {[
                 { label: "Height", placeholder: "e.g. 165 cm", value: height, setter: setHeight },
                 { label: "Weight", placeholder: "e.g. 60 kg", value: weight, setter: setWeight },
-                { label: "Chest", placeholder: "e.g. 90 cm", value: chest, setter: setChest },
-                { label: "Waist", placeholder: "e.g. 70 cm", value: waist, setter: setWaist },
-                { label: "Hips", placeholder: "e.g. 95 cm", value: hips, setter: setHips },
+                { label: "Chest",  placeholder: "e.g. 90 cm",  value: chest,  setter: setChest  },
+                { label: "Waist",  placeholder: "e.g. 70 cm",  value: waist,  setter: setWaist  },
+                { label: "Hips",   placeholder: "e.g. 95 cm",  value: hips,   setter: setHips   },
               ].map(({ label, placeholder, value, setter }) => (
                 <View key={label} style={s.measureField}>
                   <Text style={[s.measureLabel, { color: themeColors.muted }]}>{label}</Text>
@@ -293,7 +431,6 @@ export default function BodyAnalysisScreen() {
             </View>
           )}
 
-          {/* Analyse button */}
           <TouchableOpacity
             style={[s.analyseBtn, (!imageUri || !imageBase64) && { opacity: 0.4 }]}
             disabled={!imageUri || !imageBase64}
@@ -307,56 +444,6 @@ export default function BodyAnalysisScreen() {
               <Text style={s.analyseBtnText}>Analyse My Body Shape</Text>
             </LinearGradient>
           </TouchableOpacity>
-
-          {/* Results */}
-          {result && (
-            <View style={s.resultsWrap}>
-              {/* Shape badge */}
-              <View style={[s.shapeBadge, { backgroundColor: shapeColor + "22", borderColor: shapeColor }]}>
-                <Text style={[s.shapeIcon]}>◆</Text>
-                <Text style={[s.shapeLabel, { color: shapeColor }]}>{result.bodyShape}</Text>
-              </View>
-
-              {/* Summary */}
-              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
-                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>About Your Shape</Text>
-                <Text style={[s.resultCardBody, { color: themeColors.muted }]}>{result.summary}</Text>
-              </View>
-
-              {/* Best styles */}
-              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
-                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>✓  Styles That Flatter You</Text>
-                {result.bestStyles.map((style, i) => (
-                  <View key={i} style={s.listRow}>
-                    <View style={[s.listDot, { backgroundColor: shapeColor }]} />
-                    <Text style={[s.listText, { color: themeColors.text }]}>{style}</Text>
-                  </View>
-                ))}
-              </View>
-
-              {/* Styles to avoid */}
-              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark }]}>
-                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>✕  Styles to Avoid</Text>
-                {result.stylesToAvoid.map((style, i) => (
-                  <View key={i} style={s.listRow}>
-                    <View style={[s.listDot, { backgroundColor: "#E07B6A" }]} />
-                    <Text style={[s.listText, { color: themeColors.text }]}>{style}</Text>
-                  </View>
-                ))}
-              </View>
-
-              {/* Tips */}
-              <View style={[s.resultCard, { backgroundColor: themeColors.bgDark, marginBottom: 32 }]}>
-                <Text style={[s.resultCardTitle, { color: themeColors.text }]}>✦  Style Tips</Text>
-                {result.tips.map((tip, i) => (
-                  <View key={i} style={s.listRow}>
-                    <View style={[s.listDot, { backgroundColor: "#C9A96E" }]} />
-                    <Text style={[s.listText, { color: themeColors.text }]}>{tip}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
 
         </ScrollView>
       </KeyboardAvoidingView>
@@ -422,8 +509,24 @@ const s = StyleSheet.create({
   analyseBtnGrad: { paddingVertical: 16, alignItems: "center" },
   analyseBtnText: { color: "#fff", fontWeight: "800", fontSize: 15, letterSpacing: 0.3 },
 
+  centerWrap: { flex: 1, alignItems: "center", justifyContent: "center", gap: 14 },
+  loadingText: { fontSize: 14, fontWeight: "600" },
+
+  savedBanner: {
+    borderRadius: 14, padding: 14, marginBottom: 16,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+  },
+  savedBannerText: { fontSize: 12, flex: 1 },
+  redoLink: { color: "#C9A96E", fontSize: 12, fontWeight: "700", marginLeft: 8 },
+
+  redoBtn: {
+    borderRadius: 14, borderWidth: 1, paddingVertical: 14,
+    alignItems: "center", marginBottom: 32,
+  },
+  redoBtnText: { fontSize: 13, fontWeight: "600" },
+
   // Results
-  resultsWrap: { gap: 14 },
+  resultsWrap: { gap: 14, paddingBottom: 8 },
   shapeBadge: {
     borderRadius: 18, borderWidth: 1.5, padding: 20,
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12,
