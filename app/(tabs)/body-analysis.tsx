@@ -1,18 +1,18 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { getProfile } from "@/api/profile";
+import ScannerOverlay from "@/components/ScannerOverlay";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
+import { isWeb } from "@/utils/platform";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Haptics from "expo-haptics";
 import { pickImageFromCamera, pickImageFromGallery } from "@/utils/imagePicker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
-  Dimensions,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -25,10 +25,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const IMG_WIDTH = SCREEN_WIDTH - 48;
-const IMG_HEIGHT = IMG_WIDTH * (4 / 3);
-
 // ── Types ─────────────────────────────────────────────────────────────────────
 type BodyAnalysisResult = {
   bodyShape: string;
@@ -37,79 +33,6 @@ type BodyAnalysisResult = {
   stylesToAvoid: string[];
   tips: string[];
 };
-
-// ── Scanning overlay ──────────────────────────────────────────────────────────
-function ScannerOverlay({ imageUri }: { imageUri: string }) {
-  const scanAnim = useRef(new Animated.Value(0)).current;
-  const [dots, setDots] = useState("");
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scanAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
-        Animated.timing(scanAnim, { toValue: 0, duration: 0, useNativeDriver: true }),
-      ])
-    );
-    animation.start();
-    return () => animation.stop();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((d) => (d.length >= 3 ? "" : d + "."));
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const scanLineY = scanAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, IMG_HEIGHT - 3],
-  });
-
-  const BRACKET = 28;
-  const THICKNESS = 3;
-  const GOLD = "#C9A96E";
-
-  return (
-    <SafeAreaView style={sc.root}>
-      <Text style={sc.title}>TRENDSENSE</Text>
-      <Text style={sc.subtitle}>Body Scanner</Text>
-      <View style={[sc.imgWrap, { width: IMG_WIDTH, height: IMG_HEIGHT }]}>
-        <Image source={{ uri: imageUri }} style={sc.img} resizeMode="cover" />
-        <View style={sc.vignette} />
-        <View style={[sc.corner, { top: 0, left: 0, borderTopWidth: THICKNESS, borderLeftWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        <View style={[sc.corner, { top: 0, right: 0, borderTopWidth: THICKNESS, borderRightWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        <View style={[sc.corner, { bottom: 0, left: 0, borderBottomWidth: THICKNESS, borderLeftWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        <View style={[sc.corner, { bottom: 0, right: 0, borderBottomWidth: THICKNESS, borderRightWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        <Animated.View style={[sc.scanLine, { transform: [{ translateY: scanLineY }] }]}>
-          <LinearGradient
-            colors={["transparent", "rgba(201,169,110,0.9)", "transparent"]}
-            start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
-            style={{ height: 2, width: "100%" }}
-          />
-        </Animated.View>
-      </View>
-      <View style={sc.statusWrap}>
-        <Text style={sc.statusText}>Analysing your body shape{dots}</Text>
-        <Text style={sc.statusSub}>AI is detecting your proportions</Text>
-      </View>
-    </SafeAreaView>
-  );
-}
-
-const sc = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#060C09", alignItems: "center", justifyContent: "center" },
-  title: { color: "#fff", fontSize: 18, fontWeight: "900", letterSpacing: 6, marginBottom: 4 },
-  subtitle: { color: "#C9A96E", fontSize: 11, letterSpacing: 3, fontStyle: "italic", marginBottom: 32 },
-  imgWrap: { borderRadius: 18, overflow: "hidden", position: "relative" },
-  img: { width: "100%", height: "100%" },
-  vignette: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.35)" },
-  corner: { position: "absolute" },
-  scanLine: { position: "absolute", left: 0, right: 0, top: 0 },
-  statusWrap: { marginTop: 32, alignItems: "center" },
-  statusText: { color: "#C9A96E", fontSize: 16, fontWeight: "700", letterSpacing: 0.5, marginBottom: 6 },
-  statusSub: { color: "rgba(255,255,255,0.4)", fontSize: 12, letterSpacing: 0.3 },
-});
 
 // ── Shape badge colours ───────────────────────────────────────────────────────
 const SHAPE_COLORS: Record<string, string> = {
@@ -185,25 +108,31 @@ export default function BodyAnalysisScreen() {
 
   const handleAnalyse = async () => {
     if (!imageUri || !imageBase64) return;
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!isWeb) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setAnalysing(true);
     setError(null);
 
-    const tempPath = `${FileSystem.cacheDirectory}body_analysis_tmp.jpg`;
     try {
       const token = await getToken();
       if (!token) throw new Error("No authentication token found");
 
-      await FileSystem.writeAsStringAsync(tempPath, imageBase64, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
       const formData = new FormData();
-      formData.append("file", {
-        uri: tempPath,
-        name: "body.jpg",
-        type: "image/jpeg",
-      } as any);
+
+      if (isWeb) {
+        const byteString = atob(imageBase64);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+        const blob = new Blob([ab], { type: "image/jpeg" });
+        formData.append("file", blob, "body.jpg");
+      } else {
+        const tempPath = `${FileSystem.cacheDirectory}body_analysis_tmp.jpg`;
+        await FileSystem.writeAsStringAsync(tempPath, imageBase64, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        formData.append("file", { uri: tempPath, name: "body.jpg", type: "image/jpeg" } as any);
+      }
+
       if (height.trim()) formData.append("height", height.trim());
       if (weight.trim()) formData.append("weight", weight.trim());
       if (chest.trim())  formData.append("chest",  chest.trim());
@@ -230,11 +159,22 @@ export default function BodyAnalysisScreen() {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setAnalysing(false);
-      FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
+      if (!isWeb) {
+        const tempPath = `${FileSystem.cacheDirectory}body_analysis_tmp.jpg`;
+        FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
+      }
     }
   };
 
-  if (analysing && imageUri) return <ScannerOverlay imageUri={imageUri} />;
+  if (analysing && imageUri) {
+    return (
+      <ScannerOverlay
+        imageUri={imageUri}
+        message="Analysing your body shape"
+        submessage="AI is detecting your proportions"
+      />
+    );
+  }
 
   const shapeColor = result ? (SHAPE_COLORS[result.bodyShape] ?? "#C9A96E") : "#C9A96E";
 

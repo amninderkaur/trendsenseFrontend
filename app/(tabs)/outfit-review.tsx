@@ -1,6 +1,7 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { getTasteProfile } from "@/api/outfit";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
+import ScannerOverlay from "@/components/ScannerOverlay";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
@@ -30,11 +31,6 @@ type AnalysisResult = {
   currentWeather: string | null;
 };
 
-type WardrobeItem = {
-  id: string;
-  tags: { type: string; color: string; style: string; occasion: string[] };
-};
-
 export default function OutfitReview() {
   const router = useRouter();
   const { themeColors } = useAppTheme();
@@ -59,8 +55,6 @@ export default function OutfitReview() {
     };
   }, []);
 
-  const [mode, setMode] = useState<"analyse" | "style">("analyse");
-
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageMime, setImageMime] = useState<string>("image/jpeg");
   const [occasion, setOccasion] = useState("");
@@ -68,9 +62,6 @@ export default function OutfitReview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
-
-  const [styleLoading, setStyleLoading] = useState(false);
-  const [styleResult, setStyleResult]   = useState<string | null>(null);
 
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -186,70 +177,6 @@ User question: ${question}
     }
   };
 
-  const handleStyleFromWardrobe = async () => {
-    if (!occasion.trim()) {
-      setError("Please enter an occasion so we know what to look for.");
-      return;
-    }
-    setStyleLoading(true);
-    setError("");
-    setStyleResult(null);
-
-    try {
-      const token = getToken();
-      if (!token) throw new Error("Not authenticated");
-
-      // Fetch the user's wardrobe
-      const wardrobeRes = await fetch(`${API_BASE_URL}/api/wardrobe`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const wardrobe: WardrobeItem[] = await wardrobeRes.json();
-
-      if (!Array.isArray(wardrobe) || wardrobe.length === 0) {
-        setStyleResult(
-          "Your wardrobe is empty — add some clothes first so I can suggest outfits for you!"
-        );
-        return;
-      }
-
-      // Build a readable wardrobe list
-      const wardrobeList = wardrobe
-        .map((item) => {
-          const occ = item.tags.occasion?.length
-            ? ` (${item.tags.occasion.join(", ")})`
-            : "";
-          return `- ${item.tags.color} ${item.tags.type}, ${item.tags.style} style${occ}`;
-        })
-        .join("\n");
-
-      const prompt = `The user wants an outfit for: "${occasion.trim()}"
-
-Their wardrobe:
-${wardrobeList}
-
-Your task:
-1. Check if they have clothing that actually suits "${occasion.trim()}". Be strict — jeans are NOT suitable for the gym; a suit is NOT suitable for hiking.
-2. If they have suitable items: recommend the best outfit combination, name each piece specifically (colour + type), and explain why it works for the occasion.
-3. If they are missing key pieces: start your response with "⚠️ Your wardrobe doesn't have suitable [item] for ${occasion.trim()}." Then list exactly what they should buy (2–4 specific items with brief reasons).
-4. Keep the tone friendly and direct.`;
-
-      const chatRes = await fetch(`${API_BASE_URL}/api/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message: prompt, history: [] }),
-      });
-      const data = await chatRes.json();
-      setStyleResult(data.reply ?? "No response from AI.");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
-    } finally {
-      setStyleLoading(false);
-    }
-  };
-
   const handleAnalyze = async () => {
     if (!imageUri) {
       setError("Please select a photo of your outfit.");
@@ -349,6 +276,18 @@ Your task:
   // ============
   // RENDER
   // ============
+
+  // Show scanner overlay while analysing (only when an image was uploaded)
+  if (loading && imageUri) {
+    return (
+      <ScannerOverlay
+        imageUri={imageUri}
+        message="Analysing your outfit"
+        submessage="AI is reviewing your style"
+      />
+    );
+  }
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: themeColors.bg }]}
@@ -382,60 +321,34 @@ Your task:
       </Text>
 
       <Text style={[styles.subtitle, { color: themeColors.muted }]}>
-        {mode === "analyse"
-          ? "Upload a photo of your outfit and get AI feedback on style, occasion fit, and weather."
-          : "Tell us the occasion and AI will check your wardrobe — or tell you what's missing."}
+        Upload a photo of your outfit and get AI feedback on style, occasion fit, and weather.
       </Text>
 
-      {/* Mode toggle */}
-      <View style={[styles.modeToggle, { backgroundColor: themeColors.card }]}>
-        <TouchableOpacity
-          style={[styles.modeBtn, mode === "analyse" && { backgroundColor: themeColors.bgDark }]}
-          onPress={() => { setMode("analyse"); setStyleResult(null); setError(""); }}
-        >
-          <Text style={[styles.modeBtnText, { color: mode === "analyse" ? themeColors.white : themeColors.muted }]}>
-            Analyse Outfit
+      {/* Image picker */}
+      <TouchableOpacity
+        style={[styles.imagePicker, { borderColor: themeColors.bgDark }]}
+        onPress={pickImage}
+      >
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.previewImage} resizeMode="cover" />
+        ) : (
+          <View style={[styles.imagePlaceholder, { backgroundColor: themeColors.card }]}>
+            <Text style={styles.imagePlaceholderIcon}>📸</Text>
+            <Text style={[styles.imagePlaceholderText, { color: themeColors.text }]}>
+              Tap to select outfit photo
+            </Text>
+            <Text style={[styles.imagePlaceholderSub, { color: themeColors.muted }]}>
+              JPEG, PNG, or WebP
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      {imageUri && (
+        <TouchableOpacity style={styles.changePhoto} onPress={pickImage}>
+          <Text style={[styles.changePhotoText, { color: themeColors.blueDark }]}>
+            Change photo
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.modeBtn, mode === "style" && { backgroundColor: "#C9A96E" }]}
-          onPress={() => { setMode("style"); setResult(null); setError(""); }}
-        >
-          <Text style={[styles.modeBtnText, { color: mode === "style" ? "#fff" : themeColors.muted }]}>
-            Style Me ✦
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Image picker — only in analyse mode */}
-      {mode === "analyse" && (
-        <>
-          <TouchableOpacity
-            style={[styles.imagePicker, { borderColor: themeColors.bgDark }]}
-            onPress={pickImage}
-          >
-            {imageUri ? (
-              <Image source={{ uri: imageUri }} style={styles.previewImage} resizeMode="cover" />
-            ) : (
-              <View style={[styles.imagePlaceholder, { backgroundColor: themeColors.card }]}>
-                <Text style={styles.imagePlaceholderIcon}>📸</Text>
-                <Text style={[styles.imagePlaceholderText, { color: themeColors.text }]}>
-                  Tap to select outfit photo
-                </Text>
-                <Text style={[styles.imagePlaceholderSub, { color: themeColors.muted }]}>
-                  JPEG, PNG, or WebP
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-          {imageUri && (
-            <TouchableOpacity style={styles.changePhoto} onPress={pickImage}>
-              <Text style={[styles.changePhotoText, { color: themeColors.blueDark }]}>
-                Change photo
-              </Text>
-            </TouchableOpacity>
-          )}
-        </>
       )}
 
       {/* Form */}
@@ -489,71 +402,22 @@ Your task:
           dropdownBorder={themeColors.input}
         />
 
-        {/* City field only matters for analyse mode */}
-        {mode === "style" && (
-          <Text style={[styles.label, { color: themeColors.muted, fontSize: 12, marginTop: -4 }]}>
-            AI will check your saved wardrobe items for this occasion.
-          </Text>
-        )}
-
         {!!error && (
           <Text style={[globalStyles.errorText, { color: themeColors.accent }]}>
             {error}
           </Text>
         )}
 
-        {mode === "analyse" ? (
-          <Pressable
-            style={[styles.analyzeButton, { backgroundColor: themeColors.blueDark }, loading && { opacity: 0.6 }]}
-            onPress={handleAnalyze}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={themeColors.white} />
-            ) : (
-              <Text style={[styles.analyzeButtonText, { color: themeColors.white }]}>
-                Analyse Outfit
-              </Text>
-            )}
-          </Pressable>
-        ) : (
-          <Pressable
-            style={[styles.analyzeButton, { backgroundColor: "#C9A96E" }, styleLoading && { opacity: 0.6 }]}
-            onPress={handleStyleFromWardrobe}
-            disabled={styleLoading}
-          >
-            {styleLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={[styles.analyzeButtonText, { color: "#fff" }]}>
-                Find My Outfit ✦
-              </Text>
-            )}
-          </Pressable>
-        )}
+        <Pressable
+          style={[styles.analyzeButton, { backgroundColor: themeColors.blueDark }, loading && { opacity: 0.6 }]}
+          onPress={handleAnalyze}
+          disabled={loading}
+        >
+          <Text style={[styles.analyzeButtonText, { color: themeColors.white }]}>
+            {loading ? "Analysing…" : "Analyse Outfit"}
+          </Text>
+        </Pressable>
       </View>
-
-      {/* Style Me result */}
-      {styleResult && mode === "style" && (
-        <View style={styles.resultContainer}>
-          <View style={[styles.section, { backgroundColor: themeColors.card }]}>
-            <Text style={[styles.sectionTitle, { color: "#C9A96E" }]}>
-              ✦ Style Advice
-            </Text>
-            <Text style={[styles.verdictText, { color: themeColors.text, lineHeight: 24 }]}>
-              {styleResult}
-            </Text>
-          </View>
-          <Pressable
-            style={[styles.retryButton, { backgroundColor: themeColors.bgDark }]}
-            onPress={() => { setStyleResult(null); setOccasion(""); setError(""); }}
-          >
-            <Text style={[styles.retryButtonText, { color: themeColors.white }]}>
-              Try Another Occasion
-            </Text>
-          </Pressable>
-        </View>
-      )}
 
       {/* Result */}
       {result && (
@@ -1167,21 +1031,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  modeToggle: {
-    flexDirection: "row",
-    borderRadius: 14,
-    padding: 4,
-    marginBottom: 20,
-    gap: 4,
-  },
-  modeBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  modeBtnText: {
-    fontSize: 13,
-    fontWeight: "700",
-  },
 });
