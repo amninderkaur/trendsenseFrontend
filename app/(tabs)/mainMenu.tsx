@@ -165,6 +165,21 @@ export default function MainMenu() {
             </View>
           </TouchableOpacity>
 
+          {/* Body Analysis */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={[s.cardWide, { backgroundColor: "#E2D4EC" }]}
+            onPress={() => router.push("/(tabs)/body-analysis" as any)}
+          >
+            <View style={s.cardWideInner}>
+              <View>
+                <Text style={s.cardLabel}>Body Analysis</Text>
+                <Text style={s.cardSub}>Find your shape & style</Text>
+              </View>
+              <Text style={[s.cardIcon, { marginBottom: 0 }]}>🧍</Text>
+            </View>
+          </TouchableOpacity>
+
           {/* Row 3: Budget + Trip */}
           <View style={s.gridRow}>
             <TouchableOpacity

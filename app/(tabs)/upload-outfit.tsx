@@ -485,6 +485,17 @@ return (
             </View>
           )}
 
+          {result.selectedItems.length === 0 && result.reasoning && (
+            <View style={[globalStyles.dashboardCard, { backgroundColor: "#FFF3E0", borderLeftWidth: 4, borderLeftColor: "#C9A96E" }]}>
+              <Text style={[styles.infoLabel, { color: "#C9A96E" }]}>
+                ⚠️ Wardrobe Gap Detected
+              </Text>
+              <Text style={[globalStyles.cardText, { color: "#5C4033", lineHeight: 22 }]}>
+                {result.reasoning}
+              </Text>
+            </View>
+          )}
+
           {result.selectedItems.length > 0 && (
             <View>
               <Text

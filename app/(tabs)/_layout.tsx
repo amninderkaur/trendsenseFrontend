@@ -12,6 +12,7 @@ export default function TabLayout() {
       <Stack.Screen name="upload-clothes" />
       <Stack.Screen name="upload-outfit" />
       <Stack.Screen name="colour-analysis" />
+      <Stack.Screen name="body-analysis" />
       <Stack.Screen name="wardrobe/index" />
       <Stack.Screen name="wardrobe/[outfitId]" />
       <Stack.Screen name="history/index" />
