@@ -18,6 +18,7 @@ import { clearColourAnalysis, getProfile } from "@/api/profile";
 import ColourAnalysisForm from "@/components/ColourAnalysis/ColourAnalysisForm";
 import ColourAnalysisHeader from "@/components/ColourAnalysis/ColourAnalysisHeader";
 import ColourAnalysisResult from "@/components/ColourAnalysis/ColourAnalysisResult";
+import ScannerOverlay from "@/components/ScannerOverlay";
 import { globalStyles } from "@/constants/globalStyles";
 import { seasonPalettes } from "@/constants/seasonPalettes";
 import { useAppTheme } from "@/context/ThemeContext";
@@ -524,7 +525,19 @@ export default function ColourAnalysisScreen() {
     // ================
     //     RENDER
     // ================
-     return (
+
+    // Show scanner overlay while AI analyses the selfie
+    if (analysing && selfies[0]) {
+        return (
+            <ScannerOverlay
+                imageUri={selfies[0]}
+                message="Analysing your colours"
+                submessage="AI is detecting your season & undertone"
+            />
+        );
+    }
+
+    return (
     <ScrollView
       style={[
         globalStyles.screen,

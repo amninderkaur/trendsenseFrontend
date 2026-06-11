@@ -248,62 +248,74 @@ export default function SavedOutfitsIndex() {
                 },
               ]}
             >
+              {/* Gold accent bar */}
+              <View style={styles.cardAccent} />
+
+              {/* Header: occasion + remove button */}
               <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.occasion, { color: themeColors.text }]}>
-                    {outfit.occasion}
-                  </Text>
-                  <Text style={[styles.city, { color: themeColors.blueDark }]}>
-                    {outfit.city}
-                  </Text>
+                  <View style={styles.occasionRow}>
+                    <Text style={styles.occasionIcon}>✦</Text>
+                    <Text style={[styles.occasion, { color: themeColors.text }]}>
+                      {outfit.occasion}
+                    </Text>
+                  </View>
+                  <View style={styles.metaRow}>
+                    <Text style={[styles.metaText, { color: themeColors.blueDark }]}>
+                      📍 {outfit.city}
+                    </Text>
+                    {!!outfit.weatherSummary && (
+                      <Text style={[styles.metaText, { color: themeColors.blueDark }]}>
+                        {"  ·  "}🌤 {outfit.weatherSummary}
+                      </Text>
+                    )}
+                  </View>
                 </View>
 
                 <Pressable
-                  style={[styles.deleteButton, { backgroundColor: themeColors.accent }]}
+                  style={[styles.deleteButton, { borderColor: themeColors.accent }]}
                   onPress={() => handleDelete(outfit.id)}
                   disabled={deletingId === outfit.id}
                 >
                   {deletingId === outfit.id ? (
-                    <ActivityIndicator color={themeColors.white} size="small" />
+                    <ActivityIndicator color={themeColors.accent} size="small" />
                   ) : (
-                    <Text style={[styles.deleteText, { color: themeColors.white }]}>
+                    <Text style={[styles.deleteText, { color: themeColors.accent }]}>
                       Remove
                     </Text>
                   )}
                 </Pressable>
               </View>
 
-              {!!outfit.weatherSummary && (
-                <Text style={[styles.weather, { color: themeColors.blueDark }]}>
-                  {outfit.weatherSummary}
-                </Text>
-              )}
-
               {!!outfit.reasoning && (
-                <Text style={[styles.reasoning, { color: themeColors.text }]}>
+                <Text style={[styles.reasoning, { color: themeColors.muted }]}>
                   {outfit.reasoning}
                 </Text>
               )}
 
               {outfit.selectedItems?.length > 0 && (
-                <View style={styles.itemsGrid}>
-                  {outfit.selectedItems.map((item) => (
-                    <View
-                      key={item.itemId}
-                      style={[styles.itemCard, { backgroundColor: themeColors.blue }]}
-                    >
-                      <Image
-                        source={{ uri: `data:image/png;base64,${item.imageBase64}` }}
-                        style={[styles.itemImage, { backgroundColor: themeColors.input }]}
-                      />
-                      <Text style={[styles.itemType, { color: themeColors.text }]}>
-                        {item.color} {item.type}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
+                <>
+                  <View style={[styles.divider, { backgroundColor: themeColors.input }]} />
+                  <View style={styles.itemsGrid}>
+                    {outfit.selectedItems.map((item) => (
+                      <View
+                        key={item.itemId}
+                        style={[styles.itemCard, { backgroundColor: themeColors.blue }]}
+                      >
+                        <Image
+                          source={{ uri: `data:image/png;base64,${item.imageBase64}` }}
+                          style={[styles.itemImage, { backgroundColor: themeColors.input }]}
+                        />
+                        <Text style={[styles.itemType, { color: themeColors.text }]}>
+                          {item.color} {item.type}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
               )}
 
+              <View style={[styles.divider, { backgroundColor: themeColors.input }]} />
               <StarRating
                 outfitHistoryId={outfit.id}
                 currentRating={ratingsMap[outfit.id] ?? 0}
@@ -371,9 +383,23 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    padding: 16,
+    paddingTop: 0,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  cardAccent: {
+    height: 4,
+    backgroundColor: "#C9A96E",
+    marginHorizontal: -16,
+    marginBottom: 14,
   },
   cardHeader: {
     flexDirection: "row",
@@ -381,26 +407,40 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 8,
   },
+  occasionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
+  },
+  occasionIcon: {
+    fontSize: 12,
+    color: "#C9A96E",
+  },
   occasion: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "700",
     textTransform: "capitalize",
   },
-  itemCard: {
-    width: "47%",
-     },
-  city: {
-    fontSize: 13,
-    marginTop: 2,
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
   },
-  weather: {
-    fontSize: 13,
-    marginBottom: 6,
+  metaText: {
+    fontSize: 12,
+    lineHeight: 18,
   },
   reasoning: {
-    fontSize: 14,
+    fontSize: 13,
     marginBottom: 10,
-    lineHeight: 20,
+    lineHeight: 19,
+    opacity: 0.8,
+  },
+  divider: {
+    height: 1,
+    marginVertical: 12,
+    marginHorizontal: -16,
   },
   itemsGrid: {
     flexDirection: "row",
@@ -427,13 +467,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   deleteButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
     borderRadius: 999,
+    borderWidth: 1,
   },
   deleteText: {
-    fontWeight: "700",
-    fontSize: 13,
+    fontWeight: "600",
+    fontSize: 12,
   },
   banner: {
     paddingVertical: 10,

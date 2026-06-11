@@ -1,15 +1,14 @@
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
+import { isWeb } from "@/utils/platform";
+import ScannerOverlay from "@/components/ScannerOverlay";
 import { useFocusEffect } from "@react-navigation/native";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Haptics from "expo-haptics";
 import { pickImageFromCamera, pickImageFromGallery } from "@/utils/imagePicker";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
-  Animated,
-  Dimensions,
   Image,
   StyleSheet,
   Text,
@@ -20,145 +19,53 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const IMG_WIDTH  = SCREEN_WIDTH - 48;
-const IMG_HEIGHT = IMG_WIDTH * (4 / 3);
-
-// ── Scanning overlay ─────────────────────────────────────────────────────────
-function ScannerOverlay({ imageUri }: { imageUri: string }) {
-  const scanAnim = useRef(new Animated.Value(0)).current;
-  const [dots, setDots] = useState("");
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scanAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
-        Animated.timing(scanAnim, { toValue: 0, duration: 0,    useNativeDriver: true }),
-      ])
-    );
-    animation.start();
-    return () => animation.stop();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((d) => (d.length >= 3 ? "" : d + "."));
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const scanLineY = scanAnim.interpolate({
-    inputRange:  [0, 1],
-    outputRange: [0, IMG_HEIGHT - 3],
-  });
-
-  const BRACKET = 28;
-  const THICKNESS = 3;
-  const GOLD = "#C9A96E";
-
+// ── Success overlay ───────────────────────────────────────────────────────────
+function SuccessOverlay() {
   return (
-    <SafeAreaView style={scanner.root}>
-      <Text style={scanner.title}>TRENDSENSE</Text>
-      <Text style={scanner.subtitle}>Scanner</Text>
-
-      {/* Image + scan overlay */}
-      <View style={[scanner.imgWrap, { width: IMG_WIDTH, height: IMG_HEIGHT }]}>
-        <Image
-          source={{ uri: imageUri }}
-          style={scanner.img}
-          resizeMode="cover"
-        />
-
-        {/* Dark vignette over image */}
-        <View style={scanner.vignette} />
-
-        {/* Corner brackets */}
-        {/* Top-left */}
-        <View style={[scanner.corner, { top: 0, left: 0, borderTopWidth: THICKNESS, borderLeftWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        {/* Top-right */}
-        <View style={[scanner.corner, { top: 0, right: 0, borderTopWidth: THICKNESS, borderRightWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        {/* Bottom-left */}
-        <View style={[scanner.corner, { bottom: 0, left: 0, borderBottomWidth: THICKNESS, borderLeftWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-        {/* Bottom-right */}
-        <View style={[scanner.corner, { bottom: 0, right: 0, borderBottomWidth: THICKNESS, borderRightWidth: THICKNESS, borderColor: GOLD, width: BRACKET, height: BRACKET }]} />
-
-        {/* Scan line */}
-        <Animated.View style={[scanner.scanLine, { transform: [{ translateY: scanLineY }] }]}>
-          <LinearGradient
-            colors={["transparent", "rgba(201,169,110,0.9)", "transparent"]}
-            start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }}
-            style={{ height: 2, width: "100%" }}
-          />
-        </Animated.View>
+    <SafeAreaView style={success.root}>
+      <View style={success.circle}>
+        <Text style={success.check}>✓</Text>
       </View>
-
-      {/* Status text */}
-      <View style={scanner.statusWrap}>
-        <Text style={scanner.statusText}>Analysing your clothing{dots}</Text>
-        <Text style={scanner.statusSub}>AI is detecting your item</Text>
-      </View>
+      <Text style={success.title}>Item Added!</Text>
+      <Text style={success.subtitle}>Your clothing has been saved to your wardrobe.</Text>
     </SafeAreaView>
   );
 }
 
-const scanner = StyleSheet.create({
+const success = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: "#060C09",
     alignItems: "center",
     justifyContent: "center",
+    gap: 16,
+  },
+  circle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#C9A96E",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  check: {
+    color: "#fff",
+    fontSize: 38,
+    fontWeight: "900",
+    lineHeight: 42,
   },
   title: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "900",
-    letterSpacing: 6,
-    marginBottom: 4,
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: 0.4,
   },
   subtitle: {
-    color: "#C9A96E",
-    fontSize: 11,
-    letterSpacing: 3,
-    fontStyle: "italic",
-    marginBottom: 32,
-  },
-  imgWrap: {
-    borderRadius: 18,
-    overflow: "hidden",
-    position: "relative",
-  },
-  img: {
-    width: "100%",
-    height: "100%",
-  },
-  vignette: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.35)",
-  },
-  corner: {
-    position: "absolute",
-  },
-  scanLine: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-  },
-  statusWrap: {
-    marginTop: 32,
-    alignItems: "center",
-  },
-  statusText: {
-    color: "#C9A96E",
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    marginBottom: 6,
-  },
-  statusSub: {
-    color: "rgba(255,255,255,0.4)",
-    fontSize: 12,
-    letterSpacing: 0.3,
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 13,
+    letterSpacing: 0.2,
+    textAlign: "center",
+    paddingHorizontal: 32,
   },
 });
 
@@ -166,10 +73,11 @@ const scanner = StyleSheet.create({
 export default function UploadWardrobeScreen() {
   const router = useRouter();
   const { themeColors } = useAppTheme();
-  const [imageUri,    setImageUri]    = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
-  const [uploading,   setUploading]   = useState(false);
-  const [error,       setError]       = useState<string | null>(null);
+  const [imageUri,       setImageUri]       = useState<string | null>(null);
+  const [imageBase64,    setImageBase64]    = useState<string | null>(null);
+  const [uploading,      setUploading]      = useState(false);
+  const [uploadSuccess,  setUploadSuccess]  = useState(false);
+  const [error,          setError]          = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -192,55 +100,84 @@ const handlePickImage = async () => {
   const handleUploadToWardrobe = async () => {
     if (!imageUri || !imageBase64) return;
 
-    // Immediate haptic so the button feels responsive before scanner appears
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!isWeb) {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
     setUploading(true);
     setError(null);
-
-    // Write the base64-encoded JPEG to a temp file so we can upload real bytes.
-    // expo-image-picker uses UIImageJPEGRepresentation on iOS (quality 0.85),
-    // so asset.base64 is guaranteed JPEG — avoids HEIC rejection from the backend.
-    const tempPath = `${FileSystem.cacheDirectory}upload_tmp.jpg`;
 
     try {
       const token = await getToken();
       if (!token) throw new Error("No authentication token found");
 
-      await FileSystem.writeAsStringAsync(tempPath, imageBase64, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-      const result = await FileSystem.uploadAsync(
-        `${API_BASE_URL}/api/wardrobe/add`,
-        tempPath,
-        {
-          httpMethod: "POST",
-          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-          fieldName: "file",
-          mimeType:  "image/jpeg",
-          headers: { Authorization: `Bearer ${token}` },
+      if (isWeb) {
+        // Web: convert base64 string to Blob and upload via fetch + FormData
+        const byteString = atob(imageBase64);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
         }
-      );
+        const blob = new Blob([ab], { type: "image/jpeg" });
+        const formData = new FormData();
+        formData.append("file", blob, "upload.jpg");
 
-      if (result.status !== 200) {
-        throw new Error(`Upload failed: ${result.status} - ${result.body}`);
+        const response = await fetch(`${API_BASE_URL}/api/wardrobe/add`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const body = await response.text().catch(() => "");
+          throw new Error(`Upload failed: ${response.status}${body ? ` — ${body}` : ""}`);
+        }
+      } else {
+        // Native (iOS/Android): write base64 to temp file and use FileSystem.uploadAsync
+        // expo-image-picker encodes as JPEG (UIImageJPEGRepresentation on iOS),
+        // so this avoids HEIC rejection from the backend.
+        const tempPath = `${FileSystem.cacheDirectory}upload_tmp.jpg`;
+        try {
+          await FileSystem.writeAsStringAsync(tempPath, imageBase64, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          const result = await FileSystem.uploadAsync(
+            `${API_BASE_URL}/api/wardrobe/add`,
+            tempPath,
+            {
+              httpMethod: "POST",
+              uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+              fieldName: "file",
+              mimeType:  "image/jpeg",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (result.status !== 200) {
+            throw new Error(`Upload failed: ${result.status} — ${result.body}`);
+          }
+        } finally {
+          FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
+        }
       }
 
-      router.replace("/(tabs)/wardrobe" as any);
+      // Show success overlay briefly before navigating
+      setUploading(false);
+      setUploadSuccess(true);
+      setTimeout(() => {
+        router.replace("/(tabs)/wardrobe" as any);
+      }, 1500);
     } catch (err: any) {
       console.error("Upload failed:", err);
-      setError(err.message || "Upload failed");
+      setError(err.message || "Upload failed. Please try again.");
       setUploading(false);
-    } finally {
-      // Clean up temp file regardless of outcome
-      FileSystem.deleteAsync(tempPath, { idempotent: true }).catch(() => {});
     }
   };
 
-  // Show scanner overlay during upload
-  if (uploading && imageUri) {
-    return <ScannerOverlay imageUri={imageUri} />;
-  }
+  // Show overlays during upload / after success
+  if (uploadSuccess) return <SuccessOverlay />;
+  if (uploading && imageUri) return <ScannerOverlay imageUri={imageUri} />;
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: themeColors.bg }]}>
@@ -263,20 +200,26 @@ const handlePickImage = async () => {
         {/* Pick buttons */}
         <View style={styles.pickRow}>
           <TouchableOpacity
-            style={[styles.pickBtn, { backgroundColor: themeColors.bgDark }]}
+            style={[
+              styles.pickBtn,
+              { backgroundColor: themeColors.bgDark },
+              isWeb && styles.pickBtnFull,
+            ]}
             onPress={handlePickImage}
           >
             <Text style={styles.pickIcon}>🖼</Text>
             <Text style={[styles.pickLabel, { color: themeColors.text }]}>Gallery</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.pickBtn, { backgroundColor: themeColors.bgDark }]}
-            onPress={handleTakePhoto}
-          >
-            <Text style={styles.pickIcon}>📷</Text>
-            <Text style={[styles.pickLabel, { color: themeColors.text }]}>Camera</Text>
-          </TouchableOpacity>
+          {!isWeb && (
+            <TouchableOpacity
+              style={[styles.pickBtn, { backgroundColor: themeColors.bgDark }]}
+              onPress={handleTakePhoto}
+            >
+              <Text style={styles.pickIcon}>📷</Text>
+              <Text style={[styles.pickLabel, { color: themeColors.text }]}>Camera</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Preview */}
@@ -375,6 +318,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
+  pickBtnFull: { flex: 1 },
   pickIcon:  { fontSize: 22 },
   pickLabel: { fontSize: 13, fontWeight: "600" },
 
