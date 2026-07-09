@@ -92,7 +92,10 @@ export default function ChatbotScreen() {
             Authorization: `Bearer ${token}`,
           },
         },
+        console.log(response.data),
       );
+
+      console.log(response.data);
 
       const assistantMessage: ChatMessage = {
         id: `${Date.now()}-assistant`,
@@ -116,213 +119,212 @@ export default function ChatbotScreen() {
     }
   };
 
-return (
-  <View
-    style={[
-      globalStyles.chatScreen,
-      { backgroundColor: themeColors.bg },
-    ]}
-  >
-    <View style={globalStyles.chatContent}>
-      <View
-        style={[
-          isLargeScreen
-            ? [globalStyles.chatHeader, globalStyles.largeChatHeader]
-            : globalStyles.chatHeader,
-          { backgroundColor: themeColors.bg },
-        ]}
-      >
-        <Pressable
-          onPress={() => router.back()}
+  return (
+    <View
+      style={[globalStyles.chatScreen, { backgroundColor: themeColors.bg }]}
+    >
+      <View style={globalStyles.chatContent}>
+        <View
           style={[
             isLargeScreen
-              ? [globalStyles.iconButton, globalStyles.largeIconButton]
-              : globalStyles.iconButton,
-            { backgroundColor: themeColors.card },
+              ? [globalStyles.chatHeader, globalStyles.largeChatHeader]
+              : globalStyles.chatHeader,
+            { backgroundColor: themeColors.bg },
           ]}
         >
-          <MaterialIcons
-            name="chevron-left"
-            size={iconSize}
-            color={themeColors.text}
-          />
-        </Pressable>
-
-        <View>
-          <Text
+          <Pressable
+            onPress={() => router.back()}
             style={[
               isLargeScreen
-                ? [globalStyles.pageTitle, globalStyles.largeSectionTitle]
-                : globalStyles.pageTitle,
-              { color: themeColors.text },
-            ]}
-          >
-            Fashion Bot
-          </Text>
-
-          <Text
-            style={[
-              isLargeScreen
-                ? [globalStyles.bodyText, globalStyles.largeCardText]
-                : globalStyles.bodyText,
-              { color: themeColors.muted },
-            ]}
-          >
-            General styling help and outfit advice
-          </Text>
-        </View>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={
-          isLargeScreen
-            ? [globalStyles.chatContainer, globalStyles.largeChatContainer]
-            : globalStyles.chatContainer
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        {messages.map((message) => {
-          const isUser = message.role === "user";
-
-          return (
-            <View
-              key={message.id}
-              style={[
-                isLargeScreen
-                  ? [
-                      isUser ? globalStyles.userBubble : globalStyles.botBubble,
-                      globalStyles.largeChatBubble,
-                    ]
-                  : isUser
-                    ? globalStyles.userBubble
-                    : globalStyles.botBubble,
-                {
-                  backgroundColor: isUser
-                    ? themeColors.blueDark
-                    : themeColors.card,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  isLargeScreen
-                    ? [
-                        isUser ? globalStyles.userText : globalStyles.botText,
-                        globalStyles.largeChatText,
-                      ]
-                    : isUser
-                      ? globalStyles.userText
-                      : globalStyles.botText,
-                  {
-                    color: isUser ? themeColors.white : themeColors.text,
-                  },
-                ]}
-              >
-                {message.text}
-              </Text>
-            </View>
-          );
-        })}
-
-        {loading ? (
-          <View
-            style={[
-              isLargeScreen
-                ? [globalStyles.botBubble, globalStyles.largeChatBubble]
-                : globalStyles.botBubble,
+                ? [globalStyles.iconButton, globalStyles.largeIconButton]
+                : globalStyles.iconButton,
               { backgroundColor: themeColors.card },
             ]}
           >
-            <ActivityIndicator color={themeColors.blueDark} />
-          </View>
-        ) : null}
+            <MaterialIcons
+              name="chevron-left"
+              size={iconSize}
+              color={themeColors.text}
+            />
+          </Pressable>
 
-        <View style={globalStyles.quickPromptRow}>
-          {quickPrompts.map((prompt) => (
-            <Pressable
-              key={prompt}
+          <View>
+            <Text
               style={[
                 isLargeScreen
-                  ? [globalStyles.quickPrompt, globalStyles.largeQuickPrompt]
-                  : globalStyles.quickPrompt,
-                {
-                  backgroundColor: themeColors.input,
-                  borderColor: themeColors.bgDark,
-                },
+                  ? [globalStyles.pageTitle, globalStyles.largeSectionTitle]
+                  : globalStyles.pageTitle,
+                { color: themeColors.text },
               ]}
-              onPress={() => sendMessage(prompt)}
-              disabled={loading}
             >
-              <Text
+              Fashion Bot
+            </Text>
+
+            <Text
+              style={[
+                isLargeScreen
+                  ? [globalStyles.bodyText, globalStyles.largeCardText]
+                  : globalStyles.bodyText,
+                { color: themeColors.muted },
+              ]}
+            >
+              General styling help and outfit advice
+            </Text>
+          </View>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={
+            isLargeScreen
+              ? [globalStyles.chatContainer, globalStyles.largeChatContainer]
+              : globalStyles.chatContainer
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.map((message) => {
+            const isUser = message.role === "user";
+
+            return (
+              <View
+                key={message.id}
                 style={[
                   isLargeScreen
                     ? [
-                        globalStyles.quickPromptText,
-                        globalStyles.largeQuickPromptText,
+                        isUser
+                          ? globalStyles.userBubble
+                          : globalStyles.botBubble,
+                        globalStyles.largeChatBubble,
                       ]
-                    : globalStyles.quickPromptText,
-                  { color: themeColors.text },
+                    : isUser
+                      ? globalStyles.userBubble
+                      : globalStyles.botBubble,
+                  {
+                    backgroundColor: isUser
+                      ? themeColors.blueDark
+                      : themeColors.card,
+                  },
                 ]}
               >
-                {prompt}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </ScrollView>
+                <Text
+                  style={[
+                    isLargeScreen
+                      ? [
+                          isUser ? globalStyles.userText : globalStyles.botText,
+                          globalStyles.largeChatText,
+                        ]
+                      : isUser
+                        ? globalStyles.userText
+                        : globalStyles.botText,
+                    {
+                      color: isUser ? themeColors.white : themeColors.text,
+                    },
+                  ]}
+                >
+                  {message.text}
+                </Text>
+              </View>
+            );
+          })}
 
-      <View
-        style={[
-          isLargeScreen
-            ? [globalStyles.chatInputBar, globalStyles.largeChatInputBar]
-            : globalStyles.chatInputBar,
-          { backgroundColor: themeColors.card },
-        ]}
-      >
-        <TextInput
-          value={input}
-          onChangeText={setInput}
-          placeholder="Ask a fashion question..."
-          placeholderTextColor={themeColors.blueDark}
+          {loading ? (
+            <View
+              style={[
+                isLargeScreen
+                  ? [globalStyles.botBubble, globalStyles.largeChatBubble]
+                  : globalStyles.botBubble,
+                { backgroundColor: themeColors.card },
+              ]}
+            >
+              <ActivityIndicator color={themeColors.blueDark} />
+            </View>
+          ) : null}
+
+          <View style={globalStyles.quickPromptRow}>
+            {quickPrompts.map((prompt) => (
+              <Pressable
+                key={prompt}
+                style={[
+                  isLargeScreen
+                    ? [globalStyles.quickPrompt, globalStyles.largeQuickPrompt]
+                    : globalStyles.quickPrompt,
+                  {
+                    backgroundColor: themeColors.input,
+                    borderColor: themeColors.bgDark,
+                  },
+                ]}
+                onPress={() => sendMessage(prompt)}
+                disabled={loading}
+              >
+                <Text
+                  style={[
+                    isLargeScreen
+                      ? [
+                          globalStyles.quickPromptText,
+                          globalStyles.largeQuickPromptText,
+                        ]
+                      : globalStyles.quickPromptText,
+                    { color: themeColors.text },
+                  ]}
+                >
+                  {prompt}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
+
+        <View
           style={[
             isLargeScreen
-              ? [globalStyles.chatInput, globalStyles.largeChatInput]
-              : globalStyles.chatInput,
-            {
-              backgroundColor: themeColors.input,
-              color: themeColors.text,
-              borderColor: themeColors.bgDark,
-            },
+              ? [globalStyles.chatInputBar, globalStyles.largeChatInputBar]
+              : globalStyles.chatInputBar,
+            { backgroundColor: themeColors.card },
           ]}
-          multiline
-        />
-
-        <Pressable
-          style={[
-            !canSend
-              ? isLargeScreen
-                ? [
-                    globalStyles.sendButton,
-                    globalStyles.largeSendButton,
-                    globalStyles.disabledButton,
-                  ]
-                : [globalStyles.sendButton, globalStyles.disabledButton]
-              : isLargeScreen
-                ? [globalStyles.sendButton, globalStyles.largeSendButton]
-                : globalStyles.sendButton,
-            { backgroundColor: themeColors.blueDark },
-          ]}
-          onPress={() => sendMessage(input)}
-          disabled={!canSend}
         >
-          <MaterialIcons
-            name="send"
-            size={sendIconSize}
-            color={themeColors.white}
+          <TextInput
+            value={input}
+            onChangeText={setInput}
+            placeholder="Ask a fashion question..."
+            placeholderTextColor={themeColors.blueDark}
+            style={[
+              isLargeScreen
+                ? [globalStyles.chatInput, globalStyles.largeChatInput]
+                : globalStyles.chatInput,
+              {
+                backgroundColor: themeColors.input,
+                color: themeColors.text,
+                borderColor: themeColors.bgDark,
+              },
+            ]}
+            multiline
           />
-        </Pressable>
+
+          <Pressable
+            style={[
+              !canSend
+                ? isLargeScreen
+                  ? [
+                      globalStyles.sendButton,
+                      globalStyles.largeSendButton,
+                      globalStyles.disabledButton,
+                    ]
+                  : [globalStyles.sendButton, globalStyles.disabledButton]
+                : isLargeScreen
+                  ? [globalStyles.sendButton, globalStyles.largeSendButton]
+                  : globalStyles.sendButton,
+              { backgroundColor: themeColors.blueDark },
+            ]}
+            onPress={() => sendMessage(input)}
+            disabled={!canSend}
+          >
+            <MaterialIcons
+              name="send"
+              size={sendIconSize}
+              color={themeColors.white}
+            />
+          </Pressable>
+        </View>
       </View>
     </View>
-  </View>
-);
+  );
 }

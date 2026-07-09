@@ -35,8 +35,14 @@ export default function LocationAutocomplete({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextRef = useRef(false);
 
   useEffect(() => {
+    if (skipNextRef.current) {
+      skipNextRef.current = false;
+      return;
+    }
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (value.trim().length < 2) {
@@ -67,7 +73,9 @@ export default function LocationAutocomplete({
   }, [value]);
 
   const select = (item: string) => {
-    onChangeText(item);
+    const cityOnly = item.split(",")[0].trim();
+    skipNextRef.current = true;
+    onChangeText(cityOnly);
     setSuggestions([]);
     setOpen(false);
   };
