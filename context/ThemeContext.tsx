@@ -1,7 +1,7 @@
 import React from "react";
 
 const light = {
-  bg: "#c1d1bf",
+  bg: "#F5F2EE",
   bgDark: "#a3bea9",
   card: "#eeede8",
   input: "#dae4e2",
@@ -13,6 +13,14 @@ const light = {
   accent: "#FF6B4A",
   white: "#FFFFFF",
   overlayDark: "rgba(0,0,0,0.5)",
+
+  headerBg: "#1C2B25",
+  headerText: "#FFFFFF",
+  headerSubtext: "#B7D1C6",
+  headerGold: "#D9B55A",
+  headerBorder: "rgba(255,255,255,0.18)",
+  headerAvatarBg: "rgba(255,255,255,0.12)",
+
   profileTintGreen: "#00ff0018",
   profileTintBeige: "#ff9d002c",
   profileTintPurple: "#5500ff1f",
@@ -20,6 +28,22 @@ const light = {
   profileTintBlue: "#0099ff27",
   profileTintRed: "#ff000042",
   profileTintPink: "#ff00b321",
+
+  featurePeach: "#E8D5C4",
+  featurePurple: "#D4C9E2",
+  featureGreen: "#C8D8C4",
+  featureDark: "#2A3530",
+  featureBeige: "#E2D9C8",
+  featurePink: "#F0D4CE",
+  featureBlue: "#D4ECEB",
+
+  headerDarkText: "#1C2B25",
+  headerDarkSubtext: "#8FAFA3",
+  headerGradientStart: "#203528",
+  headerGradientEnd: "#5A6C5F",
+  headerCornerStart: "#233728",
+  headerCornerEnd: "#34493B",
+  headerSurface: "#FFFFFF",
 };
 
 const dark = {
@@ -35,6 +59,14 @@ const dark = {
   accent: "#FF8A70",
   white: "#FFFFFF",
   overlayDark: "rgba(0,0,0,0.65)",
+
+  headerBg: "#111C18",
+  headerText: "#FFFFFF",
+  headerSubtext: "#7FA99B",
+  headerGold: "#D9B55A",
+  headerBorder: "rgba(255,255,255,0.14)",
+  headerAvatarBg: "rgba(255,255,255,0.08)",
+
   profileTintGreen: "#6ee7b720",
   profileTintBeige: "#fbbf2426",
   profileTintPurple: "#a78bfa26",
@@ -42,8 +74,23 @@ const dark = {
   profileTintBlue: "#60a5fa26",
   profileTintRed: "#fb718526",
   profileTintPink: "#f472b626",
-};
 
+  featurePeach: "#E8D5C4",
+  featurePurple: "#D4C9E2",
+  featureGreen: "#C8D8C4",
+  featureDark: "#2A3530",
+  featureBeige: "#E2D9C8",
+  featurePink: "#F0D4CE",
+  featureBlue: "#D4ECEB",
+
+  headerDarkText: "#1C2B25",
+  headerDarkSubtext: "#8FAFA3",
+  headerGradientStart: "#203528",
+  headerGradientEnd: "#5A6C5F",
+  headerCornerStart: "#233728",
+  headerCornerEnd: "#34493B",
+  headerSurface: "#FFFFFF",
+};
 export type ThemeColors = typeof light;
 
 export type AppTheme = {

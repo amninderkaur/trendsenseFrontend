@@ -28,15 +28,90 @@ type ClothingItem = {
 
 // ── Category definitions ─────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: "all",         label: "All",         icon: "✦",  keywords: [] },
-  { id: "tops",        label: "Tops",        icon: "👕",  keywords: ["shirt", "t-shirt", "tee", "top", "blouse", "sweater", "hoodie", "jacket", "coat", "blazer", "vest", "cardigan", "polo", "crop"] },
-  { id: "bottoms",     label: "Bottoms",     icon: "👖",  keywords: ["pant", "jean", "short", "skirt", "trouser", "legging", "chino", "jogger"] },
-  { id: "dresses",     label: "Dresses",     icon: "👗",  keywords: ["dress", "gown", "jumpsuit", "romper", "maxi", "midi"] },
-  { id: "shoes",       label: "Shoes",       icon: "👟",  keywords: ["shoe", "sneaker", "boot", "heel", "sandal", "loafer", "flat", "slipper", "oxford"] },
-  { id: "accessories", label: "Accessories", icon: "👜",  keywords: ["bag", "hat", "scarf", "belt", "jewelry", "watch", "sunglass", "necklace", "bracelet", "earring", "purse", "backpack", "wallet", "cap", "beanie"] },
+  { id: "all", label: "All", icon: "✦", keywords: [] },
+  {
+    id: "tops",
+    label: "Tops",
+    icon: "👕",
+    keywords: [
+      "shirt",
+      "t-shirt",
+      "tee",
+      "top",
+      "blouse",
+      "sweater",
+      "hoodie",
+      "jacket",
+      "coat",
+      "blazer",
+      "vest",
+      "cardigan",
+      "polo",
+      "crop",
+    ],
+  },
+  {
+    id: "bottoms",
+    label: "Bottoms",
+    icon: "👖",
+    keywords: [
+      "pant",
+      "jean",
+      "short",
+      "skirt",
+      "trouser",
+      "legging",
+      "chino",
+      "jogger",
+    ],
+  },
+  {
+    id: "dresses",
+    label: "Dresses",
+    icon: "👗",
+    keywords: ["dress", "gown", "jumpsuit", "romper", "maxi", "midi"],
+  },
+  {
+    id: "shoes",
+    label: "Shoes",
+    icon: "👟",
+    keywords: [
+      "shoe",
+      "sneaker",
+      "boot",
+      "heel",
+      "sandal",
+      "loafer",
+      "flat",
+      "slipper",
+      "oxford",
+    ],
+  },
+  {
+    id: "accessories",
+    label: "Accessories",
+    icon: "👜",
+    keywords: [
+      "bag",
+      "hat",
+      "scarf",
+      "belt",
+      "jewelry",
+      "watch",
+      "sunglass",
+      "necklace",
+      "bracelet",
+      "earring",
+      "purse",
+      "backpack",
+      "wallet",
+      "cap",
+      "beanie",
+    ],
+  },
 ] as const;
 
-type CategoryId = typeof CATEGORIES[number]["id"];
+type CategoryId = (typeof CATEGORIES)[number]["id"];
 
 function matchCategory(type: string): CategoryId {
   const t = (type || "").toLowerCase();
@@ -60,30 +135,38 @@ function SkeletonCard({ isDark }: { isDark: boolean }) {
   useEffect(() => {
     const anim = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.9, duration: 700, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.4, duration: 700, useNativeDriver: true }),
-      ])
+        Animated.timing(opacity, {
+          toValue: 0.9,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.4,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
     );
     anim.start();
     return () => anim.stop();
   }, []);
 
-  const base  = isDark ? "#2A3530" : "#E8E0D4";
+  const base = isDark ? "#2A3530" : "#E8E0D4";
   const inner = isDark ? "#1A2220" : "#D0C8BC";
 
   return (
     <Animated.View style={[sk.card, { backgroundColor: base, opacity }]}>
-      <View style={[sk.img,   { backgroundColor: inner }]} />
-      <View style={[sk.line,  { backgroundColor: inner, width: "70%" }]} />
-      <View style={[sk.line,  { backgroundColor: inner, width: "45%" }]} />
+      <View style={[sk.img, { backgroundColor: inner }]} />
+      <View style={[sk.line, { backgroundColor: inner, width: "70%" }]} />
+      <View style={[sk.line, { backgroundColor: inner, width: "45%" }]} />
     </Animated.View>
   );
 }
 
 const sk = StyleSheet.create({
-  card:  { width: "48%", borderRadius: 14, marginBottom: 18, padding: 10 },
-  img:   { width: "100%", height: 150, borderRadius: 10, marginBottom: 10 },
-  line:  { height: 10, borderRadius: 5, marginBottom: 6 },
+  card: { width: "48%", borderRadius: 14, marginBottom: 18, padding: 10 },
+  img: { width: "100%", height: 150, borderRadius: 10, marginBottom: 10 },
+  line: { height: 10, borderRadius: 5, marginBottom: 6 },
 });
 
 // ── Main screen ──────────────────────────────────────────────────────────────
@@ -91,12 +174,12 @@ export default function WardrobeIndex() {
   const router = useRouter();
   const { themeColors, isDarkMode } = useAppTheme();
 
-  const [items,       setItems]       = useState<ClothingItem[]>([]);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState<string | null>(null);
-  const [deletingId,  setDeletingId]  = useState<string | null>(null);
+  const [items, setItems] = useState<ClothingItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmItem, setConfirmItem] = useState<ClothingItem | null>(null);
-  const [activeTab,   setActiveTab]   = useState<CategoryId>("all");
+  const [activeTab, setActiveTab] = useState<CategoryId>("all");
 
   const loadWardrobe = async () => {
     try {
@@ -107,7 +190,8 @@ export default function WardrobeIndex() {
       const response = await fetch(`${API_BASE_URL}/api/wardrobe`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error(`Failed to load wardrobe (${response.status})`);
+      if (!response.ok)
+        throw new Error(`Failed to load wardrobe (${response.status})`);
       const data: ClothingItem[] = await response.json();
       setItems(data);
     } catch (err: any) {
@@ -117,7 +201,11 @@ export default function WardrobeIndex() {
     }
   };
 
-  useFocusEffect(useCallback(() => { loadWardrobe(); }, []));
+  useFocusEffect(
+    useCallback(() => {
+      loadWardrobe();
+    }, []),
+  );
 
   const goBack = () => {
     if (router.canGoBack()) router.back();
@@ -159,17 +247,24 @@ export default function WardrobeIndex() {
           style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
           onPress={goBack}
         >
-          <Text style={[styles.backButtonText, { color: themeColors.text }]}>← Back</Text>
+          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
+            ← Back
+          </Text>
         </TouchableOpacity>
 
-        <Text style={[styles.title, { color: themeColors.text }]}>My Wardrobe</Text>
+        <Text style={[styles.title, { color: themeColors.text }]}>
+          My Wardrobe
+        </Text>
 
         {/* Category tabs skeleton */}
         <View style={styles.tabRow}>
           {CATEGORIES.map((cat) => (
             <View
               key={cat.id}
-              style={[styles.tabSkeleton, { backgroundColor: isDarkMode ? "#2A3530" : "#E8E0D4" }]}
+              style={[
+                styles.tabSkeleton,
+                { backgroundColor: isDarkMode ? "#2A3530" : "#E8E0D4" },
+              ]}
             />
           ))}
         </View>
@@ -189,12 +284,19 @@ export default function WardrobeIndex() {
     return (
       <View style={[styles.centered, { backgroundColor: themeColors.bg }]}>
         <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: themeColors.bgDark, marginBottom: 24 }]}
+          style={[
+            styles.backButton,
+            { backgroundColor: themeColors.bgDark, marginBottom: 24 },
+          ]}
           onPress={goBack}
         >
-          <Text style={[styles.backButtonText, { color: themeColors.text }]}>← Back</Text>
+          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
+            ← Back
+          </Text>
         </TouchableOpacity>
-        <Text style={[styles.errorText, { color: themeColors.accent }]}>{error}</Text>
+        <Text style={[styles.errorText, { color: themeColors.accent }]}>
+          {error}
+        </Text>
       </View>
     );
   }
@@ -206,7 +308,9 @@ export default function WardrobeIndex() {
       <Modal visible={!!confirmItem} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={[styles.modalBox, { backgroundColor: themeColors.bg }]}>
-            <Text style={[styles.modalTitle, { color: themeColors.text }]}>Remove Item</Text>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>
+              Remove Item
+            </Text>
             <Text style={[styles.modalMessage, { color: themeColors.muted }]}>
               Remove this{" "}
               <Text style={{ fontWeight: "700", color: themeColors.text }}>
@@ -215,18 +319,30 @@ export default function WardrobeIndex() {
               from your wardrobe? This cannot be undone.
             </Text>
             <TouchableOpacity
-              style={[styles.modalDeleteBtn, { backgroundColor: themeColors.accent }]}
+              style={[
+                styles.modalDeleteBtn,
+                { backgroundColor: themeColors.accent },
+              ]}
               onPress={deleteItem}
             >
-              <Text style={[styles.modalDeleteText, { color: themeColors.white }]}>
+              <Text
+                style={[styles.modalDeleteText, { color: themeColors.white }]}
+              >
                 Yes, Remove
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.modalCancelBtn, { backgroundColor: themeColors.bgDark }]}
+              style={[
+                styles.modalCancelBtn,
+                { backgroundColor: themeColors.bgDark },
+              ]}
               onPress={() => setConfirmItem(null)}
             >
-              <Text style={[styles.modalCancelText, { color: themeColors.white }]}>Cancel</Text>
+              <Text
+                style={[styles.modalCancelText, { color: themeColors.white }]}
+              >
+                Cancel
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -240,11 +356,25 @@ export default function WardrobeIndex() {
           style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
           onPress={goBack}
         >
-          <Text style={[styles.backButtonText, { color: themeColors.text }]}>← Back</Text>
+          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
+            ← Back
+          </Text>
         </TouchableOpacity>
 
-        <Text style={[styles.title, { color: themeColors.text }]}>My Wardrobe</Text>
+        <View style={styles.headerRow}>
+          <Text style={[styles.title, { color: themeColors.text }]}>
+            My Wardrobe
+          </Text>
 
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: themeColors.button }]}
+            onPress={() => router.push("/(tabs)/upload-clothes" as any)}
+          >
+            <Text style={[styles.addButtonText, { color: themeColors.white }]}>
+              + Add Clothing
+            </Text>
+          </TouchableOpacity>
+        </View>
         {/* ── Category tabs ── */}
         <ScrollView
           horizontal
@@ -252,7 +382,7 @@ export default function WardrobeIndex() {
           contentContainerStyle={styles.tabRow}
         >
           {CATEGORIES.map((cat) => {
-            const count   = countForCategory(items, cat.id);
+            const count = countForCategory(items, cat.id);
             const isActive = activeTab === cat.id;
             return (
               <TouchableOpacity
@@ -261,17 +391,34 @@ export default function WardrobeIndex() {
                   styles.tab,
                   isActive
                     ? { backgroundColor: "#C9A96E", borderColor: "#C9A96E" }
-                    : { backgroundColor: isDarkMode ? "#1A2220" : "#FFF", borderColor: isDarkMode ? "#2A3530" : "#EDE8E0" },
+                    : {
+                        backgroundColor: isDarkMode ? "#1A2220" : "#FFF",
+                        borderColor: isDarkMode ? "#2A3530" : "#EDE8E0",
+                      },
                 ]}
                 onPress={() => setActiveTab(cat.id)}
                 activeOpacity={0.75}
               >
                 <Text style={styles.tabIcon}>{cat.icon}</Text>
-                <Text style={[styles.tabLabel, { color: isActive ? "#fff" : themeColors.text }]}>
+                <Text
+                  style={[
+                    styles.tabLabel,
+                    { color: isActive ? "#fff" : themeColors.text },
+                  ]}
+                >
                   {cat.label}
                 </Text>
                 {count > 0 && (
-                  <View style={[styles.tabBadge, { backgroundColor: isActive ? "rgba(255,255,255,0.3)" : "#C9A96E" }]}>
+                  <View
+                    style={[
+                      styles.tabBadge,
+                      {
+                        backgroundColor: isActive
+                          ? "rgba(255,255,255,0.3)"
+                          : "#C9A96E",
+                      },
+                    ]}
+                  >
                     <Text style={styles.tabBadgeText}>{count}</Text>
                   </View>
                 )}
@@ -284,7 +431,9 @@ export default function WardrobeIndex() {
         {filteredItems.length === 0 ? (
           <View style={styles.emptyWrap}>
             <Text style={styles.emptyIcon}>
-              {activeTab === "all" ? "👗" : CATEGORIES.find((c) => c.id === activeTab)?.icon ?? "✦"}
+              {activeTab === "all"
+                ? "👗"
+                : (CATEGORIES.find((c) => c.id === activeTab)?.icon ?? "✦")}
             </Text>
             <Text style={[styles.emptyText, { color: themeColors.text }]}>
               {activeTab === "all"
@@ -309,8 +458,13 @@ export default function WardrobeIndex() {
                   activeOpacity={0.85}
                 >
                   <Image
-                    source={{ uri: `data:image/png;base64,${item.generatedImageBase64}` }}
-                    style={[styles.image, { backgroundColor: themeColors.input }]}
+                    source={{
+                      uri: `data:image/png;base64,${item.generatedImageBase64}`,
+                    }}
+                    style={[
+                      styles.image,
+                      { backgroundColor: themeColors.input },
+                    ]}
                     resizeMode="cover"
                   />
                   <Text style={[styles.itemName, { color: themeColors.text }]}>
@@ -318,14 +472,28 @@ export default function WardrobeIndex() {
                   </Text>
                   <View style={styles.tagContainer}>
                     {item.tags?.style && (
-                      <Text style={[styles.tag, { backgroundColor: themeColors.blueDark, color: themeColors.text }]}>
+                      <Text
+                        style={[
+                          styles.tag,
+                          {
+                            backgroundColor: themeColors.blueDark,
+                            color: themeColors.text,
+                          },
+                        ]}
+                      >
                         {item.tags.style}
                       </Text>
                     )}
                     {item.tags?.occasion?.map((occ) => (
                       <Text
                         key={occ}
-                        style={[styles.tag, { backgroundColor: themeColors.blueDark, color: themeColors.text }]}
+                        style={[
+                          styles.tag,
+                          {
+                            backgroundColor: themeColors.blueDark,
+                            color: themeColors.text,
+                          },
+                        ]}
                       >
                         {occ}
                       </Text>
@@ -334,11 +502,18 @@ export default function WardrobeIndex() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.deleteButton, { backgroundColor: themeColors.accent }]}
+                  style={[
+                    styles.deleteButton,
+                    { backgroundColor: themeColors.accent },
+                  ]}
                   onPress={() => setConfirmItem(item)}
                   disabled={deletingId === item.id}
                 >
-                  <Text style={[styles.deleteText, { color: themeColors.white }]}>Remove</Text>
+                  <Text
+                    style={[styles.deleteText, { color: themeColors.white }]}
+                  >
+                    Remove
+                  </Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -387,7 +562,7 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 999,
   },
-  tabIcon:  { fontSize: 13 },
+  tabIcon: { fontSize: 13 },
   tabLabel: { fontSize: 13, fontWeight: "600" },
   tabBadge: {
     minWidth: 18,
@@ -542,5 +717,22 @@ const styles = StyleSheet.create({
   modalCancelText: {
     fontWeight: "700",
     fontSize: 16,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  addButton: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 999,
+  },
+
+  addButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
   },
 });

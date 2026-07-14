@@ -1,4 +1,3 @@
-import { colors } from "../../../constants/globalStyles";
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
@@ -27,7 +26,10 @@ type ClothingItem = {
 };
 
 export default function ClothingDetails() {
-  const { outfitId } = useLocalSearchParams<{ outfitId: string }>();
+  const { outfitId, from } = useLocalSearchParams<{
+    outfitId: string;
+    from?: string;
+  }>();
   const router = useRouter();
   const { themeColors } = useAppTheme();
 
@@ -61,11 +63,12 @@ export default function ClothingDetails() {
   }, [outfitId]);
 
   const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/wardrobe" as any);
+    if (from === "home") {
+      router.replace("/(tabs)/mainMenu" as any);
+      return;
     }
+
+    router.replace("/(tabs)/wardrobe" as any);
   };
 
   const handleDelete = async () => {
@@ -90,37 +93,19 @@ export default function ClothingDetails() {
 
   if (loading) {
     return (
-      <View
-        style={[
-          styles.center,
-          { backgroundColor: themeColors.bg },
-        ]}
-      >
+      <View style={[styles.center, { backgroundColor: themeColors.bg }]}>
         <TouchableOpacity
-          style={[
-            styles.backButton,
-            { backgroundColor: themeColors.bgDark },
-          ]}
+          style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
           onPress={goBack}
         >
-          <Text
-            style={[
-              styles.backButtonText,
-              { color: themeColors.text },
-            ]}
-          >
+          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
             ← Back
           </Text>
         </TouchableOpacity>
 
         <ActivityIndicator size="large" color={themeColors.blueDark} />
 
-        <Text
-          style={[
-            styles.loadingText,
-            { color: themeColors.blueDark },
-          ]}
-        >
+        <Text style={[styles.loadingText, { color: themeColors.blueDark }]}>
           Loading...
         </Text>
       </View>
@@ -129,35 +114,17 @@ export default function ClothingDetails() {
 
   if (!item) {
     return (
-      <View
-        style={[
-          styles.center,
-          { backgroundColor: themeColors.bg },
-        ]}
-      >
+      <View style={[styles.center, { backgroundColor: themeColors.bg }]}>
         <TouchableOpacity
-          style={[
-            styles.backButton,
-            { backgroundColor: themeColors.bgDark },
-          ]}
+          style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
           onPress={goBack}
         >
-          <Text
-            style={[
-              styles.backButtonText,
-              { color: themeColors.text },
-            ]}
-          >
+          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
             ← Back
           </Text>
         </TouchableOpacity>
 
-        <Text
-          style={[
-            styles.errorText,
-            { color: themeColors.accent },
-          ]}
-        >
+        <Text style={[styles.errorText, { color: themeColors.accent }]}>
           Item not found.
         </Text>
       </View>
@@ -168,27 +135,12 @@ export default function ClothingDetails() {
     <>
       <Modal visible={showConfirm} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalBox,
-              { backgroundColor: themeColors.bg },
-            ]}
-          >
-            <Text
-              style={[
-                styles.modalTitle,
-                { color: themeColors.text },
-              ]}
-            >
+          <View style={[styles.modalBox, { backgroundColor: themeColors.bg }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>
               Remove Item
             </Text>
 
-            <Text
-              style={[
-                styles.modalMessage,
-                { color: themeColors.muted },
-              ]}
-            >
+            <Text style={[styles.modalMessage, { color: themeColors.muted }]}>
               Remove this{" "}
               <Text style={{ fontWeight: "700", color: themeColors.text }}>
                 {item.tags?.color} {item.tags?.type}
@@ -204,10 +156,7 @@ export default function ClothingDetails() {
               onPress={handleDelete}
             >
               <Text
-                style={[
-                  styles.modalDeleteText,
-                  { color: themeColors.white },
-                ]}
+                style={[styles.modalDeleteText, { color: themeColors.white }]}
               >
                 Yes, Remove
               </Text>
@@ -221,10 +170,7 @@ export default function ClothingDetails() {
               onPress={() => setShowConfirm(false)}
             >
               <Text
-                style={[
-                  styles.modalCancelText,
-                  { color: themeColors.white },
-                ]}
+                style={[styles.modalCancelText, { color: themeColors.white }]}
               >
                 Cancel
               </Text>
@@ -234,25 +180,14 @@ export default function ClothingDetails() {
       </Modal>
 
       <ScrollView
-        style={[
-          styles.container,
-          { backgroundColor: themeColors.bg },
-        ]}
+        style={[styles.container, { backgroundColor: themeColors.bg }]}
         contentContainerStyle={styles.content}
       >
         <TouchableOpacity
-          style={[
-            styles.backButton,
-            { backgroundColor: themeColors.bgDark },
-          ]}
+          style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
           onPress={goBack}
         >
-          <Text
-            style={[
-              styles.backButtonText,
-              { color: themeColors.text },
-            ]}
-          >
+          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
             ← Back
           </Text>
         </TouchableOpacity>
@@ -261,39 +196,21 @@ export default function ClothingDetails() {
           source={{
             uri: `data:image/png;base64,${item.generatedImageBase64}`,
           }}
-          style={[
-            styles.image,
-            { borderColor: themeColors.bgDark },
-          ]}
+          style={[styles.image, { borderColor: themeColors.bgDark }]}
           resizeMode="cover"
         />
 
-        <Text
-          style={[
-            styles.itemName,
-            { color: themeColors.text },
-          ]}
-        >
+        <Text style={[styles.itemName, { color: themeColors.text }]}>
           {item.tags?.color} {item.tags?.type}
         </Text>
 
         {item.tags?.style && (
           <>
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: themeColors.text },
-              ]}
-            >
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
               Style
             </Text>
 
-            <Text
-              style={[
-                styles.detail,
-                { color: themeColors.blueDark },
-              ]}
-            >
+            <Text style={[styles.detail, { color: themeColors.blueDark }]}>
               {item.tags.style}
             </Text>
           </>
@@ -301,12 +218,7 @@ export default function ClothingDetails() {
 
         {item.tags?.occasion?.length > 0 && (
           <>
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: themeColors.text },
-              ]}
-            >
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
               Occasions
             </Text>
 
@@ -314,17 +226,9 @@ export default function ClothingDetails() {
               {item.tags.occasion.map((occ) => (
                 <View
                   key={occ}
-                  style={[
-                    styles.tag,
-                    { backgroundColor: themeColors.blue },
-                  ]}
+                  style={[styles.tag, { backgroundColor: themeColors.blue }]}
                 >
-                  <Text
-                    style={[
-                      styles.tagText,
-                      { color: themeColors.text },
-                    ]}
-                  >
+                  <Text style={[styles.tagText, { color: themeColors.text }]}>
                     {occ}
                   </Text>
                 </View>
@@ -345,12 +249,7 @@ export default function ClothingDetails() {
           {deleting ? (
             <ActivityIndicator color={themeColors.white} />
           ) : (
-            <Text
-              style={[
-                styles.deleteText,
-                { color: themeColors.white },
-              ]}
-            >
+            <Text style={[styles.deleteText, { color: themeColors.white }]}>
               Remove from Wardrobe
             </Text>
           )}
