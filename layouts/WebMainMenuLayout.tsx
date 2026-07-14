@@ -1,10 +1,13 @@
+import ColourSeasonCard from "@/components/MainMenu/Cards/ColorSeasonCard";
+import LookHistoryCard from "@/components/MainMenu/Cards/LookHistoryCard";
+import OutfitReviewCard from "@/components/MainMenu/Cards/OutfitReviewCard";
+import SavedLooksCard from "@/components/MainMenu/Cards/SavedLooksCard";
+import FeatureGrid from "@/components/MainMenu/FeatureGrid";
 import HomeHeader from "@/components/MainMenu/HomeHeader";
 import StatsCard from "@/components/MainMenu/StatsCard";
 import WardrobeCarousel from "@/components/MainMenu/WardrobeCarousel";
 import WelcomeCard from "@/components/MainMenu/WelcomeSection";
 import { useAppTheme } from "@/context/ThemeContext";
-import OutfitReviewCard from "@/components/MainMenu/Cards/OutfitReviewCard";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -97,199 +100,12 @@ export default function WebMainMenuLayout() {
           </View>
         </View>
 
-        {/* ── FEATURE GRID ── */}
-        <View style={s.section}>
-          {/* Row 1: AI Styling (tall) + right column */}
-          <View style={s.gridRow}>
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[s.cardTall, { backgroundColor: "#E8D5C4" }]}
-              onPress={() => router.push("/(tabs)/outfit-review" as any)}
-            >
-              <View style={s.badge}>
-                <Text style={s.badgeTxt}>AI</Text>
-              </View>
-              <Text style={[s.cardIcon, { color: themeColors.text }]}>✦</Text>
-              <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                AI Styling
-              </Text>
-              <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                Outfits{"\n"}made for you
-              </Text>
-            </TouchableOpacity>
-
-            <View style={s.colRight}>
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={[s.cardShort, { backgroundColor: "#D4C9E2" }]}
-                onPress={() => router.push("/(tabs)/colour-analysis" as any)}
-              >
-                <Text style={[s.cardIcon, { color: themeColors.text }]}>◈</Text>
-                <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                  Colour Season
-                </Text>
-                <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                  Discover your palette
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={[s.cardShort, { backgroundColor: "#C8D8C4" }]}
-                onPress={() => router.push("/(tabs)/saved-items" as any)}
-              >
-                <Text style={[s.cardIcon, { color: themeColors.text }]}>♡</Text>
-                <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                  Saved Looks
-                </Text>
-                <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                  Pieces you love
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Row 2: Look History full width */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[s.cardWide, { backgroundColor: "#2A3530" }]}
-            onPress={() => router.push("/(tabs)/history" as any)}
-          >
-            <View style={s.cardWideInner}>
-              <View>
-                <Text style={[s.cardLabel, { color: themeColors.white }]}>
-                  Look History
-                </Text>
-                <Text style={[s.cardSub, { color: "rgba(255,255,255,0.5)" }]}>
-                  Revisit your past outfits
-                </Text>
-              </View>
-              <Text
-                style={[
-                  s.cardIcon,
-                  { color: "rgba(255,255,255,0.6)", marginBottom: 0 },
-                ]}
-              >
-                ○
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Body Analysis */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[s.cardWide, { backgroundColor: "#E2D4EC" }]}
-            onPress={() => router.push("/(tabs)/body-analysis" as any)}
-          >
-            <View style={s.cardWideInner}>
-              <View>
-                <Text style={s.cardLabel}>Body Analysis</Text>
-                <Text style={s.cardSub}>Find your shape & style</Text>
-              </View>
-              <Text style={[s.cardIcon, { marginBottom: 0 }]}>🧍</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Row 3: Budget + Trip */}
-          <View style={s.gridRow}>
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[s.cardHalf, { backgroundColor: "#E2D9C8" }]}
-              onPress={() => router.push("/(tabs)/budgeting" as any)}
-            >
-              <Text style={[s.cardIcon, { color: themeColors.text }]}>◇</Text>
-              <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                Style Budget
-              </Text>
-              <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                Spend with purpose
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[s.cardHalf, { backgroundColor: "#F0D4CE" }]}
-              onPress={() => router.push("/(tabs)/trip-packing" as any)}
-            >
-              <Text style={[s.cardIcon, { color: themeColors.text }]}>◻</Text>
-              <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                Trip Edit
-              </Text>
-              <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                Pack with intention
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Row 4: Trends */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[s.cardWide, { backgroundColor: "#D4ECEB" }]}
-            onPress={() => router.push("/(tabs)/trends" as any)}
-          >
-            <View style={s.cardWideInner}>
-              <View>
-                <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                  Trends
-                </Text>
-                <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                  What's in style right now
-                </Text>
-              </View>
-              <Text
-                style={[
-                  s.cardIcon,
-                  { color: themeColors.text, marginBottom: 0 },
-                ]}
-              >
-                📈
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── QUICK ADD ── */}
-        <View style={s.section}>
-          <Text style={[s.sectionLabel, { color: themeColors.muted }]}>
-            ADD TO YOUR EDIT
-          </Text>
-          <View style={s.quickRow}>
-            <TouchableOpacity
-              style={[
-                s.quickBtnLight,
-                {
-                  backgroundColor: themeColors.card,
-                  borderColor: themeColors.input,
-                },
-              ]}
-              activeOpacity={0.8}
-              onPress={() => router.push("/(tabs)/upload-clothes" as any)}
-            >
-              <Text style={s.quickIco}>📷</Text>
-              <Text style={[s.quickTxt, { color: themeColors.text }]}>
-                Add Clothing
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={{ flex: 1 }}
-              onPress={() => router.push("/(tabs)/upload-outfit" as any)}
-            >
-              <LinearGradient
-                colors={["#2A3D35", "#1C2B25"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={s.quickBtnDark}
-              >
-                <Text style={s.quickIco}>✦</Text>
-                <Text style={[s.quickTxt, { color: themeColors.white }]}>
-                  Get Styled
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <FeatureGrid>
+          <OutfitReviewCard />
+          <SavedLooksCard />
+          <LookHistoryCard />
+          <ColourSeasonCard />
+        </FeatureGrid>
       </ScrollView>
     </SafeAreaView>
   );
