@@ -96,23 +96,13 @@ export default function WebMainMenuLayout() {
           {/* ── HEADER ── */}
           <HomeHeader avatarUri={avatarUri} userName={displayName} />
 
-          <View
-            style={[
-              s.dashboardTop,
-              isCompact && s.dashboardTopCompact,
-            ]}
-          >
+          <View style={[s.dashboardTop, isCompact && s.dashboardTopCompact]}>
             <WelcomeCard
               userName={displayName.split(" ")[0]}
               style={s.welcomeCardStretch}
             />
 
-            <View
-              style={[
-                s.rightColumn,
-                isCompact && s.rightColumnCompact,
-              ]}
-            >
+            <View style={[s.rightColumn, isCompact && s.rightColumnCompact]}>
               <StatsCard />
 
               <WardrobeCarousel />
@@ -121,10 +111,10 @@ export default function WebMainMenuLayout() {
 
           <FeatureGrid>
             <OutfitReviewCard />
+            <BodyAnalysisCard />
+            <ColourSeasonCard />
             <SavedLooksCard />
             <LookHistoryCard />
-            <ColourSeasonCard />
-            <BodyAnalysisCard />
             <TripPackingCard />
             <StyleBudgetCard />
             <TrendsCard />

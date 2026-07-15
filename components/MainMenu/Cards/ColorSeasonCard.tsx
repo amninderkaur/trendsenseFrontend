@@ -1,4 +1,5 @@
 import { getProfile } from "@/api/profile";
+import { type ThemeColors, useAppTheme } from "@/context/ThemeContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -45,20 +46,20 @@ export type SeasonKey =
   | "brightWinter";
 
 type SeasonDesign = {
-  backgroundColor: string;
-  accentColor: string;
-  detailColor: string;
-  buttonColor: string;
+  backgroundColor: keyof ThemeColors;
+  accentColor: keyof ThemeColors;
+  detailColor: keyof ThemeColors;
+  buttonColor: keyof ThemeColors;
   displayName: string;
   description: string;
   traits: readonly [string, string, string];
 };
 
 const DEFAULT_DESIGN: SeasonDesign = {
-  backgroundColor: "#E7DCEF",
-  accentColor: "#BCA8CB",
-  detailColor: "#806293",
-  buttonColor: "rgba(96, 67, 117, 0.14)",
+  backgroundColor: "colourSeasonDefaultBg",
+  accentColor: "colourSeasonDefaultAccent",
+  detailColor: "colourSeasonDefaultDetail",
+  buttonColor: "colourSeasonDefaultButton",
   displayName: "Colour Season",
   description: "Discover the colours that suit you best.",
   traits: ["Discover", "Define", "Glow"],
@@ -66,10 +67,10 @@ const DEFAULT_DESIGN: SeasonDesign = {
 
 const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   lightSpring: {
-    backgroundColor: "#FFF5F2",
-    accentColor: "#EFAFAF",
-    detailColor: "#C98282",
-    buttonColor: "rgba(224, 139, 139, 0.24)",
+    backgroundColor: "lightSpringBg",
+    accentColor: "lightSpringAccent",
+    detailColor: "lightSpringDetail",
+    buttonColor: "lightSpringButton",
     displayName: "Light Spring",
     description:
       "You are warm, light and bright. These fresh, clear colours bring out your natural glow.",
@@ -77,10 +78,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   trueSpring: {
-    backgroundColor: "#F4D6A8",
-    accentColor: "#EAAF62",
-    detailColor: "#B9682F",
-    buttonColor: "rgba(153, 93, 32, 0.14)",
+    backgroundColor: "trueSpringBg",
+    accentColor: "trueSpringAccent",
+    detailColor: "trueSpringDetail",
+    buttonColor: "trueSpringButton",
     displayName: "True Spring",
     description:
       "You are warm, clear and lively. Fresh, sunlit colours reflect your natural energy.",
@@ -88,10 +89,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   brightSpring: {
-    backgroundColor: "#F6D2B5",
-    accentColor: "#F29C74",
-    detailColor: "#C55F39",
-    buttonColor: "rgba(162, 75, 54, 0.14)",
+    backgroundColor: "brightSpringBg",
+    accentColor: "brightSpringAccent",
+    detailColor: "brightSpringDetail",
+    buttonColor: "brightSpringButton",
     displayName: "Bright Spring",
     description:
       "You are bright, warm and clear. Vivid, playful colours make your features shine.",
@@ -99,10 +100,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   lightSummer: {
-    backgroundColor: "#DFE4F1",
-    accentColor: "#B8C6DD",
-    detailColor: "#6F83A8",
-    buttonColor: "rgba(76, 93, 130, 0.14)",
+    backgroundColor: "lightSummerBg",
+    accentColor: "lightSummerAccent",
+    detailColor: "lightSummerDetail",
+    buttonColor: "lightSummerButton",
     displayName: "Light Summer",
     description:
       "You are cool, light and gentle. Airy pastels enhance your soft, delicate colouring.",
@@ -110,10 +111,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   trueSummer: {
-    backgroundColor: "#D8DFEB",
-    accentColor: "#A9B8D0",
-    detailColor: "#617699",
-    buttonColor: "rgba(69, 87, 127, 0.14)",
+    backgroundColor: "trueSummerBg",
+    accentColor: "trueSummerAccent",
+    detailColor: "trueSummerDetail",
+    buttonColor: "trueSummerButton",
     displayName: "True Summer",
     description:
       "You are cool, calm and softly blended. Refined, blue-based shades bring harmony.",
@@ -121,10 +122,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   softSummer: {
-    backgroundColor: "#DDDCE5",
-    accentColor: "#B8B4C7",
-    detailColor: "#7B748D",
-    buttonColor: "rgba(91, 83, 112, 0.14)",
+    backgroundColor: "softSummerBg",
+    accentColor: "softSummerAccent",
+    detailColor: "softSummerDetail",
+    buttonColor: "softSummerButton",
     displayName: "Soft Summer",
     description:
       "You are soft, cool and muted. Smoky, blended colours complement your subtle beauty.",
@@ -132,10 +133,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   softAutumn: {
-    backgroundColor: "#E6D7C2",
-    accentColor: "#C8AD87",
-    detailColor: "#8E6F4C",
-    buttonColor: "rgba(112, 84, 52, 0.14)",
+    backgroundColor: "softAutumnBg",
+    accentColor: "softAutumnAccent",
+    detailColor: "softAutumnDetail",
+    buttonColor: "softAutumnButton",
     displayName: "Soft Autumn",
     description:
       "You are soft, warm and muted. Gentle earth tones create an effortless natural glow.",
@@ -143,10 +144,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   trueAutumn: {
-    backgroundColor: "#DFCAA8",
-    accentColor: "#B98954",
-    detailColor: "#85582E",
-    buttonColor: "rgba(113, 67, 31, 0.15)",
+    backgroundColor: "trueAutumnBg",
+    accentColor: "trueAutumnAccent",
+    detailColor: "trueAutumnDetail",
+    buttonColor: "trueAutumnButton",
     displayName: "True Autumn",
     description:
       "You are warm, rich and earthy. Golden, spiced colours echo your natural warmth.",
@@ -154,10 +155,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   deepAutumn: {
-    backgroundColor: "#D5C0AD",
-    accentColor: "#8B654D",
-    detailColor: "#65422F",
-    buttonColor: "rgba(77, 49, 34, 0.16)",
+    backgroundColor: "deepAutumnBg",
+    accentColor: "deepAutumnAccent",
+    detailColor: "deepAutumnDetail",
+    buttonColor: "deepAutumnButton",
     displayName: "Deep Autumn",
     description:
       "You are deep, warm and rich. Dark earth tones and jewel shades add striking depth.",
@@ -165,10 +166,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   deepWinter: {
-    backgroundColor: "#D5D7E4",
-    accentColor: "#777E9E",
-    detailColor: "#50597C",
-    buttonColor: "rgba(53, 57, 92, 0.15)",
+    backgroundColor: "deepWinterBg",
+    accentColor: "deepWinterAccent",
+    detailColor: "deepWinterDetail",
+    buttonColor: "deepWinterButton",
     displayName: "Deep Winter",
     description:
       "You are deep, cool and clear. Saturated jewel tones create elegant contrast.",
@@ -176,10 +177,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   trueWinter: {
-    backgroundColor: "#DDE1EA",
-    accentColor: "#8E9AB8",
-    detailColor: "#59698D",
-    buttonColor: "rgba(52, 67, 105, 0.14)",
+    backgroundColor: "trueWinterBg",
+    accentColor: "trueWinterAccent",
+    detailColor: "trueWinterDetail",
+    buttonColor: "trueWinterButton",
     displayName: "True Winter",
     description:
       "You are cool, clear and contrasted. Crisp, icy colours highlight your definition.",
@@ -187,10 +188,10 @@ const SEASON_DESIGNS: Record<SeasonKey, SeasonDesign> = {
   },
 
   brightWinter: {
-    backgroundColor: "#E5DDEA",
-    accentColor: "#B28DC0",
-    detailColor: "#805A91",
-    buttonColor: "rgba(104, 59, 120, 0.14)",
+    backgroundColor: "brightWinterBg",
+    accentColor: "brightWinterAccent",
+    detailColor: "brightWinterDetail",
+    buttonColor: "brightWinterButton",
     displayName: "Bright Winter",
     description:
       "You are bright, cool and clear. Electric jewel tones amplify your vivid presence.",
@@ -227,6 +228,7 @@ type Props = {
 
 export default function ColourSeasonCard({ previewSeason }: Props) {
   const router = useRouter();
+  const { themeColors } = useAppTheme();
   const { width } = useWindowDimensions();
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
@@ -284,6 +286,12 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
 
   const seasonKey = previewSeason ?? seasonNameToKey(season);
   const design = seasonKey ? SEASON_DESIGNS[seasonKey] : DEFAULT_DESIGN;
+  const designColors = {
+    backgroundColor: themeColors[design.backgroundColor],
+    accentColor: themeColors[design.accentColor],
+    detailColor: themeColors[design.detailColor],
+    buttonColor: themeColors[design.buttonColor],
+  };
 
   const hasAnalysis = seasonKey !== null;
   const seasonImage = seasonKey
@@ -300,14 +308,15 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
       style={[
         s.card,
         {
-          backgroundColor: design.backgroundColor,
+          backgroundColor: designColors.backgroundColor,
+          shadowColor: themeColors.colourSeasonShadow,
         },
       ]}
       onPress={openColourAnalysis}
     >
       {loading ? (
         <View style={s.loadingWrap}>
-          <ActivityIndicator color="#1D3225" />
+          <ActivityIndicator color={themeColors.colourSeasonText} />
         </View>
       ) : hasAnalysis ? (
         <>
@@ -315,7 +324,7 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
             <Text
               style={[
                 s.analyzedEyebrow,
-                { color: design.detailColor, fontSize: eyebrowSize },
+                { color: designColors.detailColor, fontSize: eyebrowSize },
               ]}
             >
               YOUR COLOUR SEASON
@@ -325,18 +334,18 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
               <Text
                 style={[
                   s.analyzedTitle,
-                  { fontSize: titleSize, lineHeight: titleSize + 4 },
+                  { color: themeColors.colourSeasonText, fontSize: titleSize, lineHeight: titleSize + 4 },
                 ]}
               >
                 {design.displayName}
               </Text>
-              <Text style={[s.titleSparkle, { color: design.detailColor }]}>✦</Text>
+              <Text style={[s.titleSparkle, { color: designColors.detailColor }]}>✦</Text>
             </View>
 
             <Text
               style={[
                 s.analyzedDescription,
-                { fontSize: subtitleSize, lineHeight: subtitleSize + 6 },
+                { color: themeColors.colourSeasonSubtext, fontSize: subtitleSize, lineHeight: subtitleSize + 6 },
               ]}
               numberOfLines={4}
             >
@@ -346,23 +355,23 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
             <View
               style={[
                 s.analyzedButton,
-                { backgroundColor: design.buttonColor },
+                { backgroundColor: designColors.buttonColor },
               ]}
             >
-              <Text style={[s.buttonText, { fontSize: buttonTextSize }]}> 
+              <Text style={[s.buttonText, { color: themeColors.colourSeasonText, fontSize: buttonTextSize }]}> 
                 View your full palette
               </Text>
-              <Text style={s.buttonArrow}>→</Text>
+              <Text style={[s.buttonArrow, { color: themeColors.colourSeasonText }]}>→</Text>
             </View>
 
             <View style={s.traitsRow}>
-              <Text style={[s.paletteIcon, { color: design.detailColor }]}>◉</Text>
+              <Text style={[s.paletteIcon, { color: designColors.detailColor }]}>◉</Text>
               {design.traits.map((trait, index) => (
                 <React.Fragment key={trait}>
                   {index > 0 && (
-                    <Text style={[s.traitDot, { color: design.detailColor }]}>•</Text>
+                    <Text style={[s.traitDot, { color: designColors.detailColor }]}>•</Text>
                   )}
-                  <Text style={s.traitText}>{trait}</Text>
+                  <Text style={[s.traitText, { color: themeColors.colourSeasonText }]}>{trait}</Text>
                 </React.Fragment>
               ))}
             </View>
@@ -372,37 +381,37 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
             <View
               style={[
                 s.analyzedBackdrop,
-                { backgroundColor: design.accentColor },
+                { backgroundColor: designColors.accentColor },
               ]}
             />
-            <View style={s.flowerImageFrame}>
+            <View style={[s.flowerImageFrame, { borderColor: themeColors.colourSeasonFrame }]}>
               <Image
                 source={seasonImage}
                 style={s.flowerImage}
                 resizeMode="cover"
               />
             </View>
-            <Text style={s.decorSparkleLarge}>✦</Text>
-            <Text style={s.decorSparkleSmall}>✦</Text>
+            <Text style={[s.decorSparkleLarge, { color: themeColors.colourSeasonDecoration }]}>✦</Text>
+            <Text style={[s.decorSparkleSmall, { color: themeColors.colourSeasonDecoration }]}>✦</Text>
             <Image
               source={defaultSeasonImage}
-              style={s.analyzedSwatches}
+              style={[s.analyzedSwatches, { filter: themeColors.colourSeasonSwatchShadow } as any]}
               resizeMode="contain"
             />
-            <View style={s.analyzedSmallCircle} />
+            <View style={[s.analyzedSmallCircle, { backgroundColor: themeColors.colourSeasonCircle }]} />
           </View>
         </>
       ) : (
         <>
           <View style={s.content}>
             <View style={s.textContent}>
-              <Text style={[s.eyebrow, { fontSize: eyebrowSize }]}>PERSONAL COLOUR</Text>
+              <Text style={[s.eyebrow, { color: themeColors.colourSeasonEyebrow, fontSize: eyebrowSize }]}>PERSONAL COLOUR</Text>
 
-              <Text style={[s.title, { fontSize: titleSize, lineHeight: titleSize + 4 }]}>
+              <Text style={[s.title, { color: themeColors.colourSeasonText, fontSize: titleSize, lineHeight: titleSize + 4 }]}> 
                 {hasAnalysis ? design.displayName : "Colour Season"}
               </Text>
 
-              <Text style={[s.subtitle, { fontSize: subtitleSize, lineHeight: subtitleSize + 6 }]}> 
+              <Text style={[s.subtitle, { color: themeColors.colourSeasonSubtext, fontSize: subtitleSize, lineHeight: subtitleSize + 6 }]}> 
                 {hasAnalysis
                   ? "Your personal palette is ready."
                   : "Discover the colours that suit you best."}
@@ -413,15 +422,15 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
               style={[
                 s.button,
                 {
-                  backgroundColor: design.buttonColor,
+                  backgroundColor: designColors.buttonColor,
                 },
               ]}
             >
-              <Text style={[s.buttonText, { fontSize: buttonTextSize }]}> 
+              <Text style={[s.buttonText, { color: themeColors.colourSeasonText, fontSize: buttonTextSize }]}> 
                 {hasAnalysis ? "View full palette" : "Start analysis"}
               </Text>
 
-              <Text style={s.buttonArrow}>→</Text>
+              <Text style={[s.buttonArrow, { color: themeColors.colourSeasonText }]}>→</Text>
             </View>
           </View>
 
@@ -430,7 +439,7 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
               style={[
                 s.largeCircle,
                 {
-                  backgroundColor: design.accentColor,
+                  backgroundColor: designColors.accentColor,
                   width: decorationCircleSize,
                   height: decorationCircleSize,
                   borderRadius: decorationCircleSize / 2,
@@ -438,11 +447,11 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
               ]}
             />
 
-            <View style={s.smallCircle} />
+            <View style={[s.smallCircle, { backgroundColor: themeColors.colourSeasonCircle }]} />
 
             <Image
               source={seasonImage}
-              style={s.seasonImage}
+              style={[s.seasonImage, { filter: themeColors.colourSeasonImageShadow } as any]}
               resizeMode="contain"
             />
           </View>
@@ -460,7 +469,6 @@ const s = StyleSheet.create({
     overflow: "hidden",
     position: "relative",
 
-    shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 14,
     shadowOffset: {
@@ -480,7 +488,6 @@ const s = StyleSheet.create({
   },
 
   analyzedEyebrow: {
-    color: "#C98282",
     fontWeight: "700",
     letterSpacing: 1.8,
     marginBottom: 8,
@@ -493,21 +500,18 @@ const s = StyleSheet.create({
   },
 
   analyzedTitle: {
-    color: "#1D3225",
     fontFamily: "Cormorant Garamond",
     fontWeight: "700",
     flexShrink: 1,
   },
 
   titleSparkle: {
-    color: "#D9A545",
     fontSize: 20,
     marginLeft: 5,
     marginTop: -2,
   },
 
   analyzedDescription: {
-    color: "#415248",
     marginBottom: 14,
   },
 
@@ -529,19 +533,16 @@ const s = StyleSheet.create({
   },
 
   paletteIcon: {
-    color: "#D78F8F",
     fontSize: 19,
     marginRight: 2,
   },
 
   traitText: {
-    color: "#1D3225",
     fontSize: 11,
     fontWeight: "600",
   },
 
   traitDot: {
-    color: "#DCA1A1",
     fontSize: 11,
   },
 
@@ -575,7 +576,6 @@ const s = StyleSheet.create({
     borderBottomLeftRadius: 22,
     borderBottomRightRadius: 22,
     borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.85)",
     overflow: "hidden",
   },
 
@@ -591,7 +591,6 @@ const s = StyleSheet.create({
     right: -4,
     bottom: -9,
     zIndex: 3,
-    filter: "drop-shadow(0px 7px 6px rgba(0, 0, 0, 0.16))",
   },
 
   analyzedSmallCircle: {
@@ -601,7 +600,6 @@ const s = StyleSheet.create({
     borderRadius: 36,
     right: -6,
     bottom: -15,
-    backgroundColor: "rgba(255,255,255,0.42)",
     zIndex: 2,
   },
 
@@ -609,7 +607,6 @@ const s = StyleSheet.create({
     position: "absolute",
     top: 20,
     right: 16,
-    color: "#FFFFFF",
     fontSize: 25,
     zIndex: 4,
   },
@@ -618,7 +615,6 @@ const s = StyleSheet.create({
     position: "absolute",
     top: 47,
     right: 5,
-    color: "#FFFFFF",
     fontSize: 16,
     zIndex: 4,
   },
@@ -647,7 +643,6 @@ const s = StyleSheet.create({
   },
 
   eyebrow: {
-    color: "#667469",
     fontSize: 9,
     fontWeight: "700",
     letterSpacing: 1.8,
@@ -655,7 +650,6 @@ const s = StyleSheet.create({
   },
 
   title: {
-    color: "#1D3225",
     fontFamily: "Cormorant Garamond",
     fontSize: 30,
     lineHeight: 34,
@@ -665,7 +659,6 @@ const s = StyleSheet.create({
 
   subtitle: {
     maxWidth: 220,
-    color: "#536157",
     fontSize: 13,
     lineHeight: 19,
     marginBottom: 18,
@@ -687,13 +680,11 @@ const s = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#1D3225",
     fontSize: 13,
     fontWeight: "700",
   },
 
   buttonArrow: {
-    color: "#1D3225",
     fontSize: 17,
     lineHeight: 18,
   },
@@ -714,7 +705,6 @@ const s = StyleSheet.create({
     width: "100%",
     height: "100%",
     zIndex: 2,
-    filter: "drop-shadow(0px 9px 7px rgba(0, 0, 0, 0.15))",
   },
 
   largeCircle: {
@@ -731,7 +721,6 @@ const s = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: "rgba(255,255,255,0.42)",
     right: 10,
     bottom: 14,
   },

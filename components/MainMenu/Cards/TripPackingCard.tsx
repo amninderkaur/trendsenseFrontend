@@ -1,15 +1,21 @@
+import { useAppTheme } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    useWindowDimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
 } from "react-native";
+
+const lightSuitcase = require("@/assets/images/LightMode/Suitcase-Light.png");
+const darkSuitcase = require("@/assets/images/DarkMode/Suitcase-Dark.png");
 
 export default function TripPackingCard() {
   const router = useRouter();
+  const { isDarkMode } = useAppTheme();
   const { width } = useWindowDimensions();
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
@@ -30,17 +36,33 @@ export default function TripPackingCard() {
     >
       <View style={s.content}>
         <View style={s.textContent}>
-          <Text style={[s.eyebrow, { fontSize: eyebrowSize }]}>TRAVEL STYLING</Text>
+          <Text style={[s.eyebrow, { fontSize: eyebrowSize }]}>
+            TRAVEL STYLING
+          </Text>
 
-          <Text style={[s.title, { fontSize: titleSize, lineHeight: titleSize + 4 }]}>Trip Edit</Text>
+          <Text
+            style={[
+              s.title,
+              { fontSize: titleSize, lineHeight: titleSize + 4 },
+            ]}
+          >
+            Trip Edit
+          </Text>
 
-          <Text style={[s.subtitle, { fontSize: subtitleSize, lineHeight: subtitleSize + 6 }]}> 
+          <Text
+            style={[
+              s.subtitle,
+              { fontSize: subtitleSize, lineHeight: subtitleSize + 6 },
+            ]}
+          >
             Build a thoughtful packing list and create outfits for your trip.
           </Text>
         </View>
 
         <View style={s.button}>
-          <Text style={[s.buttonText, { fontSize: buttonTextSize }]}>Plan a trip</Text>
+          <Text style={[s.buttonText, { fontSize: buttonTextSize }]}>
+            Plan a trip
+          </Text>
           <Text style={s.buttonArrow}>→</Text>
         </View>
       </View>
@@ -49,9 +71,11 @@ export default function TripPackingCard() {
         <View style={s.largeCircle} />
         <View style={s.smallCircle} />
 
-        <View style={s.suitcaseCircle}>
-          <Text style={s.suitcaseIcon}>▣</Text>
-        </View>
+        <Image
+          source={lightSuitcase}
+          style={s.suitcaseImage}
+          resizeMode="contain"
+        />
       </View>
     </TouchableOpacity>
   );
@@ -174,19 +198,9 @@ const s = StyleSheet.create({
     bottom: 14,
   },
 
-  suitcaseCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: "#A9665C",
-    alignItems: "center",
-    justifyContent: "center",
+  suitcaseImage: {
+    width: 165,
+    height: 210,
     zIndex: 2,
-  },
-
-  suitcaseIcon: {
-    color: "#FFFFFF",
-    fontSize: 38,
-    lineHeight: 40,
   },
 });
