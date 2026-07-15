@@ -7,18 +7,15 @@
  * - Change Password
  * - Edit Preferences
  * - Reviews
- * - Dashboard
  * - Logout
  * - Delete Account
- * It also shows user stats like:
- * - Outfits Generated
- * - Outfits Reviewed
- * - Wardrobe Items
  */
 // ================
 //     IMPORTS
 // ================
-import { colors } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
 import {
     StyleSheet,
     Text,
@@ -37,10 +34,6 @@ type Props = {
     onReview: () => void;
     onLogout: () => void;
     onDelete: () => void;
-    onDashboard: () => void;
-    outfitsGenerated: number;
-    outfitsReviewed: number;
-    wardrobeItems: number;
 };
 
 // ================
@@ -53,174 +46,138 @@ export default function ProfileActionCards({
     onReview,
     onLogout,
     onDelete,
-    onDashboard,
-    outfitsGenerated,
-    outfitsReviewed,
-    wardrobeItems,
 }: Props) {
+    const { themeColors } = useAppTheme();
 
     // Responsive card sizing 
     const { width } = useWindowDimensions();
-    const isMobile = width < 700;
+    const isPhone = width < 650;
+    const isTablet = width >= 650 && width < 1050;
 
-    const baseCardStyle = [
-        styles.actionCard,
-        isMobile ? styles.mobileActionCard : styles.desktopActionCard,
+    const cardContainerStyle = [
+        styles.actionCardContainer,
+        {
+            backgroundColor: themeColors.card,
+            shadowColor: themeColors.shadow,
+        },
+        isPhone
+            ? styles.phoneActionCard
+            : isTablet
+              ? styles.tabletActionCard
+              : styles.desktopActionCard,
     ];
+
+    const ActionCard = ({
+        title,
+        description,
+        icon,
+        iconBackground,
+        iconColor,
+        onPress,
+    }: {
+        title: string;
+        description: string;
+        icon: ComponentProps<typeof MaterialCommunityIcons>["name"];
+        iconBackground: string;
+        iconColor: string;
+        onPress: () => void;
+    }) => (
+        <View style={cardContainerStyle}>
+            <TouchableOpacity
+                style={[
+                    styles.actionCard,
+                    { backgroundColor: themeColors.card },
+                ]}
+                onPress={onPress}
+                activeOpacity={0.82}
+            >
+                <View
+                    style={[
+                        styles.iconCircle,
+                        { backgroundColor: iconBackground },
+                    ]}
+                >
+                    <MaterialCommunityIcons
+                        name={icon}
+                        size={25}
+                        color={iconColor}
+                    />
+                </View>
+
+                <View style={styles.cardText}>
+                    <Text style={[styles.actionTitle, { color: themeColors.text }]}> 
+                        {title}
+                    </Text>
+                    <Text
+                        style={[styles.actionDescription, { color: themeColors.muted }]}
+                        numberOfLines={2}
+                    >
+                        {description}
+                    </Text>
+                </View>
+
+                <MaterialCommunityIcons
+                    name="chevron-right"
+                    size={27}
+                    color={themeColors.text}
+                />
+            </TouchableOpacity>
+        </View>
+    );
 
     // ================
     //     RENDER
     // ================
     return (
         <View style={styles.actionGrid}>
-            {/* Activity Stats Card */}
-            <View
-                style={[
-                    styles.largeStatsCard,
-                    isMobile ? styles.mobileLargeStatsCard : styles.desktopLargeStatsCard,
-                ]}
-            >
-                <Text style={styles.statsTitle}>Your Activity</Text>
-
-                <View style={styles.statsRow}>
-                    <View style={styles.statItem}>
-                        <View style={styles.statCircle}>
-                            <Text style={styles.statNumber}>{outfitsGenerated}</Text>
-                        </View>
-                        <Text style={styles.statLabel}>Generated</Text>
-                    </View>
-
-                    <View style={styles.statItem}>
-                        <View style={styles.statCircle}>
-                            <Text style={styles.statNumber}>{outfitsReviewed}</Text>
-                        </View>
-                        <Text style={styles.statLabel}>Reviewed</Text>
-                    </View>
-
-                    <View style={styles.statItem}>
-                        <View style={styles.statCircle}>
-                            <Text style={styles.statNumber}>{wardrobeItems}</Text>
-                        </View>
-                        <Text style={styles.statLabel}>Wardrobe</Text>
-                    </View>
-                </View>
-            </View>
-
-            {/* Edit Profile Card */}
-            <TouchableOpacity style={baseCardStyle} onPress={onEditInfo}>
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintGreen },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>👤</Text>
-                <Text style={styles.actionTitle}>Edit Profile</Text>
-                <Text style={styles.actionDescription}>
-                    Update your name, phone number, and profile image.
-                </Text>
-                <Text style={styles.actionLink}>Manage →</Text>
-            </TouchableOpacity>
-
-            {/* Change Password Card */}
-            <TouchableOpacity style={baseCardStyle} onPress={onChangePassword}>
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintBeige },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>🔒</Text>
-                <Text style={styles.actionTitle}>Change Password</Text>
-                <Text style={styles.actionDescription}>
-                    Update your account password securely.
-                </Text>
-                <Text style={styles.actionLink}>Manage →</Text>
-            </TouchableOpacity>
-
-            {/* Edit Preferences Card */}
-            <TouchableOpacity style={baseCardStyle} onPress={onPreferences}>
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintPurple },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>✨</Text>
-                <Text style={styles.actionTitle}>Edit Preferences</Text>
-                <Text style={styles.actionDescription}>
-                    Update your style identity and AI personalization.
-                </Text>
-                <Text style={styles.actionLink}>Update →</Text>
-            </TouchableOpacity>
-
-            {/* Reviews Card */}
-            <TouchableOpacity style={baseCardStyle} onPress={onReview}>
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintGold },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>⭐</Text>
-                <Text style={styles.actionTitle}>Reviews</Text>
-                <Text style={styles.actionDescription}>
-                    Leave or view reviews from your experiences.
-                </Text>
-                <Text style={styles.actionLink}>Open →</Text>
-            </TouchableOpacity>
-
-            {/* Back to Dashboard Card */}
-            <TouchableOpacity style={baseCardStyle} onPress={onDashboard}>
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintPink },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>🏠</Text>
-                <Text style={styles.actionTitle}>Back to Dashboard</Text>
-                <Text style={styles.actionDescription}>
-                    Return to your main dashboard and app features.
-                </Text>
-                <Text style={styles.actionLink}>Go back →</Text>
-            </TouchableOpacity>
-
-            {/* Logout Card */}
-            <TouchableOpacity
-                style={baseCardStyle}
+            <ActionCard
+                title="Edit Profile"
+                description="Update your name, email, profile picture and personal info."
+                icon="account-outline"
+                iconBackground={themeColors.profileTintGreen}
+                iconColor={themeColors.profileIconGreen}
+                onPress={onEditInfo}
+            />
+            <ActionCard
+                title="Change Password"
+                description="Update your password to keep your account secure."
+                icon="lock"
+                iconBackground={themeColors.profileTintPurple}
+                iconColor={themeColors.profileIconPurple}
+                onPress={onChangePassword}
+            />
+            <ActionCard
+                title="Edit Preferences"
+                description="Update your style, body, color season and outfit preferences."
+                icon="tune-variant"
+                iconBackground={themeColors.profileTintBeige}
+                iconColor={themeColors.profileIconOrange}
+                onPress={onPreferences}
+            />
+            <ActionCard
+                title="Reviews"
+                description="See your past AI outfit reviews and color analysis results."
+                icon="star-outline"
+                iconBackground={themeColors.profileTintGold}
+                iconColor={themeColors.profileIconGold}
+                onPress={onReview}
+            />
+            <ActionCard
+                title="Logout"
+                description="Sign out of your account on this device."
+                icon="logout-variant"
+                iconBackground={themeColors.profileTintBlue}
+                iconColor={themeColors.profileIconBlue}
                 onPress={onLogout}
-            >
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintBlue },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>🚪</Text>
-                <Text style={styles.actionTitle}>Logout</Text>
-                <Text style={styles.actionDescription}>Sign out of your account.</Text>
-                <Text style={styles.actionLink}>Logout →</Text>
-            </TouchableOpacity>
-
-            {/* Delete Account Card */}
-            <TouchableOpacity
-                style={baseCardStyle}
+            />
+            <ActionCard
+                title="Delete Account"
+                description="Permanently delete your account and all your data."
+                icon="trash-can-outline"
+                iconBackground={themeColors.profileTintRed}
+                iconColor={themeColors.profileIconRed}
                 onPress={onDelete}
-            >
-                <View
-                    style={[
-                        styles.cardTint,
-                        { backgroundColor: colors.profileTintRed },
-                    ]}
-                />
-                <Text style={styles.actionIcon}>🗑️</Text>
-                <Text style={styles.actionTitle}>Delete Account</Text>
-                <Text style={styles.actionDescription}>
-                    Permanently remove your account and data.
-                </Text>
-                <Text style={styles.actionLink}>Delete →</Text>
-            </TouchableOpacity>
+            />
         </View>
     );
 }
@@ -233,129 +190,65 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-        rowGap: 16,
+        rowGap: 14,
+    },
+
+    actionCardContainer: {
+        minHeight: 108,
+        borderRadius: 16,
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 5,
     },
 
     actionCard: {
-        minHeight: 190,
-        backgroundColor: colors.card,
-        borderRadius: 24,
-        padding: 22,
+        flex: 1,
+        minHeight: 108,
+        borderRadius: 16,
+        paddingHorizontal: 18,
+        paddingVertical: 16,
         overflow: "hidden",
-        position: "relative",
-        shadowColor: colors.text,
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 3 },
-        elevation: 3,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 16,
     },
 
     desktopActionCard: {
         width: "32%",
     },
 
-    mobileActionCard: {
+    tabletActionCard: {
         width: "48%",
     },
 
-    largeStatsCard: {
-        minHeight: 190,
-        backgroundColor: colors.card,
-        borderRadius: 24,
-        padding: 22,
-        overflow: "hidden",
-        position: "relative",
-        shadowColor: colors.text,
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 3 },
-        elevation: 3,
-    },
-
-    desktopLargeStatsCard: {
-        width: "66%",
-    },
-
-    mobileLargeStatsCard: {
+    phoneActionCard: {
         width: "100%",
     },
 
-    cardTint: {
-        ...StyleSheet.absoluteFillObject,
-        opacity: 0.45,
-        borderRadius: 24,
-    },
-
-    statsTitle: {
-        fontSize: 24,
-        fontWeight: "700",
-        color: colors.text,
-        marginBottom: 22,
-    },
-
-    statsRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-
-    statItem: {
+    iconCircle: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
         alignItems: "center",
-        flex: 1,
-    },
-
-    statCircle: {
-        width: 82,
-        height: 82,
-        borderRadius: 41,
-        backgroundColor: colors.bgDark,
         justifyContent: "center",
-        alignItems: "center",
-        marginBottom: 12,
-        shadowColor: colors.text,
-        shadowOpacity: 0.04,
-        shadowRadius: 5,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        flexShrink: 0,
     },
 
-    statNumber: {
-        fontSize: 30,
-        fontWeight: "800",
-        color: colors.text,
-    },
-
-    statLabel: {
-        fontSize: 15,
-        fontWeight: "600",
-        color: colors.muted,
-    },
-
-    actionIcon: {
-        fontSize: 24,
-        marginBottom: 10,
-        zIndex: 1,
+    cardText: {
+        flex: 1,
+        minWidth: 0,
     },
 
     actionTitle: {
-        fontSize: 22,
+        fontSize: 16,
         fontWeight: "700",
-        color: colors.text,
-        marginBottom: 10,
-        zIndex: 1,
+        marginBottom: 5,
+        fontFamily: "Cormorant Garamond",
     },
 
     actionDescription: {
-        fontSize: 15,
-        lineHeight: 22,
-        color: colors.muted,
-        zIndex: 1,
-    },
-
-    actionLink: {
-        marginTop: "auto",
-        fontSize: 15,
-        fontWeight: "700",
-        color: colors.text,
-        zIndex: 1,
+        fontSize: 12,
+        lineHeight: 17,
     },
 });

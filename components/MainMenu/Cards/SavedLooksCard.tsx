@@ -1,9 +1,16 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 export default function SavedLooksCard() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 1500;
+  const isMedium = width >= 1100 && width < 1500;
+  const eyebrowSize = isWide ? 10 : isMedium ? 9 : 9;
+  const titleSize = isWide ? 36 : isMedium ? 32 : 30;
+  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
+  const buttonTextSize = isWide ? 14 : 13;
 
   const goToSavedLooks = () => {
     router.push("/(tabs)/saved-items" as any);
@@ -17,17 +24,17 @@ export default function SavedLooksCard() {
     >
       <View style={s.content}>
         <View style={s.textContent}>
-          <Text style={s.eyebrow}>YOUR FAVOURITES</Text>
+          <Text style={[s.eyebrow, { fontSize: eyebrowSize }]}>YOUR FAVOURITES</Text>
 
-          <Text style={s.title}>Saved Looks</Text>
+          <Text style={[s.title, { fontSize: titleSize, lineHeight: titleSize + 4 }]}>Saved Looks</Text>
 
-          <Text style={s.subtitle}>
+          <Text style={[s.subtitle, { fontSize: subtitleSize, lineHeight: subtitleSize + 6 }]}> 
             Revisit the outfits and pieces you've saved for inspiration.
           </Text>
         </View>
 
         <View style={s.button}>
-          <Text style={s.buttonText}>View saved</Text>
+          <Text style={[s.buttonText, { fontSize: buttonTextSize }]}>View saved</Text>
           <Text style={s.buttonArrow}>→</Text>
         </View>
       </View>
@@ -47,7 +54,7 @@ export default function SavedLooksCard() {
 const s = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 220,
+    minHeight: 236,
     borderRadius: 28,
     overflow: "hidden",
     position: "relative",
@@ -65,7 +72,7 @@ const s = StyleSheet.create({
 
   content: {
     width: "70%",
-    minHeight: 220,
+    minHeight: 236,
     paddingHorizontal: 24,
     paddingVertical: 24,
     justifyContent: "space-between",
@@ -73,7 +80,9 @@ const s = StyleSheet.create({
   },
 
   textContent: {
+    flex: 1,
     flexShrink: 1,
+    paddingBottom: 58,
   },
 
   eyebrow: {
@@ -102,7 +111,9 @@ const s = StyleSheet.create({
   },
 
   button: {
-    alignSelf: "flex-start",
+    position: "absolute",
+    left: 24,
+    bottom: 24,
     minWidth: 130,
     height: 40,
     paddingHorizontal: 17,

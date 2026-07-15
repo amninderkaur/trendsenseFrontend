@@ -1,29 +1,46 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    useWindowDimensions,
+} from "react-native";
 
-export default function LookHistoryCard() {
+export default function TripPackingCard() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 1500;
+  const isMedium = width >= 1100 && width < 1500;
+  const eyebrowSize = isWide ? 10 : isMedium ? 9 : 9;
+  const titleSize = isWide ? 36 : isMedium ? 32 : 30;
+  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
+  const buttonTextSize = isWide ? 14 : 13;
 
-  const goToHistory = () => {
-    router.push("/(tabs)/history" as any);
+  const goToTripPacking = () => {
+    router.push("/(tabs)/trip-packing" as any);
   };
 
   return (
-    <TouchableOpacity activeOpacity={0.88} style={s.card} onPress={goToHistory}>
+    <TouchableOpacity
+      activeOpacity={0.88}
+      style={s.card}
+      onPress={goToTripPacking}
+    >
       <View style={s.content}>
         <View style={s.textContent}>
-          <Text style={s.eyebrow}>STYLE JOURNEY</Text>
+          <Text style={[s.eyebrow, { fontSize: eyebrowSize }]}>TRAVEL STYLING</Text>
 
-          <Text style={s.title}>Look History</Text>
+          <Text style={[s.title, { fontSize: titleSize, lineHeight: titleSize + 4 }]}>Trip Edit</Text>
 
-          <Text style={s.subtitle}>
-            Browse your previous outfits and see how your style has evolved.
+          <Text style={[s.subtitle, { fontSize: subtitleSize, lineHeight: subtitleSize + 6 }]}> 
+            Build a thoughtful packing list and create outfits for your trip.
           </Text>
         </View>
 
         <View style={s.button}>
-          <Text style={s.buttonText}>View history</Text>
+          <Text style={[s.buttonText, { fontSize: buttonTextSize }]}>Plan a trip</Text>
           <Text style={s.buttonArrow}>→</Text>
         </View>
       </View>
@@ -32,8 +49,8 @@ export default function LookHistoryCard() {
         <View style={s.largeCircle} />
         <View style={s.smallCircle} />
 
-        <View style={s.clockCircle}>
-          <Text style={s.clock}>◴</Text>
+        <View style={s.suitcaseCircle}>
+          <Text style={s.suitcaseIcon}>▣</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -43,38 +60,39 @@ export default function LookHistoryCard() {
 const s = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 236,
+    minHeight: 220,
     borderRadius: 28,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#24322D",
+    backgroundColor: "#F0D4CE",
 
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 18,
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 6,
     },
-    elevation: 5,
+    elevation: 4,
   },
 
   content: {
     width: "70%",
-    minHeight: 236,
-    paddingHorizontal: 26,
+    minHeight: 220,
+    paddingHorizontal: 24,
     paddingVertical: 24,
     justifyContent: "space-between",
     zIndex: 3,
   },
 
   textContent: {
+    flex: 1,
     flexShrink: 1,
     paddingBottom: 58,
   },
 
   eyebrow: {
-    color: "rgba(255,255,255,0.55)",
+    color: "#8C6C66",
     fontSize: 9,
     fontWeight: "700",
     letterSpacing: 1.8,
@@ -82,7 +100,7 @@ const s = StyleSheet.create({
   },
 
   title: {
-    color: "#FFFFFF",
+    color: "#1D3225",
     fontFamily: "Cormorant Garamond",
     fontSize: 30,
     lineHeight: 34,
@@ -92,7 +110,7 @@ const s = StyleSheet.create({
 
   subtitle: {
     maxWidth: 220,
-    color: "rgba(255,255,255,0.68)",
+    color: "#6C5753",
     fontSize: 13,
     lineHeight: 19,
     marginBottom: 18,
@@ -100,15 +118,13 @@ const s = StyleSheet.create({
 
   button: {
     position: "absolute",
-    left: 26,
+    left: 24,
     bottom: 24,
-    minWidth: 132,
+    minWidth: 128,
     height: 40,
     paddingHorizontal: 17,
     borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.14)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(151,86,75,0.13)",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -117,21 +133,21 @@ const s = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#FFFFFF",
+    color: "#1D3225",
     fontSize: 13,
     fontWeight: "700",
   },
 
   buttonArrow: {
-    color: "#FFFFFF",
+    color: "#1D3225",
     fontSize: 17,
     lineHeight: 18,
   },
 
   decoration: {
     position: "absolute",
-    right: 0,
     top: 0,
+    right: 0,
     bottom: 0,
     width: "38%",
     alignItems: "center",
@@ -141,10 +157,11 @@ const s = StyleSheet.create({
 
   largeCircle: {
     position: "absolute",
-    width: 155,
-    height: 155,
-    borderRadius: 77.5,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    width: 145,
+    height: 145,
+    borderRadius: 72.5,
+    backgroundColor: "#DDAFA7",
+    opacity: 0.58,
   },
 
   smallCircle: {
@@ -152,24 +169,24 @@ const s = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: "rgba(255,255,255,0.04)",
+    backgroundColor: "rgba(255,255,255,0.42)",
     right: 10,
     bottom: 14,
   },
 
-  clockCircle: {
+  suitcaseCircle: {
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: "rgba(255,255,255,0.09)",
+    backgroundColor: "#A9665C",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
+    zIndex: 2,
   },
 
-  clock: {
-    fontSize: 36,
+  suitcaseIcon: {
     color: "#FFFFFF",
+    fontSize: 38,
+    lineHeight: 40,
   },
 });

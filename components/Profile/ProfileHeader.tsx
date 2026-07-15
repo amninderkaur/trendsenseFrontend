@@ -9,7 +9,7 @@
 // ================
 //     IMPORTS
 // ================
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
@@ -20,6 +20,9 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+
+const lightHeroImage = require("@/assets/images/LightMode/Profile-Hero-Light.png");
+const darkHeroImage = require("@/assets/images/DarkMode/Profile-Hero-Dark.png");
 
 // ==============
 //     TYPES
@@ -44,6 +47,7 @@ export default function ProfileHeader({
   onAvatarPress,
   uploadingAvatar = false,
 }: ProfileHeaderProps) {
+  const { themeColors, isDarkMode } = useAppTheme();
 
   // responsive layout state
   const { width } = useWindowDimensions();
@@ -53,69 +57,119 @@ export default function ProfileHeader({
   //     RENDER
   // ================
   return (
-    <View style={[styles.profileHero, isLargeScreen && styles.largeProfileHero]}>
-
-      {/* Main profile content */}
-      <View style={styles.profileHeroContent}>
-
-        {/* Editable profile image */}
-        <TouchableOpacity
+    <View
+      style={[
+        styles.profileHero,
+        {
+          backgroundColor: themeColors.card,
+          shadowColor: themeColors.shadow,
+        },
+        isLargeScreen && styles.largeProfileHero,
+      ]}
+    >
+      <View
+        style={[
+          styles.profileHeroSurface,
+          { backgroundColor: themeColors.card },
+          isLargeScreen && styles.largeProfileHeroSurface,
+        ]}
+      >
+        <View
           style={[
-            styles.avatarTouchable,
-            isLargeScreen && styles.largeAvatarTouchable,
+            styles.profileHeroContent,
+            isLargeScreen && styles.largeProfileHeroContent,
           ]}
-          onPress={onAvatarPress}
-          disabled={!isEditing || uploadingAvatar}
-          activeOpacity={isEditing ? 0.8 : 1}
         >
-
-          {/* Default profile image */}
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <MaterialIcons
-                name="person"
-                size={isLargeScreen ? 88 : 60}
-                color={colors.white}
-              />
-            </View>
-          )}
-
-          {/* Edit overlay only when in edit mode */}
-          {isEditing && (
-            <View style={styles.avatarOverlay}>
-              {/* Uploading state */}
-              {uploadingAvatar ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                //Edit label
-                <Text style={styles.avatarEditText}>Edit</Text>
-              )}
-            </View>
-          )}
-        </TouchableOpacity>
-
-        {/* User Information */}
-        <View style={styles.profileTextBlock}>
-          <Text style={[styles.heroName, isLargeScreen && styles.largeHeroName]}>
-            {name} ✨
-          </Text>
-
-          <Text
-            style={[styles.heroEmail, isLargeScreen && styles.largeHeroEmail]}
+          {/* Editable profile image */}
+          <TouchableOpacity
+            style={[
+              styles.avatarTouchable,
+              isLargeScreen && styles.largeAvatarTouchable,
+            ]}
+            onPress={onAvatarPress}
+            disabled={!isEditing || uploadingAvatar}
+            activeOpacity={isEditing ? 0.8 : 1}
           >
-            {email}
-          </Text>
-        </View>
-      </View>
+            {avatarUrl ? (
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.avatarImage}
+                resizeMode="cover"
+              />
+            ) : (
+              <View
+                style={[
+                  styles.avatarPlaceholder,
+                  { backgroundColor: themeColors.blue },
+                ]}
+              >
+                <MaterialIcons
+                  name="person"
+                  size={isLargeScreen ? 86 : 64}
+                  color={themeColors.white}
+                />
+              </View>
+            )}
 
-      {/* Decorative image on larger screens */}
-      <View style={styles.heroImageBlock}>
-        <Image
-          source={require("../../assets/images/ClothingRack.png")}
-          style={styles.heroDecorImage}
-        />
+            {isEditing && (
+              <View
+                style={[
+                  styles.avatarOverlay,
+                  { backgroundColor: themeColors.blueDark },
+                ]}
+              >
+                {uploadingAvatar ? (
+                  <ActivityIndicator color={themeColors.white} />
+                ) : (
+                  <Text
+                    style={[
+                      styles.avatarEditText,
+                      { color: themeColors.white },
+                    ]}
+                  >
+                    Edit
+                  </Text>
+                )}
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.profileTextBlock}>
+            <Text
+              style={[
+                styles.heroName,
+                { color: themeColors.text },
+                isLargeScreen && styles.largeHeroName,
+              ]}
+            >
+              {name}
+            </Text>
+
+            <Text
+              style={[
+                styles.heroEmail,
+                { color: themeColors.muted },
+                isLargeScreen && styles.largeHeroEmail,
+              ]}
+            >
+              {email}
+            </Text>
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.heroImageBlock,
+            isLargeScreen && styles.largeHeroImageBlock,
+          ]}
+          pointerEvents="none"
+        >
+          <Image
+            source={isDarkMode ? darkHeroImage : lightHeroImage}
+            style={styles.heroDecorImage}
+            resizeMode="cover"
+          />
+        </View>
       </View>
     </View>
   );
@@ -126,32 +180,50 @@ export default function ProfileHeader({
 // ================
 const styles = StyleSheet.create({
   profileHero: {
-    ...globalStyles.card,
     borderRadius: 28,
-    minHeight: 240,
-    padding: 28,
-    overflow: "hidden",
+    minHeight: 200,
     position: "relative",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: 6,
     },
-    elevation: 4,
+    elevation: 5,
   },
 
   largeProfileHero: {
-    minHeight: 360,
+    minHeight: 300,
     borderRadius: 40,
-    padding: 44,
+  },
+
+  profileHeroSurface: {
+    flex: 1,
+    borderRadius: 28,
+    overflow: "hidden",
+    position: "relative",
+    flexDirection: "row",
+  },
+
+  largeProfileHeroSurface: {
+    borderRadius: 40,
   },
 
   profileHeroContent: {
-    ...globalStyles.row,
-    gap: 18,
+    width: "62%",
+    minHeight: 200,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
     zIndex: 2,
-    marginTop: 34,
+  },
+
+  largeProfileHeroContent: {
+    width: "45%",
+    minHeight: 300,
+    paddingHorizontal: 44,
+    gap: 24,
   },
 
   avatarTouchable: {
@@ -159,25 +231,23 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 55,
     overflow: "hidden",
+    flexShrink: 0,
   },
 
   largeAvatarTouchable: {
-    width: 170,
-    height: 170,
-    borderRadius: 85,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
   },
 
   avatarImage: {
     width: "100%",
     height: "100%",
-    borderWidth: 3,
-    borderColor: colors.white,
   },
 
   avatarPlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: colors.blue,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -188,52 +258,53 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 36,
-    backgroundColor: colors.blueDark,
     justifyContent: "center",
     alignItems: "center",
   },
 
   avatarEditText: {
-    color: colors.white,
     fontSize: 13,
     fontWeight: "700",
   },
 
   profileTextBlock: {
     gap: 6,
+    flexShrink: 1,
   },
 
   heroName: {
     fontSize: 26,
     fontWeight: "700",
-    color: colors.text,
   },
 
   largeHeroName: {
-    fontSize: 44,
+    fontSize: 34,
   },
 
   heroEmail: {
     fontSize: 15,
-    color: colors.muted,
   },
 
   largeHeroEmail: {
-    fontSize: 22,
+    fontSize: 18,
   },
 
   heroImageBlock: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
     width: "38%",
+    height: "100%",
+    overflow: "hidden",
+  },
+
+  largeHeroImageBlock: {
+    width: "55%",
   },
 
   heroDecorImage: {
-    width: "100%",
     height: "100%",
-    resizeMode: "cover",
-    opacity: 0.9,
+    aspectRatio: 1176 / 301,
+    position: "absolute",
+    top: 0,
+    left: 0,
   },
+
 });

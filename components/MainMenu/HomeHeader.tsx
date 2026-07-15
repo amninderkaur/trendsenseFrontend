@@ -15,9 +15,14 @@ import HeaderSvg from "./HeaderSvg";
 type Props = {
   avatarUri: string | null;
   userName?: string;
+  showProfileAction?: boolean;
 };
 
-export default function HomeHeader({ avatarUri, userName = "there" }: Props) {
+export default function HomeHeader({
+  avatarUri,
+  userName = "there",
+  showProfileAction = true,
+}: Props) {
   const router = useRouter();
   const { themeColors, isDarkMode } = useAppTheme();
   const { width } = useWindowDimensions();
@@ -55,22 +60,24 @@ export default function HomeHeader({ avatarUri, userName = "there" }: Props) {
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={[
-            s.mobileAvatarBtn,
-            {
-              backgroundColor: themeColors.headerAvatarBg,
-              borderColor: themeColors.headerBorder,
-            },
-          ]}
-          onPress={() => router.push("/(tabs)/profile" as any)}
-        >
-          {avatarUri ? (
-            <Image source={{ uri: avatarUri }} style={s.avatarImage} />
-          ) : (
-            <Text style={{ color: themeColors.headerText }}>👤</Text>
-          )}
-        </TouchableOpacity>
+        {showProfileAction && (
+          <TouchableOpacity
+            style={[
+              s.mobileAvatarBtn,
+              {
+                backgroundColor: themeColors.headerAvatarBg,
+                borderColor: themeColors.headerBorder,
+              },
+            ]}
+            onPress={() => router.push("/(tabs)/profile" as any)}
+          >
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={s.avatarImage} />
+            ) : (
+              <Text style={{ color: themeColors.headerText }}>👤</Text>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     );
   }
@@ -118,58 +125,60 @@ export default function HomeHeader({ avatarUri, userName = "there" }: Props) {
           </Text>
         </View>
 
-        <TouchableOpacity
-          style={[s.profileBlock, { gap: isSmallWeb ? 8 : 12 }]}
-          onPress={() => router.push("/(tabs)/profile" as any)}
-          activeOpacity={0.85}
-        >
-          <View
-            style={[
-              s.webAvatarBtn,
-              {
-                width: avatarSize,
-                height: avatarSize,
-                borderRadius: avatarSize / 2,
-                backgroundColor: themeColors.headerAvatarBg,
-                borderColor: themeColors.headerBorder,
-              },
-            ]}
+        {showProfileAction && (
+          <TouchableOpacity
+            style={[s.profileBlock, { gap: isSmallWeb ? 8 : 12 }]}
+            onPress={() => router.push("/(tabs)/profile" as any)}
+            activeOpacity={0.85}
           >
-            {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={s.avatarImage} />
-            ) : (
-              <Text style={{ color: themeColors.headerDarkText }}>👤</Text>
-            )}
-          </View>
-
-          {!isSmallWeb && (
-            <View>
-              <Text
-                style={[
-                  s.greeting,
-                  {
-                    color: themeColors.headerDarkText,
-                    fontSize: profileTextSize,
-                  },
-                ]}
-              >
-                Hi, {userName}
-              </Text>
-
-              <Text
-                style={[
-                  s.viewProfile,
-                  {
-                    color: themeColors.headerGold,
-                    fontSize: viewProfileSize,
-                  },
-                ]}
-              >
-                View Profile →
-              </Text>
+            <View
+              style={[
+                s.webAvatarBtn,
+                {
+                  width: avatarSize,
+                  height: avatarSize,
+                  borderRadius: avatarSize / 2,
+                  backgroundColor: themeColors.headerAvatarBg,
+                  borderColor: themeColors.headerBorder,
+                },
+              ]}
+            >
+              {avatarUri ? (
+                <Image source={{ uri: avatarUri }} style={s.avatarImage} />
+              ) : (
+                <Text style={{ color: themeColors.headerText }}>👤</Text>
+              )}
             </View>
-          )}
-        </TouchableOpacity>
+
+            {!isSmallWeb && (
+              <View>
+                <Text
+                  style={[
+                    s.greeting,
+                    {
+                      color: themeColors.headerText,
+                      fontSize: profileTextSize,
+                    },
+                  ]}
+                >
+                  Hi, {userName}
+                </Text>
+
+                <Text
+                  style={[
+                    s.viewProfile,
+                    {
+                      color: themeColors.headerGold,
+                      fontSize: viewProfileSize,
+                    },
+                  ]}
+                >
+                  View Profile →
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

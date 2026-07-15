@@ -1,7 +1,11 @@
+import BodyAnalysisCard from "@/components/MainMenu/Cards/BodyAnalysisCard";
 import ColourSeasonCard from "@/components/MainMenu/Cards/ColorSeasonCard";
 import LookHistoryCard from "@/components/MainMenu/Cards/LookHistoryCard";
 import OutfitReviewCard from "@/components/MainMenu/Cards/OutfitReviewCard";
 import SavedLooksCard from "@/components/MainMenu/Cards/SavedLooksCard";
+import StyleBudgetCard from "@/components/MainMenu/Cards/StyleBudgetCard";
+import TrendsCard from "@/components/MainMenu/Cards/TrendsCard";
+import TripPackingCard from "@/components/MainMenu/Cards/TripPackingCard";
 import FeatureGrid from "@/components/MainMenu/FeatureGrid";
 import HomeHeader from "@/components/MainMenu/HomeHeader";
 import StatsCard from "@/components/MainMenu/StatsCard";
@@ -18,6 +22,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { prefetchTrends } from "../api/trends";
 import { getMe } from "../api/user";
@@ -50,9 +55,11 @@ const NAV = [
 export default function WebMainMenuLayout() {
   const { themeColors, isDarkMode, toggleDarkMode } = useAppTheme();
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const isAdmin = getRole() === "ADMIN";
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const displayName = getName() || "TrendSense User";
+  const isCompact = width < 1200;
 
   useEffect(() => {
     prefetchTrends();
@@ -70,49 +77,75 @@ export default function WebMainMenuLayout() {
 
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.bg }]}>
-      {isAdmin && (
-        <TouchableOpacity
-          style={s.adminBanner}
-          onPress={() => router.replace("/admin/dashboard" as any)}
+      <View style={s.pageShell}>
+        {isAdmin && (
+          <TouchableOpacity
+            style={s.adminBanner}
+            onPress={() => router.replace("/admin/dashboard" as any)}
+          >
+            <Text style={s.adminBannerText}>⚙️ Admin — viewing as user</Text>
+            <Text style={s.adminBannerLink}>Admin View →</Text>
+          </TouchableOpacity>
+        )}
+
+        <ScrollView
+          style={s.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={s.scroll}
         >
-          <Text style={s.adminBannerText}>⚙️ Admin — viewing as user</Text>
-          <Text style={s.adminBannerLink}>Admin View →</Text>
-        </TouchableOpacity>
-      )}
+          {/* ── HEADER ── */}
+          <HomeHeader avatarUri={avatarUri} userName={displayName} />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={s.scroll}
-      >
-        {/* ── HEADER ── */}
-        <HomeHeader avatarUri={avatarUri} userName={displayName} />
+          <View
+            style={[
+              s.dashboardTop,
+              isCompact && s.dashboardTopCompact,
+            ]}
+          >
+            <WelcomeCard
+              userName={displayName.split(" ")[0]}
+              style={s.welcomeCardStretch}
+            />
 
-        <View style={s.dashboardTop}>
-          <WelcomeCard
-            userName={displayName.split(" ")[0]}
-            style={s.welcomeCardStretch}
-          />
+            <View
+              style={[
+                s.rightColumn,
+                isCompact && s.rightColumnCompact,
+              ]}
+            >
+              <StatsCard />
 
-          <View style={s.rightColumn}>
-            <StatsCard />
-
-            <WardrobeCarousel />
+              <WardrobeCarousel />
+            </View>
           </View>
-        </View>
 
-        <FeatureGrid>
-          <OutfitReviewCard />
-          <SavedLooksCard />
-          <LookHistoryCard />
-          <ColourSeasonCard />
-        </FeatureGrid>
-      </ScrollView>
+          <FeatureGrid>
+            <OutfitReviewCard />
+            <SavedLooksCard />
+            <LookHistoryCard />
+            <ColourSeasonCard />
+            <BodyAnalysisCard />
+            <TripPackingCard />
+            <StyleBudgetCard />
+            <TrendsCard />
+          </FeatureGrid>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
   safe: { flex: 1 },
+  pageShell: {
+    flex: 1,
+    width: "100%",
+    minWidth: 720,
+    alignSelf: "center",
+  },
+  scrollView: {
+    flex: 1,
+  },
   scroll: { paddingBottom: 32 },
 
   // Admin
@@ -470,6 +503,10 @@ const s = StyleSheet.create({
     marginBottom: 26,
   },
 
+  dashboardTopCompact: {
+    flexDirection: "column",
+  },
+
   welcomeCardStretch: {
     flex: 1,
   },
@@ -477,6 +514,10 @@ const s = StyleSheet.create({
   rightColumn: {
     flex: 1,
     gap: 18,
+  },
+
+  rightColumnCompact: {
+    width: "100%",
   },
 
   statsCard: {

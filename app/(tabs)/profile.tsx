@@ -1,4 +1,4 @@
-/* 
+﻿/* 
 * Profile Page
 * This page handles
 *  - Profile display (profile picture, name, email)
@@ -13,17 +13,18 @@
 // ================
 //     IMPORTS
 // ================
+import HomeHeader from "@/components/MainMenu/HomeHeader";
 import ChangePasswordSection from "@/components/Profile/ChangePasswordSection";
 import EditInfoSection from "@/components/Profile/EditInfoSection";
 import ProfileActionCards from "@/components/Profile/ProfileActionCards";
 import ProfileHeader from "@/components/Profile/ProfileHeader";
 import ReviewsSection from "@/components/Profile/ReviewSection";
+import TasteProfileCard from "@/components/TasteProfileCard";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
-import TasteProfileCard from "@/components/TasteProfileCard";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -31,13 +32,14 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import PersonalizationModal from "../(auth)/PersonalizationModal";
-import { deleteAccount, getMe, uploadProfilePicture } from "../../api/user";
 import { getTasteProfile } from "../../api/outfit";
+import { deleteAccount, getMe, uploadProfilePicture } from "../../api/user";
 import {
   getEmail,
   getName,
@@ -59,7 +61,7 @@ export default function Profile() {
 
   //Navigation / theming
   const router = useRouter();
-  const { themeColors } = useAppTheme();
+  const { themeColors, isDarkMode, toggleDarkMode } = useAppTheme();
 
   // User information
   const email = getEmail() || "user@example.com";
@@ -84,14 +86,6 @@ export default function Profile() {
   // section transition animation
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
-  // temporary placeholder stats until
-  // backend endpoints are implemented
-  const profileStats = {
-    outfitsGenerated: 0,
-    outfitsReviewed: 0,
-    wardrobeItems: 0,
-  };
 
   // Taste profile state
   const [tasteProfile, setTasteProfile] = useState<any>(null);
@@ -272,7 +266,57 @@ export default function Profile() {
       ]}
       contentContainerStyle={styles.scrollContent}
     >
+      <HomeHeader
+        avatarUri={null}
+        showProfileAction={false}
+      />
+
       <View style={styles.pageContainer}>
+        <View style={styles.pageHeadingRow}>
+          <TouchableOpacity
+            style={[
+              styles.dashboardButton,
+              {
+                backgroundColor: themeColors.card,
+                borderColor: themeColors.input,
+                shadowColor: themeColors.shadow,
+              },
+            ]}
+            activeOpacity={0.75}
+            onPress={() => router.replace("/(tabs)/mainMenu")}
+          >
+            <Text style={[styles.dashboardButtonArrow, { color: themeColors.text }]}>
+              ←
+            </Text>
+            <Text style={[styles.dashboardButtonText, { color: themeColors.text }]}>
+              Back to Dashboard
+            </Text>
+          </TouchableOpacity>
+
+          <View
+            style={[
+              styles.themeToggle,
+              {
+                backgroundColor: themeColors.card,
+                borderColor: themeColors.input,
+              },
+            ]}
+          >
+            <Text style={[styles.themeToggleText, { color: themeColors.text }]}>
+              {isDarkMode ? "Dark mode" : "Light mode"}
+            </Text>
+            <Switch
+              value={isDarkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{
+                false: themeColors.input,
+                true: themeColors.button,
+              }}
+              thumbColor={themeColors.white}
+              ios_backgroundColor={themeColors.input}
+            />
+          </View>
+        </View>
 
         {/* Profile Header always remains visible */}
         <ProfileHeader
@@ -306,10 +350,6 @@ export default function Profile() {
               onReview={() => openSection("review")}
               onLogout={handleLogout}
               onDelete={() => setShowDeleteConfirm(true)}
-              onDashboard={() => router.replace("/(tabs)/mainMenu")}
-              outfitsGenerated={profileStats.outfitsGenerated}
-              outfitsReviewed={profileStats.outfitsReviewed}
-              wardrobeItems={profileStats.wardrobeItems}
             />
           )}
 
@@ -351,7 +391,10 @@ export default function Profile() {
               <View
                 style={[
                   styles.tasteLockedCard,
-                  { backgroundColor: themeColors.card },
+                  {
+                    backgroundColor: themeColors.card,
+                    shadowColor: themeColors.shadow,
+                  },
                 ]}
               >
                 <Text style={styles.tasteLockedIcon}>🔒</Text>
@@ -389,13 +432,16 @@ export default function Profile() {
       <View
         style={[
           styles.modalOverlay,
-          { backgroundColor: themeColors.blueDark },
+          { backgroundColor: themeColors.overlayDark },
         ]}
       >
         <View
           style={[
             styles.modalBox,
-            { backgroundColor: themeColors.card },
+            {
+              backgroundColor: themeColors.card,
+              shadowColor: themeColors.shadow,
+            },
           ]}
         >
           <Text
@@ -475,7 +521,8 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingVertical: 24,
+    flexGrow: 1,
+    paddingTop: 0,
     paddingBottom: 40,
   },
 
@@ -485,6 +532,56 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     paddingHorizontal: 24,
     gap: 20,
+  },
+
+  pageHeadingRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 16,
+  },
+
+  dashboardButton: {
+    minHeight: 38,
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+
+  dashboardButtonArrow: {
+    fontSize: 16,
+    lineHeight: 18,
+  },
+
+  dashboardButtonText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+
+  themeToggle: {
+    minHeight: 46,
+    paddingLeft: 14,
+    paddingRight: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  themeToggleText: {
+    fontSize: 13,
+    fontWeight: "700",
   },
 
   animatedSection: {
@@ -503,13 +600,10 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 380,
 
+    shadowColor: "#000",
     shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 5,
   },
 
@@ -560,11 +654,10 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     gap: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
   },
   tasteLockedIcon: {
     fontSize: 32,

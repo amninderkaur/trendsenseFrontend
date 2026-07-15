@@ -12,6 +12,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 type ClothingItem = {
@@ -31,6 +32,7 @@ export default function WardrobeCarousel() {
   const { themeColors } = useAppTheme();
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
+  const { width } = useWindowDimensions();
 
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +40,12 @@ export default function WardrobeCarousel() {
   const [cardWidth, setCardWidth] = useState(320);
 
   const isWeb = Platform.OS === "web";
+  const isWide = width >= 1500;
+  const isMedium = width >= 1100 && width < 1500;
+  const titleSize = isWide ? 26 : isMedium ? 24 : 23;
+  const viewAllSize = isWide ? 14 : 13;
+  const emptyTitleSize = isWide ? 18 : 16;
+  const emptySubSize = isWide ? 14 : 13;
 
   const activeIndicator = Math.min(
     INDICATOR_COUNT - 1,
@@ -95,51 +103,60 @@ export default function WardrobeCarousel() {
     setScrollX(safeX);
   };
 
-  const getItemName = (item: ClothingItem) => {
-    const name = `${item.tags?.color ?? ""} ${item.tags?.type ?? ""}`.trim();
-    return name || "Wardrobe Item";
-  };
-
   if (loading) {
     return (
-      <View style={[s.card, { backgroundColor: themeColors.card }]}>
-        <ActivityIndicator color="#1D3225" />
+      <View
+        style={[
+          s.card,
+          {
+            backgroundColor: themeColors.card,
+            shadowColor: themeColors.shadow,
+          },
+        ]}
+      >
+        <ActivityIndicator color={themeColors.text} />
       </View>
     );
   }
 
   return (
     <View
-      style={[s.card, { backgroundColor: themeColors.card }]}
+      style={[
+        s.card,
+        {
+          backgroundColor: themeColors.card,
+          shadowColor: themeColors.shadow,
+        },
+      ]}
       onLayout={(e) => setCardWidth(e.nativeEvent.layout.width)}
     >
       <View style={s.header}>
         <View style={s.titleRow}>
-          <Text style={s.hangerIcon}>♧</Text>
-          <Text style={s.title}>My Wardrobe</Text>
+          <Text style={[s.hangerIcon, { color: themeColors.text }]}>♧</Text>
+          <Text style={[s.title, { color: themeColors.text, fontSize: titleSize }]}>My Wardrobe</Text>
         </View>
 
         <View style={s.rightActions}>
           <TouchableOpacity activeOpacity={0.75} onPress={goToWardrobe}>
-            <Text style={s.viewAll}>View all →</Text>
+            <Text style={[s.viewAll, { color: themeColors.text, fontSize: viewAllSize }]}>View all →</Text>
           </TouchableOpacity>
 
           {isWeb && (
             <View style={s.arrowRow}>
               <TouchableOpacity
                 activeOpacity={0.75}
-                style={s.arrowBtn}
+                style={[s.arrowBtn, { backgroundColor: themeColors.wardrobeControlBg }]}
                 onPress={() => scrollBy("left")}
               >
-                <Text style={s.arrowTxt}>‹</Text>
+                <Text style={[s.arrowTxt, { color: themeColors.text }]}>‹</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 activeOpacity={0.75}
-                style={s.arrowBtn}
+                style={[s.arrowBtn, { backgroundColor: themeColors.wardrobeControlBg }]}
                 onPress={() => scrollBy("right")}
               >
-                <Text style={s.arrowTxt}>›</Text>
+                <Text style={[s.arrowTxt, { color: themeColors.text }]}>›</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -149,11 +166,11 @@ export default function WardrobeCarousel() {
       {items.length === 0 ? (
         <TouchableOpacity
           activeOpacity={0.85}
-          style={s.emptyState}
+          style={[s.emptyState, { backgroundColor: themeColors.wardrobeEmptyBg }]}
           onPress={goToWardrobe}
         >
-          <Text style={s.emptyTitle}>No wardrobe pieces yet</Text>
-          <Text style={s.emptySub}>
+          <Text style={[s.emptyTitle, { color: themeColors.text, fontSize: emptyTitleSize }]}>No wardrobe pieces yet</Text>
+          <Text style={[s.emptySub, { color: themeColors.muted, fontSize: emptySubSize }]}> 
             Browse your wardrobe or add your first item.
           </Text>
         </TouchableOpacity>
@@ -175,7 +192,7 @@ export default function WardrobeCarousel() {
                 style={s.itemWrap}
                 onPress={() => goToItem(item.id)}
               >
-                <View style={s.imageBox}>
+                <View style={[s.imageBox, { backgroundColor: themeColors.wardrobeImageBg }]}>
                   <Image
                     source={{
                       uri: `data:image/png;base64,${item.generatedImageBase64}`,
@@ -184,10 +201,6 @@ export default function WardrobeCarousel() {
                     resizeMode="contain"
                   />
                 </View>
-
-                <Text style={s.itemName} numberOfLines={1}>
-                  {getItemName(item)}
-                </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -196,7 +209,15 @@ export default function WardrobeCarousel() {
             {Array.from({ length: INDICATOR_COUNT }).map((_, index) => (
               <View
                 key={index}
-                style={[s.dot, index === activeIndicator && s.dotActive]}
+                style={[
+                  s.dot,
+                  {
+                    backgroundColor:
+                      index === activeIndicator
+                        ? themeColors.text
+                        : themeColors.wardrobeIndicator,
+                  },
+                ]}
               />
             ))}
           </View>
@@ -213,7 +234,6 @@ const s = StyleSheet.create({
     borderRadius: 28,
     padding: 24,
     overflow: "hidden",
-    shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
@@ -235,13 +255,10 @@ const s = StyleSheet.create({
 
   hangerIcon: {
     fontSize: 22,
-    color: "#1D3225",
   },
 
   title: {
-    fontSize: 23,
     fontWeight: "600",
-    color: "#1D3225",
     fontFamily: "Cormorant Garamond",
   },
 
@@ -252,8 +269,6 @@ const s = StyleSheet.create({
   },
 
   viewAll: {
-    fontSize: 13,
-    color: "#1D3225",
     fontWeight: "500",
   },
 
@@ -266,13 +281,11 @@ const s = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "rgba(29,50,37,0.06)",
     alignItems: "center",
     justifyContent: "center",
   },
 
   arrowTxt: {
-    color: "#1D3225",
     fontSize: 24,
     fontWeight: "600",
     marginTop: -2,
@@ -292,7 +305,6 @@ const s = StyleSheet.create({
     width: 102,
     height: 102,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
@@ -301,15 +313,6 @@ const s = StyleSheet.create({
   itemImage: {
     width: "92%",
     height: "92%",
-  },
-
-  itemName: {
-    marginTop: 10,
-    color: "#1D3225",
-    fontSize: 11,
-    fontWeight: "700",
-    textAlign: "center",
-    textTransform: "capitalize",
   },
 
   dots: {
@@ -323,30 +326,20 @@ const s = StyleSheet.create({
     width: 42,
     height: 5,
     borderRadius: 999,
-    backgroundColor: "rgba(29,50,37,0.12)",
-  },
-
-  dotActive: {
-    backgroundColor: "#1D3225",
   },
 
   emptyState: {
     flex: 1,
     borderRadius: 18,
-    backgroundColor: "rgba(29,50,37,0.04)",
     alignItems: "center",
     justifyContent: "center",
   },
 
   emptyTitle: {
-    color: "#1D3225",
     fontWeight: "700",
-    fontSize: 16,
     marginBottom: 4,
   },
 
   emptySub: {
-    color: "#455248",
-    fontSize: 13,
   },
 });

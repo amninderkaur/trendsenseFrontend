@@ -1,45 +1,58 @@
 import { useAppTheme } from "@/context/ThemeContext";
 import React, { Children } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 type Props = {
   children: React.ReactNode;
+  heading?: string;
 };
 
-export default function FeatureGrid({ children }: Props) {
+export default function FeatureGrid({ children, heading = "Explore" }: Props) {
   const { themeColors } = useAppTheme();
+  const { width } = useWindowDimensions();
 
   const cards = Children.toArray(children);
 
-  const topRowCards = cards.slice(0, 4);
-  const bottomRowCards = cards.slice(4, 8);
+  const isWide = width >= 1500;
+  const isMedium = width >= 1100 && width < 1500;
+  const columns = isWide ? 4 : isMedium ? 2 : 1;
+  const rows = Array.from(
+    { length: Math.ceil(cards.length / columns) },
+    (_, index) => cards.slice(index * columns, (index + 1) * columns),
+  );
+  const slotStyle = isWide
+    ? s.slotWide
+    : isMedium
+      ? s.slotMedium
+      : s.slotNarrow;
 
   return (
     <View style={s.container}>
-      <Text style={[s.heading, { color: themeColors.text }]}>Explore</Text>
+      <Text style={[s.heading, { color: themeColors.text }]}>{heading}</Text>
 
       <View style={s.grid}>
-        <View style={s.topRow}>
-          {topRowCards.map((card, index) => (
-            <View key={index} style={s.topCardSlot}>
-              {card}
-            </View>
-          ))}
-        </View>
-
-        <View style={s.bottomRow}>
-          {bottomRowCards.map((card, index) => (
-            <View
-              key={index}
-              style={[
-                s.bottomCardSlot,
-                index === bottomRowCards.length - 1 && s.trendsCardSlot,
-              ]}
-            >
-              {card}
-            </View>
-          ))}
-        </View>
+        {rows.map((rowCards, rowIndex) => (
+          <View
+            key={rowIndex}
+            style={[
+              s.row,
+              isWide && s.rowWide,
+              isMedium && s.rowMedium,
+              !isWide && !isMedium && s.rowNarrow,
+            ]}
+          >
+            {rowCards.map((card, cardIndex) => (
+              <View key={cardIndex} style={slotStyle}>
+                {card}
+              </View>
+            ))}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -63,29 +76,37 @@ const s = StyleSheet.create({
     gap: 18,
   },
 
-  topRow: {
+  row: {
     flexDirection: "row",
     gap: 18,
     alignItems: "stretch",
   },
 
-  topCardSlot: {
+  rowWide: {
+    flexWrap: "nowrap",
+  },
+
+  rowMedium: {
+    flexWrap: "wrap",
+  },
+
+  rowNarrow: {
+    flexWrap: "wrap",
+  },
+
+  slotWide: {
     flex: 1,
     minWidth: 0,
   },
 
-  bottomRow: {
-    flexDirection: "row",
-    gap: 18,
-    alignItems: "stretch",
-  },
-
-  bottomCardSlot: {
+  slotMedium: {
     flex: 1,
-    minWidth: 0,
+    minWidth: "calc(50% - 9px)" as any,
   },
 
-  trendsCardSlot: {
-    flex: 1.45,
+  slotNarrow: {
+    flex: 1,
+    minWidth: "100%" as any,
   },
+
 });

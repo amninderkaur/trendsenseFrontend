@@ -1,6 +1,6 @@
 import { useAppTheme } from "@/context/ThemeContext";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
 const STATS = [
   {
@@ -8,53 +8,79 @@ const STATS = [
     number: 28,
     title: "Items",
     subtitle: "in wardrobe",
-    color: "#DDE7DB",
+    colorKey: "statsGreen",
   },
   {
     icon: "✧",
     number: 12,
     title: "Outfits",
     subtitle: "created",
-    color: "#E5ECE3",
+    colorKey: "statsPurple",
   },
   {
     icon: "♡",
     number: 7,
     title: "Saved",
     subtitle: "looks",
-    color: "#F5DCD8",
+    colorKey: "statsPink",
   },
   {
     icon: "♨",
     number: 4,
     title: "Days in",
     subtitle: "a row",
-    color: "#DDE7DB",
+    colorKey: "statsBlue",
   },
-];
+] as const;
 
 export default function StatsCard() {
   const { themeColors } = useAppTheme();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 1500;
+  const isMedium = width >= 1100 && width < 1500;
+  const cardHeight = isWide ? 170 : isMedium ? 158 : 145;
+  const numberSize = isWide ? 38 : isMedium ? 34 : 30;
+  const titleSize = isWide ? 17 : isMedium ? 15 : 14;
+  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
+  const iconSize = isWide ? 28 : 24;
+  const iconCircleSize = isWide ? 66 : 58;
+  const cellPadding = isWide ? 22 : 18;
 
   return (
-    <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: themeColors.card,
+          shadowColor: themeColors.shadow,
+          height: cardHeight,
+        },
+      ]}
+    >
       {STATS.map((stat, index) => (
         <React.Fragment key={stat.title}>
           <View style={styles.cell}>
-            <View style={[styles.iconCircle, { backgroundColor: stat.color }]}>
-              <Text style={styles.icon}>{stat.icon}</Text>
+            <View style={[styles.iconCircle, { backgroundColor: themeColors[stat.colorKey], width: iconCircleSize, height: iconCircleSize, borderRadius: iconCircleSize / 2 }]}>
+              <Text style={[styles.icon, { color: themeColors.text, fontSize: iconSize }]}>{stat.icon}</Text>
             </View>
 
-            <View style={styles.textContainer}>
-              <Text style={styles.number}>{stat.number}</Text>
+            <View style={[styles.textContainer, { paddingRight: cellPadding }]}>
+              <Text style={[styles.number, { color: themeColors.text, fontSize: numberSize, lineHeight: numberSize + 2 }]}>{stat.number}</Text>
 
-              <Text style={styles.title}>{stat.title}</Text>
+              <Text style={[styles.title, { color: themeColors.text, fontSize: titleSize }]}>{stat.title}</Text>
 
-              <Text style={styles.subtitle}>{stat.subtitle}</Text>
+              <Text style={[styles.subtitle, { color: themeColors.muted, fontSize: subtitleSize }]}>{stat.subtitle}</Text>
             </View>
           </View>
 
-          {index !== STATS.length - 1 && <View style={styles.divider} />}
+          {index !== STATS.length - 1 && (
+            <View
+              style={[
+                styles.divider,
+                { backgroundColor: themeColors.statsDivider },
+              ]}
+            />
+          )}
         </React.Fragment>
       ))}
     </View>
@@ -63,13 +89,11 @@ export default function StatsCard() {
 
 const styles = StyleSheet.create({
   card: {
-    height: 145,
     borderRadius: 30,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 30,
     width: "100%",
-    shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 14,
     shadowOffset: {
@@ -84,27 +108,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 18,
   },
 
   divider: {
     width: 1,
     height: 72,
-    backgroundColor: "rgba(29,50,37,0.10)",
   },
 
   iconCircle: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 18,
   },
 
   icon: {
-    fontSize: 24,
-    color: "#1D3225",
   },
 
   textContainer: {
@@ -112,24 +129,17 @@ const styles = StyleSheet.create({
   },
 
   number: {
-    fontSize: 30,
     fontWeight: "700",
-    color: "#1D3225",
-    lineHeight: 32,
     fontFamily: "Cormorant Garamond",
   },
 
   title: {
-    fontSize: 14,
     fontWeight: "700",
-    color: "#1D3225",
     marginTop: 4,
     fontFamily: "Cormorant Garamond",
   },
 
   subtitle: {
-    fontSize: 13,
-    color: "#455248",
     marginTop: 2,
     fontFamily: "Cormorant Garamond",
   },

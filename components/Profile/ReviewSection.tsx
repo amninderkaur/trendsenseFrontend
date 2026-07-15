@@ -9,7 +9,8 @@
 // ================
 //     IMPORTS
 // ================
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
+import { useAppTheme } from "@/context/ThemeContext";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
@@ -33,6 +34,7 @@ type Props = {
 //   REVIEW SECTION COMPONENT
 // ================
 export default function ReviewsSection({ onClose }: Props) {
+    const { themeColors } = useAppTheme();
 
     // Review form state
     const [rating, setRating] = useState(0);
@@ -86,22 +88,22 @@ export default function ReviewsSection({ onClose }: Props) {
     //     RENDER
     // ================
     return (
-        <View style={[globalStyles.card, styles.card]}>
+        <View style={[globalStyles.card, styles.card, { backgroundColor: themeColors.card, shadowColor: themeColors.shadow }]}>
             {/* Return to Profile page */}
-            <TouchableOpacity style={styles.backButton} onPress={onClose}>
-                <Text style={styles.backButtonText}>← Back to Profile</Text>
+            <TouchableOpacity style={[styles.backButton, { backgroundColor: themeColors.input }]} onPress={onClose}>
+                <Text style={[styles.backButtonText, { color: themeColors.text }]}>← Back to Profile</Text>
             </TouchableOpacity>
 
             {/* Section Title */}
-            <Text style={styles.title}>Leave a Review</Text>
+            <Text style={[styles.title, { color: themeColors.text }]}>Leave a Review</Text>
 
-            <Text style={styles.description}>
+            <Text style={[styles.description, { color: themeColors.muted }]}>
                 Tell us how your experience has been so we can keep improving
                 TrendSense.
             </Text>
 
             {/* Star Rating section */}
-            <Text style={styles.label}>Rating</Text>
+            <Text style={[styles.label, { color: themeColors.text }]}>Rating</Text>
 
             <View style={styles.stars}>
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -112,7 +114,7 @@ export default function ReviewsSection({ onClose }: Props) {
                             setError("");
                         }}
                     >
-                        <Text style={[styles.star, star <= rating && styles.starFilled]}>
+                        <Text style={[styles.star, { color: star <= rating ? themeColors.rating : themeColors.bgDark }]}>
                             ★
                         </Text>
                     </TouchableOpacity>
@@ -120,50 +122,50 @@ export default function ReviewsSection({ onClose }: Props) {
             </View>
 
             {/* Written Review section */}
-            <Text style={styles.label}>Your Review</Text>
+            <Text style={[styles.label, { color: themeColors.text }]}>Your Review</Text>
 
             <TextInput
-                style={[globalStyles.input, styles.textArea]}
+                style={[globalStyles.input, styles.textArea, { color: themeColors.text, backgroundColor: themeColors.input }]}
                 value={message}
                 onChangeText={(text) => {
                     setMessage(text);
                     setError("");
                 }}
                 placeholder="Write your review here..."
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={themeColors.muted}
                 multiline
                 textAlignVertical="top"
             />
 
             {/* Validation or error message */}
-            {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
+            {error ? <Text style={[styles.errorText, { color: themeColors.error }]}>{error}</Text> : null}
 
             {/* Success message */}
             {successMsg ? (
-                <View style={styles.successBox}>
-                    <Text style={styles.successText}>{successMsg}</Text>
+                <View style={[styles.successBox, { backgroundColor: themeColors.successBg }]}>
+                    <Text style={[styles.successText, { color: themeColors.success }]}>{successMsg}</Text>
                 </View>
             ) : null}
 
             {/* Action Buttons */}
             <View style={styles.buttonRow}>
                 <Pressable
-                    style={[styles.actionButton, styles.cancelButton]}
+                    style={[styles.actionButton, { backgroundColor: themeColors.muted }]}
                     onPress={onClose}
                     disabled={loading}
                 >
-                    <Text style={styles.actionButtonText}>Cancel</Text>
+                    <Text style={[styles.actionButtonText, { color: themeColors.white }]}>Cancel</Text>
                 </Pressable>
 
                 <Pressable
-                    style={[styles.actionButton, styles.submitButton]}
+                    style={[styles.actionButton, { backgroundColor: themeColors.bgDark }]}
                     onPress={submit}
                     disabled={loading}
                 >
                     {loading ? (
-                        <ActivityIndicator color={colors.white} />
+                        <ActivityIndicator color={themeColors.white} />
                     ) : (
-                        <Text style={styles.actionButtonText}>Submit Review</Text>
+                        <Text style={[styles.actionButtonText, { color: themeColors.white }]}>Submit Review</Text>
                     )}
                 </Pressable>
             </View>
@@ -178,11 +180,14 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 24,
         padding: 24,
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 5,
     },
 
     backButton: {
         alignSelf: "flex-start",
-        backgroundColor: colors.input,
         paddingVertical: 8,
         paddingHorizontal: 14,
         borderRadius: 999,
@@ -190,20 +195,17 @@ const styles = StyleSheet.create({
     },
 
     backButtonText: {
-        color: colors.text,
         fontWeight: "700",
     },
 
     title: {
         fontSize: 28,
         fontWeight: "800",
-        color: colors.text,
         marginBottom: 8,
     },
 
     description: {
         fontSize: 15,
-        color: colors.muted,
         lineHeight: 22,
         marginBottom: 20,
     },
@@ -211,7 +213,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: "700",
-        color: colors.text,
         marginBottom: 8,
     },
 
@@ -223,11 +224,6 @@ const styles = StyleSheet.create({
 
     star: {
         fontSize: 38,
-        color: colors.bgDark,
-    },
-
-    starFilled: {
-        color: "#f5a623",
     },
 
     textArea: {
@@ -236,14 +232,12 @@ const styles = StyleSheet.create({
     },
 
     successBox: {
-        backgroundColor: "#af7d2b",
         borderRadius: 12,
         padding: 14,
         marginBottom: 14,
     },
 
     successText: {
-        color: "#af7d2b",
         fontWeight: "700",
         fontSize: 15,
     },
@@ -261,17 +255,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
 
-    cancelButton: {
-        backgroundColor: colors.muted,
-    },
-
-    submitButton: {
-        backgroundColor: colors.bgDark,
-    },
-
     actionButtonText: {
-        color: colors.white,
         fontSize: 16,
         fontWeight: "700",
+    },
+
+    errorText: {
+        fontSize: 13,
+        marginTop: 8,
+        textAlign: "center",
     },
 });

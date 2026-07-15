@@ -10,7 +10,7 @@
 // ================
 //     IMPORTS
 // ================
-import { colors, globalStyles } from "@/constants/globalStyles";
+import { globalStyles } from "@/constants/globalStyles";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -120,69 +120,69 @@ export default function EditInfoSection({
   //     RENDER
   // ================
   return (
-    <View style={[globalStyles.card, styles.card]}>
-      <Text style={[styles.title, { color: colors.text }]}>
+    <View style={[globalStyles.card, styles.card, { backgroundColor: themeColors.card, shadowColor: themeColors.shadow }]}>
+      <Text style={[styles.title, { color: themeColors.text }]}>
         Edit Profile
       </Text>
 
-      <Text style={[styles.description, { color: colors.muted }]}>
+      <Text style={[styles.description, { color: themeColors.muted }]}>
         Update your basic account details. Your profile image can be changed
         from the header while editing.
       </Text>
 
-      <Text style={[styles.label, { color: colors.muted }]}>
+      <Text style={[styles.label, { color: themeColors.muted }]}>
         Full Name
       </Text>
 
       <TextInput
-        style={[globalStyles.input, styles.input, { color: colors.text }]}
+        style={[globalStyles.input, styles.input, { color: themeColors.text, backgroundColor: themeColors.input }]}
         value={name}
         onChangeText={(text) => {
           setName(text);
           setError("");
         }}
         placeholder="Full Name"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={themeColors.muted}
         autoCapitalize="words"
       />
 
-      <Text style={[styles.label, { color: colors.muted }]}>
+      <Text style={[styles.label, { color: themeColors.muted }]}>
         Phone Number
       </Text>
 
-      <View style={styles.phoneRow}>
-        <Text style={[styles.countryCode, { color: colors.text }]}>
+      <View style={[styles.phoneRow, { backgroundColor: themeColors.input }]}>
+        <Text style={[styles.countryCode, { color: themeColors.text }]}>
           +1
         </Text>
 
-        <View style={styles.phoneDivider} />
+        <View style={[styles.phoneDivider, { backgroundColor: themeColors.muted }]} />
 
         <TextInput
-          style={[styles.phoneInput, { color: colors.text }]}
+          style={[styles.phoneInput, { color: themeColors.text }]}
           value={formatPhoneDisplay(phoneDigits)}
           onChangeText={handlePhoneChange}
           placeholder="(647) 123-4567"
-          placeholderTextColor={colors.muted}
+          placeholderTextColor={themeColors.muted}
           keyboardType="phone-pad"
         />
       </View>
 
-      <Text style={[styles.label, { color: colors.muted }]}>
+      <Text style={[styles.label, { color: themeColors.muted }]}>
         Verification Code Delivery
       </Text>
 
-      <View style={styles.toggleRow}>
+      <View style={[styles.toggleRow, { borderColor: themeColors.input }]}>
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            deliveryMethod === "email" && styles.toggleActive,
+            { backgroundColor: deliveryMethod === "email" ? themeColors.blueDark : themeColors.input },
           ]}
           onPress={() => setDeliveryMethod("email")}
         >
           <Text
             style={[
               styles.toggleText,
-              deliveryMethod === "email" && styles.toggleTextActive,
+              { color: deliveryMethod === "email" ? themeColors.white : themeColors.muted },
             ]}
           >
             Email
@@ -192,14 +192,14 @@ export default function EditInfoSection({
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            deliveryMethod === "sms" && styles.toggleActive,
+            { backgroundColor: deliveryMethod === "sms" ? themeColors.blueDark : themeColors.input },
           ]}
           onPress={() => setDeliveryMethod("sms")}
         >
           <Text
             style={[
               styles.toggleText,
-              deliveryMethod === "sms" && styles.toggleTextActive,
+              { color: deliveryMethod === "sms" ? themeColors.white : themeColors.muted },
             ]}
           >
             SMS
@@ -207,29 +207,29 @@ export default function EditInfoSection({
         </TouchableOpacity>
       </View>
 
-      {error ? <Text style={globalStyles.errorText}>{error}</Text> : null}
+      {error ? <Text style={[styles.errorText, { color: themeColors.error }]}>{error}</Text> : null}
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
-          style={[styles.actionButton, styles.cancelButton]}
+          style={[styles.actionButton, { backgroundColor: themeColors.muted }]}
           onPress={onClose}
           disabled={saving}
         >
-          <Text style={styles.actionButtonText}>Cancel</Text>
+          <Text style={[styles.actionButtonText, { color: themeColors.white }]}>Cancel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
             styles.actionButton,
-            { backgroundColor: colors.bgDark },
+            { backgroundColor: themeColors.bgDark },
           ]}
           onPress={handleSave}
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator color={colors.white} />
+            <ActivityIndicator color={themeColors.white} />
           ) : (
-            <Text style={styles.actionButtonText}>Save Changes</Text>
+            <Text style={[styles.actionButtonText, { color: themeColors.white }]}>Save Changes</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -244,6 +244,10 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 24,
     padding: 24,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
   },
 
   title: {
@@ -272,7 +276,6 @@ const styles = StyleSheet.create({
   phoneRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.input,
     borderRadius: 14,
     overflow: "hidden",
   },
@@ -286,7 +289,6 @@ const styles = StyleSheet.create({
   phoneDivider: {
     width: 1,
     alignSelf: "stretch",
-    backgroundColor: colors.muted,
     opacity: 0.3,
   },
 
@@ -302,28 +304,23 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: colors.input,
   },
 
   toggleButton: {
     flex: 1,
     paddingVertical: 13,
     alignItems: "center",
-    backgroundColor: colors.input,
-  },
-
-  toggleActive: {
-    backgroundColor: colors.blueDark,
   },
 
   toggleText: {
     fontSize: 15,
     fontWeight: "600",
-    color: colors.muted,
   },
 
-  toggleTextActive: {
-    color: colors.white,
+  errorText: {
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: "center",
   },
 
   buttonRow: {
@@ -339,12 +336,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  cancelButton: {
-    backgroundColor: colors.muted,
-  },
-
   actionButtonText: {
-    color: colors.white,
     fontSize: 16,
     fontWeight: "700",
   },

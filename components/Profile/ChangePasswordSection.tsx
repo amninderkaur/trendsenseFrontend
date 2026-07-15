@@ -10,7 +10,6 @@
 // ================
 //     IMPORTS
 // ================
-import { colors } from "@/constants/globalStyles";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
@@ -101,24 +100,24 @@ export default function ChangePasswordSection({
     //     RENDER
     // ================
     return (
-        <View style={[styles.card, { backgroundColor: colors.card }]}>
-            <Text style={[styles.title, { color: colors.text }]}>
+        <View style={[styles.card, { backgroundColor: themeColors.card, shadowColor: themeColors.shadow }]}>
+            <Text style={[styles.title, { color: themeColors.text }]}>
                 Change Password
             </Text>
 
-            <Text style={[styles.description, { color: colors.muted }]}>
+            <Text style={[styles.description, { color: themeColors.muted }]}>
                 Update your password. You will be asked to log in again after changing it.
             </Text>
 
-            <Text style={[styles.label, { color: colors.muted }]}>
+            <Text style={[styles.label, { color: themeColors.muted }]}>
                 Current Password
             </Text>
 
-            <View style={styles.passwordRow}>
+            <View style={[styles.passwordRow, { backgroundColor: themeColors.input }]}>
                 <TextInput
-                    style={[styles.passwordInput, { color: colors.text }]}
+                    style={[styles.passwordInput, { color: themeColors.text }]}
                     placeholder="••••••"
-                    placeholderTextColor={colors.muted}
+                    placeholderTextColor={themeColors.muted}
                     secureTextEntry={secureCurrent}
                     value={current}
                     onChangeText={(text) => {
@@ -128,21 +127,21 @@ export default function ChangePasswordSection({
                 />
 
                 <TouchableOpacity onPress={() => setSecureCurrent(!secureCurrent)}>
-                    <Text style={styles.showText}>
+                    <Text style={[styles.showText, { color: themeColors.blueDark }]}>
                         {secureCurrent ? "Show" : "Hide"}
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            <Text style={[styles.label, { color: colors.muted }]}>
+            <Text style={[styles.label, { color: themeColors.muted }]}>
                 New Password
             </Text>
 
-            <View style={styles.passwordRow}>
+            <View style={[styles.passwordRow, { backgroundColor: themeColors.input }]}>
                 <TextInput
-                    style={[styles.passwordInput, { color: colors.text }]}
+                    style={[styles.passwordInput, { color: themeColors.text }]}
                     placeholder="••••••"
-                    placeholderTextColor={colors.muted}
+                    placeholderTextColor={themeColors.muted}
                     secureTextEntry={secureNew}
                     value={newPass}
                     onChangeText={(text) => {
@@ -152,19 +151,19 @@ export default function ChangePasswordSection({
                 />
 
                 <TouchableOpacity onPress={() => setSecureNew(!secureNew)}>
-                    <Text style={styles.showText}>{secureNew ? "Show" : "Hide"}</Text>
+                    <Text style={[styles.showText, { color: themeColors.blueDark }]}>{secureNew ? "Show" : "Hide"}</Text>
                 </TouchableOpacity>
             </View>
 
-            <Text style={[styles.label, { color: colors.muted }]}>
+            <Text style={[styles.label, { color: themeColors.muted }]}>
                 Confirm New Password
             </Text>
 
-            <View style={styles.passwordRow}>
+            <View style={[styles.passwordRow, { backgroundColor: themeColors.input }]}>
                 <TextInput
-                    style={[styles.passwordInput, { color: colors.text }]}
+                    style={[styles.passwordInput, { color: themeColors.text }]}
                     placeholder="••••••"
-                    placeholderTextColor={colors.muted}
+                    placeholderTextColor={themeColors.muted}
                     secureTextEntry={secureConfirm}
                     value={confirm}
                     onChangeText={(text) => {
@@ -174,38 +173,38 @@ export default function ChangePasswordSection({
                 />
 
                 <TouchableOpacity onPress={() => setSecureConfirm(!secureConfirm)}>
-                    <Text style={styles.showText}>
+                    <Text style={[styles.showText, { color: themeColors.blueDark }]}>
                         {secureConfirm ? "Show" : "Hide"}
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? <Text style={[styles.error, { color: themeColors.error }]}>{error}</Text> : null}
 
             {success ? (
-                <Text style={styles.successText}>
+                <Text style={[styles.successText, { color: themeColors.success }]}>
                     Password changed! Redirecting to login...
                 </Text>
             ) : null}
 
             <View style={styles.buttonRow}>
                 <TouchableOpacity
-                    style={[styles.actionButton, styles.cancelButton]}
+                    style={[styles.actionButton, { backgroundColor: themeColors.muted }]}
                     onPress={onClose}
                     disabled={loading}
                 >
-                    <Text style={styles.actionButtonText}>Cancel</Text>
+                    <Text style={[styles.actionButtonText, { color: themeColors.white }]}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: colors.bgDark }]}
+                    style={[styles.actionButton, { backgroundColor: themeColors.bgDark }]}
                     onPress={handleSave}
                     disabled={loading}
                 >
                     {loading ? (
-                        <ActivityIndicator color={colors.white} />
+                        <ActivityIndicator color={themeColors.white} />
                     ) : (
-                        <Text style={styles.actionButtonText}>Save Password</Text>
+                        <Text style={[styles.actionButtonText, { color: themeColors.white }]}>Save Password</Text>
                     )}
                 </TouchableOpacity>
             </View>
@@ -221,15 +220,14 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         padding: 24,
 
-        shadowColor: colors.text,
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
         shadowOffset: {
             width: 0,
-            height: 3,
+            height: 6,
         },
 
-        elevation: 3,
+        elevation: 5,
     },
 
     title: {
@@ -254,7 +252,6 @@ const styles = StyleSheet.create({
     passwordRow: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: colors.input,
         borderRadius: 12,
         paddingHorizontal: 14,
     },
@@ -266,21 +263,18 @@ const styles = StyleSheet.create({
     },
 
     showText: {
-        color: colors.blueDark,
         fontWeight: "700",
         fontSize: 13,
         paddingLeft: 8,
     },
 
     error: {
-        color: "#c0726e",
         fontSize: 13,
         marginTop: 10,
         textAlign: "center",
     },
 
     successText: {
-        color: "#5a9e6f",
         fontSize: 14,
         fontWeight: "700",
         marginTop: 10,
@@ -300,12 +294,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
 
-    cancelButton: {
-        backgroundColor: colors.muted,
-    },
-
     actionButtonText: {
-        color: colors.white,
         fontSize: 16,
         fontWeight: "700",
     },

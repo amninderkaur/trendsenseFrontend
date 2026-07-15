@@ -19,7 +19,10 @@ export default function TasteProfileCard({ profile }) {
     <View
       style={[
         styles.card,
-        { backgroundColor: themeColors.card },
+        {
+          backgroundColor: themeColors.card,
+          shadowColor: themeColors.shadow,
+        },
         responsiveWidth,
       ]}
     >
@@ -35,8 +38,21 @@ export default function TasteProfileCard({ profile }) {
           </Text>
           <View style={styles.pillRow}>
             {profile.lovedCombinations.map((item, i) => (
-              <View key={i} style={styles.lovePill}>
-                <Text style={styles.lovePillText}>{item}</Text>
+              <View
+                key={i}
+                style={[
+                  styles.lovePill,
+                  { backgroundColor: themeColors.tasteLoveBg },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.lovePillText,
+                    { color: themeColors.tasteLoveText },
+                  ]}
+                >
+                  {item}
+                </Text>
               </View>
             ))}
           </View>
@@ -55,7 +71,10 @@ export default function TasteProfileCard({ profile }) {
                 <View
                   style={[
                     styles.colorDot,
-                    { backgroundColor: color || "#CCCCCC" },
+                    {
+                      backgroundColor: color || themeColors.colorFallback,
+                      borderColor: themeColors.colorBorder,
+                    },
                   ]}
                 />
                 <Text style={[styles.colorLabel, { color: themeColors.text }]}>
@@ -75,7 +94,13 @@ export default function TasteProfileCard({ profile }) {
           </Text>
           <View style={styles.pillRow}>
             {profile.dislikedCombinations.map((item, i) => (
-              <View key={i} style={styles.skipPill}>
+              <View
+                key={i}
+                style={[
+                  styles.skipPill,
+                  { backgroundColor: themeColors.tasteSkipBg },
+                ]}
+              >
                 <Text style={[styles.skipPillText, { color: themeColors.text }]}>
                   {item}
                 </Text>
@@ -96,11 +121,10 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
     marginBottom: 16,
   },
   cardTitle: {
@@ -124,18 +148,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   lovePill: {
-    backgroundColor: "#E8F5E9",
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 999,
   },
   lovePillText: {
-    color: "#2E7D32",
     fontSize: 12,
     fontWeight: "600",
   },
   skipPill: {
-    backgroundColor: "#F5F5F5",
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 999,
@@ -160,7 +181,6 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
   },
   colorLabel: {
     fontSize: 12,

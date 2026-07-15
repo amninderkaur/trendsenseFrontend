@@ -1,46 +1,79 @@
 import { useAppTheme } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
 import React from "react";
-import type { ViewStyle } from "react-native";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 
 const clothingRackDecoration = require("@/assets/svg/ClothingRackCardDec.svg");
 
 type Props = {
   userName: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 };
 
 export default function WelcomeCard({ userName, style }: Props) {
   const { themeColors } = useAppTheme();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isCompact = width < 1180;
 
   return (
-    <View style={[s.card, style, { backgroundColor: themeColors.card }]}>
-      <View style={s.textWrap}>
-        <Text style={s.welcome}>Welcome back,</Text>
-
-        <Text style={s.name}>
-          {userName}! <Text style={s.heart}>♡</Text>
+    <View
+      style={[
+        s.card,
+        isCompact && s.cardCompact,
+        style,
+        {
+          backgroundColor: themeColors.card,
+          shadowColor: themeColors.shadow,
+        },
+      ]}
+    >
+      <View style={[s.textWrap, isCompact && s.textWrapCompact]}>
+        <Text style={[s.welcome, { color: themeColors.text }]}>
+          Welcome back,
         </Text>
 
-        <Text style={s.subText}>Let's create your best{"\n"}look today.</Text>
+        <Text style={[s.name, { color: themeColors.text }]}>
+          {userName}!{" "}
+          <Text style={[s.heart, { color: themeColors.welcomeHeart }]}>♡</Text>
+        </Text>
+
+        <Text style={[s.subText, { color: themeColors.text }]}>
+          Let&apos;s create your best{"\n"}look today.
+        </Text>
 
         <TouchableOpacity
           activeOpacity={0.85}
-          style={s.button}
+          style={[s.button, { backgroundColor: themeColors.welcomeButton }]}
           onPress={() => router.push("/(tabs)/upload-outfit" as any)}
         >
-          <Text style={s.buttonText}>Get Styled</Text>
-          <Text style={s.buttonStar}>✦</Text>
+          <Text
+            style={[s.buttonText, { color: themeColors.welcomeButtonText }]}
+          >
+            Get Styled
+          </Text>
+          <Text
+            style={[s.buttonStar, { color: themeColors.welcomeButtonText }]}
+          >
+            ✦
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={s.decorationWrap}>
+      <View style={[s.decorationWrap, isCompact && s.decorationWrapCompact]}>
         <Image
           source={clothingRackDecoration}
-          style={s.decoration}
-          resizeMode="cover"
+          style={[s.decoration, isCompact && s.decorationCompact]}
+          resizeMode={isCompact ? "cover" : "cover"}
         />
       </View>
     </View>
@@ -53,11 +86,15 @@ const s = StyleSheet.create({
     overflow: "hidden",
     position: "relative",
     justifyContent: "center",
-    shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 5,
+  },
+
+  cardCompact: {
+    minHeight: 420,
+    justifyContent: "center",
   },
 
   textWrap: {
@@ -66,8 +103,15 @@ const s = StyleSheet.create({
     zIndex: 5,
   },
 
+  textWrapCompact: {
+    width: "52%",
+    paddingLeft: 28,
+    paddingRight: 12,
+    paddingTop: 28,
+    paddingBottom: 28,
+  },
+
   welcome: {
-    color: "#1D3225",
     fontSize: 27,
     fontWeight: "500",
     marginBottom: -2,
@@ -75,7 +119,6 @@ const s = StyleSheet.create({
   },
 
   name: {
-    color: "#1D3225",
     fontSize: 62,
     fontWeight: "700",
     lineHeight: 64,
@@ -84,7 +127,6 @@ const s = StyleSheet.create({
   },
 
   subText: {
-    color: "#1D3225",
     fontSize: 16,
     lineHeight: 23,
     marginBottom: 24,
@@ -92,13 +134,11 @@ const s = StyleSheet.create({
   },
 
   heart: {
-    color: "#8CA997",
     fontSize: 44,
     fontWeight: "400",
   },
 
   button: {
-    backgroundColor: "#19352C",
     width: 190,
     height: 44,
     borderRadius: 999,
@@ -109,13 +149,11 @@ const s = StyleSheet.create({
   },
 
   buttonText: {
-    color: "#fff",
     fontWeight: "600",
     fontSize: 16,
   },
 
   buttonStar: {
-    color: "#fff",
     fontSize: 17,
   },
 
@@ -129,7 +167,22 @@ const s = StyleSheet.create({
     zIndex: 1,
   },
 
+  decorationWrapCompact: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: "78%",
+    overflow: "hidden",
+    zIndex: 1,
+  },
+
   decoration: {
+    width: "100%",
+    height: "100%",
+  },
+
+  decorationCompact: {
     width: "100%",
     height: "100%",
   },
