@@ -130,7 +130,6 @@ const s = StyleSheet.create({
   pageShell: {
     flex: 1,
     width: "100%",
-    minWidth: 720,
     alignSelf: "center",
   },
   scrollView: {
