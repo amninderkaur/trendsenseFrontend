@@ -17,11 +17,12 @@ export default function BodyAnalysisCard() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isCompact = width < 760;
+  const isMobile = width < 768;
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
-  const eyebrowSize = isWide ? 10 : 9;
-  const titleSize = isWide ? 36 : isMedium ? 32 : 30;
-  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
+  const eyebrowSize = isMobile ? 12 : isWide ? 10 : 9;
+  const titleSize = isMobile ? 36 : isWide ? 36 : isMedium ? 32 : 30;
+  const subtitleSize = isMobile ? 17 : isWide ? 15 : isMedium ? 14 : 13;
 
   const goToBodyAnalysis = () => {
     router.push("/(tabs)/body-analysis" as any);
@@ -34,13 +35,14 @@ export default function BodyAnalysisCard() {
       style={[
         s.card,
         isCompact && s.cardCompact,
+        isMobile && s.cardMobile,
         {
           backgroundColor: themeColors.bodyCardBg,
           shadowColor: themeColors.shadow,
         },
       ]}
     >
-      <View style={[s.content, isCompact && s.contentCompact]}>
+      <View style={[s.content, isCompact && s.contentCompact, isMobile && s.contentMobile]}>
         <Text
           style={[
             s.eyebrow,
@@ -122,6 +124,10 @@ const s = StyleSheet.create({
     minHeight: 220,
   },
 
+  cardMobile: {
+    minHeight: 280,
+  },
+
   content: {
     width: "57%",
     minHeight: 260,
@@ -135,6 +141,8 @@ const s = StyleSheet.create({
     paddingLeft: 22,
     paddingVertical: 22,
   },
+
+  contentMobile: { minHeight: 280 },
 
   eyebrow: {
     fontWeight: "700",

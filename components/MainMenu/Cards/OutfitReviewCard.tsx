@@ -5,12 +5,13 @@ import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "r
 export default function OutfitReviewCard() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const isMobile = width < 768;
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
-  const eyebrowSize = isWide ? 10 : isMedium ? 9 : 10;
-  const titleSize = isWide ? 38 : isMedium ? 35 : 34;
-  const subtitleSize = isWide ? 15 : isMedium ? 14 : 14;
-  const buttonTextSize = isWide ? 15 : 14;
+  const eyebrowSize = isMobile ? 12 : isWide ? 10 : isMedium ? 9 : 10;
+  const titleSize = isMobile ? 40 : isWide ? 38 : isMedium ? 35 : 34;
+  const subtitleSize = isMobile ? 17 : isWide ? 15 : isMedium ? 14 : 14;
+  const buttonTextSize = isMobile ? 16 : isWide ? 15 : 14;
 
   const goToOutfitReview = () => {
     router.push("/(tabs)/outfit-review" as any);
@@ -19,7 +20,7 @@ export default function OutfitReviewCard() {
   return (
     <TouchableOpacity
       activeOpacity={0.88}
-      style={s.card}
+      style={[s.card, isMobile && s.cardMobile]}
       onPress={goToOutfitReview}
     >
       <View style={s.content}>
@@ -68,6 +69,10 @@ const s = StyleSheet.create({
       height: 6,
     },
     elevation: 4,
+  },
+
+  cardMobile: {
+    minHeight: 310,
   },
 
   content: {

@@ -103,12 +103,12 @@ export default function StatsCard() {
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
   const isMobile = width < 600;
-  const cardHeight = isMobile ? 320 : isWide ? 170 : isMedium ? 158 : 145;
-  const numberSize = isMobile ? 34 : isWide ? 38 : isMedium ? 34 : 30;
-  const titleSize = isMobile ? 17 : isWide ? 17 : isMedium ? 15 : 14;
-  const subtitleSize = isMobile ? 14 : isWide ? 15 : isMedium ? 14 : 13;
-  const iconSize = isMobile ? 21 : isWide ? 28 : 24;
-  const iconCircleSize = isMobile ? 48 : isWide ? 66 : 58;
+  const cardHeight = isMobile ? 372 : isWide ? 170 : isMedium ? 158 : 145;
+  const numberSize = isMobile ? 42 : isWide ? 38 : isMedium ? 34 : 30;
+  const titleSize = isMobile ? 20 : isWide ? 17 : isMedium ? 15 : 14;
+  const subtitleSize = isMobile ? 19 : isWide ? 15 : isMedium ? 14 : 13;
+  const iconSize = isMobile ? 38 : isWide ? 28 : 24;
+  const iconCircleSize = isMobile ? 58 : isWide ? 66 : 58;
   const cellPadding = isMobile ? 0 : isWide ? 22 : 18;
 
   return (
@@ -170,7 +170,7 @@ export default function StatsCard() {
                   {
                     color: themeColors.text,
                     fontSize: titleSize,
-                    lineHeight: isMobile ? 21 : undefined,
+                    lineHeight: isMobile ? 25 : undefined,
                   },
                 ]}
               >
@@ -184,7 +184,7 @@ export default function StatsCard() {
                   {
                     color: themeColors.muted,
                     fontSize: subtitleSize,
-                    lineHeight: isMobile ? 18 : undefined,
+                    lineHeight: isMobile ? 21 : undefined,
                   },
                 ]}
               >
@@ -240,8 +240,10 @@ const styles = StyleSheet.create({
 
   cellMobile: {
     flexDirection: "column",
-    flex: 0,
-    width: "50%",
+    flexBasis: "50%",
+    flexGrow: 0,
+    flexShrink: 0,
+    maxWidth: "50%",
     height: "50%",
     paddingHorizontal: 8,
   },

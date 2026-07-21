@@ -230,12 +230,13 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
   const router = useRouter();
   const { themeColors } = useAppTheme();
   const { width } = useWindowDimensions();
+  const isMobile = width < 768;
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
-  const eyebrowSize = isWide ? 10 : isMedium ? 9 : 9;
-  const titleSize = isWide ? 36 : isMedium ? 32 : 30;
-  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
-  const buttonTextSize = isWide ? 14 : 13;
+  const eyebrowSize = isMobile ? 12 : isWide ? 10 : isMedium ? 9 : 9;
+  const titleSize = isMobile ? 36 : isWide ? 36 : isMedium ? 32 : 30;
+  const subtitleSize = isMobile ? 17 : isWide ? 15 : isMedium ? 14 : 13;
+  const buttonTextSize = isMobile ? 16 : isWide ? 14 : 13;
   const decorationCircleSize = isWide ? 190 : isMedium ? 170 : 150;
 
   const [season, setSeason] = useState<string | null>(null);
@@ -307,6 +308,7 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
       activeOpacity={0.88}
       style={[
         s.card,
+        isMobile && s.cardMobile,
         {
           backgroundColor: designColors.backgroundColor,
           shadowColor: themeColors.colourSeasonShadow,
@@ -320,7 +322,7 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
         </View>
       ) : hasAnalysis ? (
         <>
-          <View style={s.analyzedContent}>
+          <View style={[s.analyzedContent, isMobile && s.analyzedContentMobile]}>
             <Text
               style={[
                 s.analyzedEyebrow,
@@ -403,7 +405,7 @@ export default function ColourSeasonCard({ previewSeason }: Props) {
         </>
       ) : (
         <>
-          <View style={s.content}>
+          <View style={[s.content, isMobile && s.contentMobile]}>
             <View style={s.textContent}>
               <Text style={[s.eyebrow, { color: themeColors.colourSeasonEyebrow, fontSize: eyebrowSize }]}>PERSONAL COLOUR</Text>
 
@@ -478,6 +480,10 @@ const s = StyleSheet.create({
     elevation: 4,
   },
 
+  cardMobile: {
+    minHeight: 300,
+  },
+
   analyzedContent: {
     width: "48%",
     minHeight: 286,
@@ -486,6 +492,8 @@ const s = StyleSheet.create({
     paddingVertical: 22,
     zIndex: 4,
   },
+
+  analyzedContentMobile: { minHeight: 300 },
 
   analyzedEyebrow: {
     fontWeight: "700",
@@ -634,6 +642,8 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     zIndex: 3,
   },
+
+  contentMobile: { minHeight: 300 },
 
   textContent: {
     flex: 1,

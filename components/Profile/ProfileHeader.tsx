@@ -52,6 +52,7 @@ export default function ProfileHeader({
   // responsive layout state
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 900;
+  const isMobile = width < 600;
 
   // ================
   //     RENDER
@@ -64,6 +65,7 @@ export default function ProfileHeader({
           backgroundColor: themeColors.card,
           shadowColor: themeColors.shadow,
         },
+        isMobile && styles.mobileProfileHero,
         isLargeScreen && styles.largeProfileHero,
       ]}
     >
@@ -71,12 +73,14 @@ export default function ProfileHeader({
         style={[
           styles.profileHeroSurface,
           { backgroundColor: themeColors.card },
+          isMobile && styles.mobileProfileHeroSurface,
           isLargeScreen && styles.largeProfileHeroSurface,
         ]}
       >
         <View
           style={[
             styles.profileHeroContent,
+            isMobile && styles.mobileProfileHeroContent,
             isLargeScreen && styles.largeProfileHeroContent,
           ]}
         >
@@ -134,11 +138,17 @@ export default function ProfileHeader({
             )}
           </TouchableOpacity>
 
-          <View style={styles.profileTextBlock}>
+          <View
+            style={[
+              styles.profileTextBlock,
+              isMobile && styles.mobileProfileTextBlock,
+            ]}
+          >
             <Text
               style={[
                 styles.heroName,
                 { color: themeColors.text },
+                isMobile && styles.mobileHeroText,
                 isLargeScreen && styles.largeHeroName,
               ]}
             >
@@ -149,6 +159,7 @@ export default function ProfileHeader({
               style={[
                 styles.heroEmail,
                 { color: themeColors.muted },
+                isMobile && styles.mobileHeroText,
                 isLargeScreen && styles.largeHeroEmail,
               ]}
             >
@@ -157,19 +168,21 @@ export default function ProfileHeader({
           </View>
         </View>
 
-        <View
-          style={[
-            styles.heroImageBlock,
-            isLargeScreen && styles.largeHeroImageBlock,
-          ]}
-          pointerEvents="none"
-        >
-          <Image
-            source={isDarkMode ? darkHeroImage : lightHeroImage}
-            style={styles.heroDecorImage}
-            resizeMode="cover"
-          />
-        </View>
+        {!isMobile && (
+          <View
+            style={[
+              styles.heroImageBlock,
+              isLargeScreen && styles.largeHeroImageBlock,
+            ]}
+            pointerEvents="none"
+          >
+            <Image
+              source={isDarkMode ? darkHeroImage : lightHeroImage}
+              style={styles.heroDecorImage}
+              resizeMode="cover"
+            />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -197,6 +210,10 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
 
+  mobileProfileHero: {
+    minHeight: 270,
+  },
+
   profileHeroSurface: {
     flex: 1,
     borderRadius: 28,
@@ -207,6 +224,10 @@ const styles = StyleSheet.create({
 
   largeProfileHeroSurface: {
     borderRadius: 40,
+  },
+
+  mobileProfileHeroSurface: {
+    flexDirection: "column",
   },
 
   profileHeroContent: {
@@ -224,6 +245,17 @@ const styles = StyleSheet.create({
     minHeight: 300,
     paddingHorizontal: 44,
     gap: 24,
+  },
+
+  mobileProfileHeroContent: {
+    width: "100%",
+    minHeight: 270,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 14,
   },
 
   avatarTouchable: {
@@ -270,6 +302,15 @@ const styles = StyleSheet.create({
   profileTextBlock: {
     gap: 6,
     flexShrink: 1,
+  },
+
+  mobileProfileTextBlock: {
+    width: "100%",
+    alignItems: "center",
+  },
+
+  mobileHeroText: {
+    textAlign: "center",
   },
 
   heroName: {

@@ -1,45 +1,38 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { useAppTheme } from "@/context/ThemeContext";
-import { LinearGradient } from "expo-linear-gradient";
 import { usePathname, useRouter } from "expo-router";
 import React from "react";
-import {
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const NAV = [
   {
-    id: "home",
-    label: "Home",
-    icon: "⌂",
+    id: "dashboard",
+    label: "Dashboard",
+    icon: "dashboard" as const,
     route: "/(tabs)/mainMenu",
+    pathname: "/mainMenu",
   },
   {
-    id: "wardrobe",
-    label: "Wardrobe",
-    icon: "▣",
-    route: "/(tabs)/wardrobe",
-  },
-  {
-    id: "advice",
-    label: "Outfit Advice",
-    icon: "✦",
-    route: "/(tabs)/upload-outfit",
+    id: "chatbot",
+    label: "Chatbot",
+    icon: "chat-bubble-outline" as const,
+    route: "/chatbot",
+    pathname: "/chatbot",
   },
   {
     id: "profile",
     label: "Profile",
-    icon: "◯",
+    icon: "person-outline" as const,
     route: "/(tabs)/profile",
+    pathname: "/profile",
   },
 ] as const;
 
 export default function MobileBottomNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
   const { themeColors } = useAppTheme();
 
   return (
@@ -47,43 +40,47 @@ export default function MobileBottomNav() {
       style={[
         styles.nav,
         {
+          paddingBottom: Math.max(insets.bottom, 10),
           backgroundColor: themeColors.card,
           borderTopColor: themeColors.input,
+          shadowColor: themeColors.shadow,
         },
       ]}
     >
       {NAV.map((item) => {
-        const active = pathname === item.route;
+        const active = pathname === item.pathname;
 
         return (
           <TouchableOpacity
             key={item.id}
+            accessibilityRole="button"
+            accessibilityLabel={item.label}
+            accessibilityState={{ selected: active }}
+            activeOpacity={0.75}
             style={styles.navItem}
             onPress={() => {
-              if (!active) router.push(item.route as any);
+              if (!active) router.replace(item.route as any);
             }}
           >
-            {active ? (
-              <LinearGradient
-                colors={[themeColors.button, themeColors.bgDark]}
-                style={styles.activePill}
-              >
-                <Text style={[styles.icon, { color: themeColors.white }]}>
-                  {item.icon}
-                </Text>
-              </LinearGradient>
-            ) : (
-              <View style={styles.inactivePill}>
-                <Text style={[styles.icon, { color: themeColors.text }]}>
-                  {item.icon}
-                </Text>
-              </View>
-            )}
+            <View
+              style={[
+                styles.iconPill,
+                active && { backgroundColor: themeColors.welcomeButton },
+              ]}
+            >
+              <MaterialIcons
+                name={item.icon}
+                size={24}
+                color={
+                  active ? themeColors.welcomeButtonText : themeColors.muted
+                }
+              />
+            </View>
 
             <Text
               style={[
                 styles.label,
-                { color: active ? themeColors.accent : themeColors.muted },
+                { color: active ? themeColors.text : themeColors.muted },
                 active && styles.activeLabel,
               ]}
             >
@@ -101,33 +98,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderTopWidth: 1,
     paddingTop: 8,
-    paddingBottom: Platform.OS === "ios" ? 22 : 12,
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -3 },
+    elevation: 12,
+    zIndex: 50,
   },
 
   navItem: {
     flex: 1,
+    minHeight: 54,
     alignItems: "center",
-    gap: 2,
+    justifyContent: "center",
+    gap: 3,
   },
 
-  activePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+  iconPill: {
+    minWidth: 54,
+    height: 30,
     borderRadius: 16,
-  },
-
-  inactivePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 16,
-  },
-
-  icon: {
-    fontSize: 19,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   label: {
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: "500",
   },
 

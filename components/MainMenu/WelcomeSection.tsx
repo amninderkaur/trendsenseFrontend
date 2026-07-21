@@ -194,7 +194,7 @@ const s = StyleSheet.create({
   },
 
   welcomeMobile: {
-    fontSize: 22,
+    fontSize: 24,
     lineHeight: 27,
     marginBottom: 1,
   },
@@ -221,7 +221,7 @@ const s = StyleSheet.create({
   },
 
   subTextMobile: {
-    fontSize: 14,
+    fontSize: 19,
     lineHeight: 20,
     marginBottom: 20,
   },

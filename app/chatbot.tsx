@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -131,21 +132,22 @@ export default function ChatbotScreen() {
             { backgroundColor: themeColors.bg },
           ]}
         >
-          <Pressable
-            onPress={() => router.back()}
-            style={[
-              isLargeScreen
-                ? [globalStyles.iconButton, globalStyles.largeIconButton]
-                : globalStyles.iconButton,
-              { backgroundColor: themeColors.card },
-            ]}
-          >
-            <MaterialIcons
-              name="chevron-left"
-              size={iconSize}
-              color={themeColors.text}
-            />
-          </Pressable>
+          {isLargeScreen && (
+            <Pressable
+              onPress={() => router.back()}
+              style={[
+                globalStyles.iconButton,
+                globalStyles.largeIconButton,
+                { backgroundColor: themeColors.card },
+              ]}
+            >
+              <MaterialIcons
+                name="chevron-left"
+                size={iconSize}
+                color={themeColors.text}
+              />
+            </Pressable>
+          )}
 
           <View>
             <Text
@@ -153,6 +155,7 @@ export default function ChatbotScreen() {
                 isLargeScreen
                   ? [globalStyles.pageTitle, globalStyles.largeSectionTitle]
                   : globalStyles.pageTitle,
+                !isLargeScreen && styles.mobileTitle,
                 { color: themeColors.text },
               ]}
             >
@@ -164,6 +167,7 @@ export default function ChatbotScreen() {
                 isLargeScreen
                   ? [globalStyles.bodyText, globalStyles.largeCardText]
                   : globalStyles.bodyText,
+                !isLargeScreen && styles.mobileSubtitle,
                 { color: themeColors.muted },
               ]}
             >
@@ -197,6 +201,7 @@ export default function ChatbotScreen() {
                     : isUser
                       ? globalStyles.userBubble
                       : globalStyles.botBubble,
+                  !isLargeScreen && styles.mobileBubble,
                   {
                     backgroundColor: isUser
                       ? themeColors.blueDark
@@ -214,6 +219,7 @@ export default function ChatbotScreen() {
                       : isUser
                         ? globalStyles.userText
                         : globalStyles.botText,
+                    !isLargeScreen && styles.mobileMessageText,
                     {
                       color: isUser ? themeColors.white : themeColors.text,
                     },
@@ -262,6 +268,7 @@ export default function ChatbotScreen() {
                           globalStyles.largeQuickPromptText,
                         ]
                       : globalStyles.quickPromptText,
+                    !isLargeScreen && styles.mobilePromptText,
                     { color: themeColors.text },
                   ]}
                 >
@@ -289,6 +296,7 @@ export default function ChatbotScreen() {
               isLargeScreen
                 ? [globalStyles.chatInput, globalStyles.largeChatInput]
                 : globalStyles.chatInput,
+              !isLargeScreen && styles.mobileInput,
               {
                 backgroundColor: themeColors.input,
                 color: themeColors.text,
@@ -327,3 +335,36 @@ export default function ChatbotScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  mobileTitle: {
+    fontSize: 32,
+    lineHeight: 38,
+    marginBottom: 5,
+  },
+  mobileSubtitle: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  mobileBubble: {
+    maxWidth: "88%",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  mobileMessageText: {
+    fontSize: 17,
+    lineHeight: 25,
+  },
+  mobilePromptText: {
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  mobileInput: {
+    minHeight: 52,
+    borderRadius: 26,
+    paddingHorizontal: 17,
+    paddingVertical: 13,
+    fontSize: 17,
+    lineHeight: 23,
+  },
+});

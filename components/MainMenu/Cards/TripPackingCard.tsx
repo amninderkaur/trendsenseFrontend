@@ -17,12 +17,13 @@ export default function TripPackingCard() {
   const router = useRouter();
   const { isDarkMode } = useAppTheme();
   const { width } = useWindowDimensions();
+  const isMobile = width < 768;
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
-  const eyebrowSize = isWide ? 10 : isMedium ? 9 : 9;
-  const titleSize = isWide ? 36 : isMedium ? 32 : 30;
-  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
-  const buttonTextSize = isWide ? 14 : 13;
+  const eyebrowSize = isMobile ? 12 : isWide ? 10 : isMedium ? 9 : 9;
+  const titleSize = isMobile ? 36 : isWide ? 36 : isMedium ? 32 : 30;
+  const subtitleSize = isMobile ? 17 : isWide ? 15 : isMedium ? 14 : 13;
+  const buttonTextSize = isMobile ? 16 : isWide ? 14 : 13;
 
   const goToTripPacking = () => {
     router.push("/(tabs)/trip-packing" as any);
@@ -31,10 +32,10 @@ export default function TripPackingCard() {
   return (
     <TouchableOpacity
       activeOpacity={0.88}
-      style={s.card}
+      style={[s.card, isMobile && s.cardMobile]}
       onPress={goToTripPacking}
     >
-      <View style={s.content}>
+      <View style={[s.content, isMobile && s.contentMobile]}>
         <View style={s.textContent}>
           <Text style={[s.eyebrow, { fontSize: eyebrowSize }]}>
             TRAVEL STYLING
@@ -72,7 +73,7 @@ export default function TripPackingCard() {
         <View style={s.smallCircle} />
 
         <Image
-          source={lightSuitcase}
+          source={isDarkMode ? darkSuitcase : lightSuitcase}
           style={s.suitcaseImage}
           resizeMode="contain"
         />
@@ -100,6 +101,8 @@ const s = StyleSheet.create({
     elevation: 4,
   },
 
+  cardMobile: { minHeight: 290 },
+
   content: {
     width: "70%",
     minHeight: 220,
@@ -108,6 +111,8 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     zIndex: 3,
   },
+
+  contentMobile: { minHeight: 290 },
 
   textContent: {
     flex: 1,

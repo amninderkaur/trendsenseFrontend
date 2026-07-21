@@ -1,29 +1,31 @@
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 export default function LookHistoryCard() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
 
   const goToHistory = () => {
     router.push("/(tabs)/history" as any);
   };
 
   return (
-    <TouchableOpacity activeOpacity={0.88} style={s.card} onPress={goToHistory}>
-      <View style={s.content}>
+    <TouchableOpacity activeOpacity={0.88} style={[s.card, isMobile && s.cardMobile]} onPress={goToHistory}>
+      <View style={[s.content, isMobile && s.contentMobile]}>
         <View style={s.textContent}>
-          <Text style={s.eyebrow}>STYLE JOURNEY</Text>
+          <Text style={[s.eyebrow, isMobile && s.eyebrowMobile]}>STYLE JOURNEY</Text>
 
-          <Text style={s.title}>Look History</Text>
+          <Text style={[s.title, isMobile && s.titleMobile]}>Look History</Text>
 
-          <Text style={s.subtitle}>
+          <Text style={[s.subtitle, isMobile && s.subtitleMobile]}>
             Browse your previous outfits and see how your style has evolved.
           </Text>
         </View>
 
         <View style={s.button}>
-          <Text style={s.buttonText}>View history</Text>
+          <Text style={[s.buttonText, isMobile && s.buttonTextMobile]}>View history</Text>
           <Text style={s.buttonArrow}>→</Text>
         </View>
       </View>
@@ -59,6 +61,8 @@ const s = StyleSheet.create({
     elevation: 5,
   },
 
+  cardMobile: { minHeight: 290 },
+
   content: {
     width: "70%",
     minHeight: 236,
@@ -67,6 +71,8 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     zIndex: 3,
   },
+
+  contentMobile: { minHeight: 290 },
 
   textContent: {
     flexShrink: 1,
@@ -81,6 +87,8 @@ const s = StyleSheet.create({
     marginBottom: 7,
   },
 
+  eyebrowMobile: { fontSize: 12 },
+
   title: {
     color: "#FFFFFF",
     fontFamily: "Cormorant Garamond",
@@ -90,6 +98,8 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
 
+  titleMobile: { fontSize: 36, lineHeight: 40 },
+
   subtitle: {
     maxWidth: 220,
     color: "rgba(255,255,255,0.68)",
@@ -97,6 +107,8 @@ const s = StyleSheet.create({
     lineHeight: 19,
     marginBottom: 18,
   },
+
+  subtitleMobile: { fontSize: 17, lineHeight: 23 },
 
   button: {
     position: "absolute",
@@ -121,6 +133,8 @@ const s = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
   },
+
+  buttonTextMobile: { fontSize: 16 },
 
   buttonArrow: {
     color: "#FFFFFF",

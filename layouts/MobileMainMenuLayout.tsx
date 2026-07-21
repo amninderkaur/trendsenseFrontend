@@ -98,6 +98,7 @@ export default function MobileMainMenuLayout() {
           <HomeHeader
             avatarUri={avatarUri}
             userName={displayName}
+            showProfileAction={false}
           />
 
           {/* Main dashboard cards */}

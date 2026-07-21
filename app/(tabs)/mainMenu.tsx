@@ -1,11 +1,12 @@
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, useWindowDimensions } from "react-native";
 
 import MobileMainMenuLayout from "../../layouts/MobileMainMenuLayout";
 import WebMainMenuLayout from "../../layouts/WebMainMenuLayout";
 
 export default function MainMenu() {
-  const isWeb = Platform.OS === "web";
+  const { width } = useWindowDimensions();
+  const useWebLayout = Platform.OS === "web" && width >= 768;
 
-  return isWeb ? <WebMainMenuLayout /> : <MobileMainMenuLayout />;
+  return useWebLayout ? <WebMainMenuLayout /> : <MobileMainMenuLayout />;
 }

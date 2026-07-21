@@ -40,10 +40,11 @@ export default function WardrobeCarousel() {
   const [cardWidth, setCardWidth] = useState(320);
 
   const isWeb = Platform.OS === "web";
+  const isMobile = width < 768;
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
-  const titleSize = isWide ? 26 : isMedium ? 24 : 23;
-  const viewAllSize = isWide ? 14 : 13;
+  const titleSize = isMobile ? 25 : isWide ? 26 : isMedium ? 24 : 23;
+  const viewAllSize = isMobile ? 15 : isWide ? 14 : 13;
   const emptyTitleSize = isWide ? 18 : 16;
   const emptySubSize = isWide ? 14 : 13;
 
@@ -123,6 +124,7 @@ export default function WardrobeCarousel() {
     <View
       style={[
         s.card,
+        isMobile && s.cardMobile,
         {
           backgroundColor: themeColors.card,
           shadowColor: themeColors.shadow,
@@ -130,9 +132,17 @@ export default function WardrobeCarousel() {
       ]}
       onLayout={(e) => setCardWidth(e.nativeEvent.layout.width)}
     >
-      <View style={s.header}>
+      <View style={[s.header, isMobile && s.headerMobile]}>
         <View style={s.titleRow}>
-          <Text style={[s.hangerIcon, { color: themeColors.text }]}>♧</Text>
+          <Text
+            style={[
+              s.hangerIcon,
+              isMobile && s.hangerIconMobile,
+              { color: themeColors.text },
+            ]}
+          >
+            ♧
+          </Text>
           <Text style={[s.title, { color: themeColors.text, fontSize: titleSize }]}>My Wardrobe</Text>
         </View>
 
@@ -141,7 +151,7 @@ export default function WardrobeCarousel() {
             <Text style={[s.viewAll, { color: themeColors.text, fontSize: viewAllSize }]}>View all →</Text>
           </TouchableOpacity>
 
-          {isWeb && (
+          {isWeb && !isMobile && (
             <View style={s.arrowRow}>
               <TouchableOpacity
                 activeOpacity={0.75}
@@ -183,16 +193,25 @@ export default function WardrobeCarousel() {
             decelerationRate="fast"
             onScroll={(e) => setScrollX(e.nativeEvent.contentOffset.x)}
             scrollEventThrottle={16}
-            contentContainerStyle={s.carouselContent}
+            contentContainerStyle={[
+              s.carouselContent,
+              isMobile && s.carouselContentMobile,
+            ]}
           >
             {items.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 activeOpacity={0.85}
-                style={s.itemWrap}
+                style={[s.itemWrap, isMobile && s.itemWrapMobile]}
                 onPress={() => goToItem(item.id)}
               >
-                <View style={[s.imageBox, { backgroundColor: themeColors.wardrobeImageBg }]}>
+                <View
+                  style={[
+                    s.imageBox,
+                    isMobile && s.imageBoxMobile,
+                    { backgroundColor: themeColors.wardrobeImageBg },
+                  ]}
+                >
                   <Image
                     source={{
                       uri: `data:image/png;base64,${item.generatedImageBase64}`,
@@ -205,12 +224,13 @@ export default function WardrobeCarousel() {
             ))}
           </ScrollView>
 
-          <View style={s.dots}>
+          <View style={[s.dots, isMobile && s.dotsMobile]}>
             {Array.from({ length: INDICATOR_COUNT }).map((_, index) => (
               <View
                 key={index}
                 style={[
                   s.dot,
+                  isMobile && s.dotMobile,
                   {
                     backgroundColor:
                       index === activeIndicator
@@ -240,11 +260,21 @@ const s = StyleSheet.create({
     elevation: 4,
   },
 
+  cardMobile: {
+    height: 220,
+    borderRadius: 24,
+    padding: 16,
+  },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 18,
+  },
+
+  headerMobile: {
+    marginBottom: 14,
   },
 
   titleRow: {
@@ -255,6 +285,10 @@ const s = StyleSheet.create({
 
   hangerIcon: {
     fontSize: 22,
+  },
+
+  hangerIconMobile: {
+    fontSize: 28,
   },
 
   title: {
@@ -269,7 +303,7 @@ const s = StyleSheet.create({
   },
 
   viewAll: {
-    fontWeight: "500",
+    fontWeight: "600",
   },
 
   arrowRow: {
@@ -296,9 +330,18 @@ const s = StyleSheet.create({
     paddingRight: 18,
   },
 
+  carouselContentMobile: {
+    gap: 12,
+    paddingRight: 12,
+  },
+
   itemWrap: {
     width: 102,
     alignItems: "center",
+  },
+
+  itemWrapMobile: {
+    width: 86,
   },
 
   imageBox: {
@@ -308,6 +351,12 @@ const s = StyleSheet.create({
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  imageBoxMobile: {
+    width: 86,
+    height: 86,
+    borderRadius: 12,
   },
 
   itemImage: {
@@ -322,10 +371,19 @@ const s = StyleSheet.create({
     gap: 8,
   },
 
+  dotsMobile: {
+    marginTop: 12,
+    gap: 6,
+  },
+
   dot: {
     width: 42,
     height: 5,
     borderRadius: 999,
+  },
+
+  dotMobile: {
+    width: 32,
   },
 
   emptyState: {

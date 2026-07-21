@@ -37,19 +37,20 @@ export default function HomeHeader({
   );
 
   const isWeb = Platform.OS === "web";
+  const useMobileHeader = !isWeb || width < 768;
   const isSmallWeb = width < 900;
   const isMediumWeb = width < 1200;
 
   const headerHeight = isSmallWeb ? 145 : 165;
   const horizontalPadding = isSmallWeb ? 22 : isMediumWeb ? 32 : 40;
-  const titleSize = isSmallWeb ? 26 : isMediumWeb ? 34 : 42;
+  const titleSize = isSmallWeb ? 29 : isMediumWeb ? 34 : 42;
   const taglineSize = isSmallWeb ? 11 : isMediumWeb ? 13 : 15;
   const avatarSize = isSmallWeb ? 54 : isMediumWeb ? 66 : 76;
   const profileTextSize = isSmallWeb ? 14 : isMediumWeb ? 17 : 20;
   const viewProfileSize = isSmallWeb ? 11 : isMediumWeb ? 12 : 14;
   const letterSpacing = isSmallWeb ? 2 : isMediumWeb ? 3.5 : 5;
 
-  if (!isWeb) {
+  if (useMobileHeader) {
     return (
       <LinearGradient
         colors={[
@@ -213,13 +214,13 @@ const s = StyleSheet.create({
   },
 
   mobileAppName: {
-    fontSize: 27,
+    fontSize: 30,
     fontWeight: "800",
     letterSpacing: 3,
   },
 
   mobileTagline: {
-    fontSize: 15,
+    fontSize: 19,
     lineHeight: 21,
     letterSpacing: 0.8,
     marginTop: 5,

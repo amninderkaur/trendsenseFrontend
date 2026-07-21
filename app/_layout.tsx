@@ -7,11 +7,12 @@ import {
 import { Stack, usePathname } from "expo-router";
 
 import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
+import { Platform, View, useWindowDimensions } from "react-native";
 
 import "react-native-reanimated";
 
 import FloatingChatButton from "@/components/floating-chat-button";
+import MobileBottomNav from "@/components/MainMenu/MobileBottomNav";
 import { AppThemeProvider } from "@/context/ThemeContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
@@ -20,6 +21,8 @@ import "../global.css";
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const pathname = usePathname();
+  const { width } = useWindowDimensions();
+  const isMobileViewport = Platform.OS !== "web" || width < 768;
 
   const hideChatButton =
     pathname === "/" ||
@@ -28,6 +31,9 @@ export default function RootLayout() {
     pathname.includes("otp") ||
     pathname.includes("upload-outfit") ||
     pathname.includes("chatbot");
+  const showMobileBottomNav =
+    isMobileViewport &&
+    ["/mainMenu", "/chatbot", "/profile"].includes(pathname);
 
   return (
     <AppThemeProvider>
@@ -45,7 +51,10 @@ export default function RootLayout() {
           />
         </Stack>
 
-        {!hideChatButton && <FloatingChatButton />}
+        {Platform.OS === "web" &&
+          !isMobileViewport &&
+          !hideChatButton && <FloatingChatButton />}
+        {showMobileBottomNav && <MobileBottomNav />}
       </View>
 
       <StatusBar style="auto" />
