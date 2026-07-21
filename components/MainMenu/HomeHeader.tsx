@@ -1,4 +1,5 @@
 import { useAppTheme } from "@/context/ThemeContext";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -50,7 +51,15 @@ export default function HomeHeader({
 
   if (!isWeb) {
     return (
-      <View style={[s.mobileHeader, { backgroundColor: themeColors.headerBg }]}>
+      <LinearGradient
+        colors={[
+          themeColors.headerGradientStart,
+          themeColors.headerGradientEnd,
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={s.mobileHeader}
+      >
         <View>
           <Text style={[s.mobileAppName, { color: themeColors.headerText }]}>
             TRENDSENSE
@@ -78,7 +87,7 @@ export default function HomeHeader({
             )}
           </TouchableOpacity>
         )}
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -191,9 +200,10 @@ const s = StyleSheet.create({
   },
 
   mobileHeader: {
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 26,
+    minHeight: 124,
+    paddingHorizontal: 16,
+    paddingTop: 22,
+    paddingBottom: 24,
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
     marginBottom: 20,
@@ -203,15 +213,16 @@ const s = StyleSheet.create({
   },
 
   mobileAppName: {
-    fontSize: 32,
+    fontSize: 27,
     fontWeight: "800",
     letterSpacing: 3,
   },
 
   mobileTagline: {
-    fontSize: 13,
-    letterSpacing: 1,
-    marginTop: 4,
+    fontSize: 15,
+    lineHeight: 21,
+    letterSpacing: 0.8,
+    marginTop: 5,
     fontStyle: "italic",
   },
 
