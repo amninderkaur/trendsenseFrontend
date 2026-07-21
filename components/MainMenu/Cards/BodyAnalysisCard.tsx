@@ -1,8 +1,8 @@
 import { useAppTheme } from "@/context/ThemeContext";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -95,7 +95,8 @@ export default function BodyAnalysisCard() {
         <Text style={[s.sparkleLeft, { color: themeColors.bodyCardDecoration }]}>✦</Text>
         <Image
           source={bodyOutline}
-          resizeMode="contain"
+          contentFit="contain"
+          contentPosition="center"
           style={[s.figure, { tintColor: themeColors.bodyOutline }]}
         />
         <Text style={[s.sparkleRight, { color: themeColors.bodyCardDecoration }]}>✦</Text>

@@ -1,8 +1,9 @@
 import { useAppTheme } from "@/context/ThemeContext";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -24,12 +25,14 @@ export default function WelcomeCard({ userName, style }: Props) {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isCompact = width < 1180;
+  const isMobile = width < 600;
 
   return (
     <View
       style={[
         s.card,
         isCompact && s.cardCompact,
+        isMobile && s.cardMobile,
         style,
         {
           backgroundColor: themeColors.card,
@@ -37,23 +40,66 @@ export default function WelcomeCard({ userName, style }: Props) {
         },
       ]}
     >
-      <View style={[s.textWrap, isCompact && s.textWrapCompact]}>
-        <Text style={[s.welcome, { color: themeColors.text }]}>
+      {isMobile && (
+        <LinearGradient
+          pointerEvents="none"
+          colors={[
+            themeColors.card,
+            themeColors.card,
+            `${themeColors.card}00`,
+          ]}
+          locations={[0, 0.58, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={s.mobileTextFade}
+        />
+      )}
+
+      <View
+        style={[
+          s.textWrap,
+          isCompact && s.textWrapCompact,
+          isMobile && s.textWrapMobile,
+        ]}
+      >
+        <Text
+          style={[
+            s.welcome,
+            isMobile && s.welcomeMobile,
+            { color: themeColors.text },
+          ]}
+        >
           Welcome back,
         </Text>
 
-        <Text style={[s.name, { color: themeColors.text }]}>
+        <Text
+          style={[
+            s.name,
+            isMobile && s.nameMobile,
+            { color: themeColors.text },
+          ]}
+        >
           {userName}!{" "}
           <Text style={[s.heart, { color: themeColors.welcomeHeart }]}>♡</Text>
         </Text>
 
-        <Text style={[s.subText, { color: themeColors.text }]}>
+        <Text
+          style={[
+            s.subText,
+            isMobile && s.subTextMobile,
+            { color: themeColors.text },
+          ]}
+        >
           Let&apos;s create your best{"\n"}look today.
         </Text>
 
         <TouchableOpacity
           activeOpacity={0.85}
-          style={[s.button, { backgroundColor: themeColors.welcomeButton }]}
+          style={[
+            s.button,
+            isMobile && s.buttonMobile,
+            { backgroundColor: themeColors.welcomeButton },
+          ]}
           onPress={() => router.push("/(tabs)/upload-outfit" as any)}
         >
           <Text
@@ -69,11 +115,18 @@ export default function WelcomeCard({ userName, style }: Props) {
         </TouchableOpacity>
       </View>
 
-      <View style={[s.decorationWrap, isCompact && s.decorationWrapCompact]}>
+      <View
+        style={[
+          s.decorationWrap,
+          isCompact && s.decorationWrapCompact,
+          isMobile && s.decorationWrapMobile,
+        ]}
+      >
         <Image
           source={clothingRackDecoration}
           style={[s.decoration, isCompact && s.decorationCompact]}
-          resizeMode={isCompact ? "cover" : "cover"}
+          contentFit="cover"
+          contentPosition="right center"
         />
       </View>
     </View>
@@ -97,6 +150,20 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
 
+  cardMobile: {
+    minHeight: 280,
+    borderRadius: 26,
+  },
+
+  mobileTextFade: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: "76%",
+    zIndex: 3,
+  },
+
   textWrap: {
     width: "45%",
     paddingLeft: 42,
@@ -111,11 +178,25 @@ const s = StyleSheet.create({
     paddingBottom: 28,
   },
 
+  textWrapMobile: {
+    width: "68%",
+    paddingLeft: 22,
+    paddingRight: 8,
+    paddingTop: 24,
+    paddingBottom: 24,
+  },
+
   welcome: {
     fontSize: 27,
     fontWeight: "500",
     marginBottom: -2,
     fontFamily: "Cormorant Garamond",
+  },
+
+  welcomeMobile: {
+    fontSize: 22,
+    lineHeight: 27,
+    marginBottom: 1,
   },
 
   name: {
@@ -126,11 +207,23 @@ const s = StyleSheet.create({
     fontFamily: "Cormorant Garamond",
   },
 
+  nameMobile: {
+    fontSize: 42,
+    lineHeight: 47,
+    marginBottom: 18,
+  },
+
   subText: {
     fontSize: 16,
     lineHeight: 23,
     marginBottom: 24,
     fontWeight: "400",
+  },
+
+  subTextMobile: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 20,
   },
 
   heart: {
@@ -146,6 +239,11 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 14,
+  },
+
+  buttonMobile: {
+    width: 150,
+    height: 42,
   },
 
   buttonText: {
@@ -175,6 +273,10 @@ const s = StyleSheet.create({
     width: "78%",
     overflow: "hidden",
     zIndex: 1,
+  },
+
+  decorationWrapMobile: {
+    width: "82%",
   },
 
   decoration: {

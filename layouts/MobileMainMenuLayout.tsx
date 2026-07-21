@@ -1,728 +1,196 @@
+import BodyAnalysisCard from "@/components/MainMenu/Cards/BodyAnalysisCard";
+import ColourSeasonCard from "@/components/MainMenu/Cards/ColorSeasonCard";
+import LookHistoryCard from "@/components/MainMenu/Cards/LookHistoryCard";
+import OutfitReviewCard from "@/components/MainMenu/Cards/OutfitReviewCard";
+import SavedLooksCard from "@/components/MainMenu/Cards/SavedLooksCard";
+import StyleBudgetCard from "@/components/MainMenu/Cards/StyleBudgetCard";
+import TrendsCard from "@/components/MainMenu/Cards/TrendsCard";
+import TripPackingCard from "@/components/MainMenu/Cards/TripPackingCard";
+import FeatureGrid from "@/components/MainMenu/FeatureGrid";
+import HomeHeader from "@/components/MainMenu/HomeHeader";
+import StatsCard from "@/components/MainMenu/StatsCard";
+import WardrobeCarousel from "@/components/MainMenu/WardrobeCarousel";
+import WelcomeCard from "@/components/MainMenu/WelcomeSection";
 import { useAppTheme } from "@/context/ThemeContext";
-import { LinearGradient } from "expo-linear-gradient";
+
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { prefetchTrends } from "../api/trends";
-import { getRole } from "../utils/token";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const NAV = [
-  {
-    id: "home",
-    label: "Home",
-    icon: "⌂",
-    route: "/(tabs)/mainMenu",
-    active: true,
-  },
-  {
-    id: "upload",
-    label: "Upload",
-    icon: "+",
-    route: "/(tabs)/upload-clothes",
-    active: false,
-  },
-  {
-    id: "profile",
-    label: "Me",
-    icon: "◯",
-    route: "/(tabs)/profile",
-    active: false,
-  },
-] as const;
+import { prefetchTrends } from "../api/trends";
+import { getMe } from "../api/user";
+import { getName, getRole } from "../utils/token";
 
 export default function MobileMainMenuLayout() {
-  const { themeColors, isDarkMode, toggleDarkMode } = useAppTheme();
+  const { themeColors } = useAppTheme();
   const router = useRouter();
+
   const isAdmin = getRole() === "ADMIN";
+  const displayName = getName() || "TrendSense User";
+
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   useEffect(() => {
     prefetchTrends();
   }, []);
 
+  /*
+   * Reload the profile picture whenever the user returns
+   * to the main menu from the profile page.
+   */
+  const loadProfilePicture = useCallback(() => {
+    getMe()
+      .then((data) => {
+        if (data?.profilePicture) {
+          setAvatarUri(
+            `data:${data.profilePictureType};base64,${data.profilePicture}`,
+          );
+        } else {
+          setAvatarUri(null);
+        }
+      })
+      .catch(() => {
+        // Keep the existing image if the request fails.
+      });
+  }, []);
+
+  useFocusEffect(loadProfilePicture);
+
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: themeColors.bg }]}>
-      {isAdmin && (
-        <TouchableOpacity
-          style={s.adminBanner}
-          onPress={() => router.replace("/admin/dashboard" as any)}
-        >
-          <Text style={s.adminBannerText}>⚙️ Admin — viewing as user</Text>
-          <Text style={s.adminBannerLink}>Admin View →</Text>
-        </TouchableOpacity>
-      )}
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={s.scroll}
-      >
-        {/* ── HEADER ── */}
-        <LinearGradient
-          colors={["#1C2B25", "#2A3D35", "#3A4F44"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={s.header}
-        >
-          <View style={s.decCircle1} />
-          <View style={s.decCircle2} />
-
-          <View style={s.headerRow}>
-            <View>
-              <Text style={s.appName}>TRENDSENSE</Text>
-              <Text style={[s.tagline, { color: themeColors.blueDark }]}>
-                dress for the life you want
-              </Text>
-            </View>
-            <View style={s.headerActions}>
-              <TouchableOpacity style={s.themeToggle} onPress={toggleDarkMode}>
-                <Text style={s.themeToggleText}>
-                  {isDarkMode ? "☀️" : "🌙"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={s.avatarBtn}
-                onPress={() => router.push("/(tabs)/profile" as any)}
-              >
-                <Text style={s.avatarTxt}>👤</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: themeColors.headerGradientStart,
+        },
+      ]}
+    >
+      <View style={[styles.pageShell, { backgroundColor: themeColors.bg }]}>
+        {/* Admin banner */}
+        {isAdmin && (
           <TouchableOpacity
-            style={s.searchBar}
-            onPress={() => router.push("/(tabs)/wardrobe" as any)}
+            style={styles.adminBanner}
+            activeOpacity={0.85}
+            onPress={() => router.replace("/admin/dashboard" as any)}
           >
-            <Text style={[s.searchIcon, { color: themeColors.blueDark }]}>
-              ◎
+            <Text style={styles.adminBannerText}>
+              ⚙️ Admin — viewing as user
             </Text>
-            <Text style={s.searchTxt}>Search your wardrobe...</Text>
+
+            <Text style={styles.adminBannerLink}>Admin View →</Text>
           </TouchableOpacity>
-        </LinearGradient>
+        )}
 
-        {/* ── HERO CARD — WARDROBE ── */}
-        <View style={s.section}>
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => router.push("/(tabs)/wardrobe" as any)}
-          >
-            <LinearGradient
-              colors={["#1C2B25", "#2E4A3E", "#4A6B5A"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={s.heroCard}
-            >
-              <View style={s.heroDecDot1} />
-              <View style={s.heroDecDot2} />
-              <View style={s.heroContent}>
-                <View>
-                  <Text
-                    style={[s.heroEyebrow, { color: themeColors.blueDark }]}
-                  >
-                    YOUR COLLECTION
-                  </Text>
-                  <Text style={s.heroTitle}>My Wardrobe</Text>
-                  <Text style={s.heroSub}>
-                    Your curated closet, always with you
-                  </Text>
-                </View>
-                <View style={s.heroIconWrap}>
-                  <Text style={s.heroIcon}>👗</Text>
-                </View>
-              </View>
-              <View style={s.heroCta}>
-                <Text style={[s.heroCtaTxt, { color: themeColors.blueDark }]}>
-                  Browse pieces →
-                </Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <HomeHeader
+            avatarUri={avatarUri}
+            userName={displayName}
+          />
 
-        {/* ── FEATURE GRID ── */}
-        <View style={s.section}>
-          <Text style={[s.sectionLabel, { color: themeColors.muted }]}>
-            EXPLORE
-          </Text>
+          {/* Main dashboard cards */}
+          <View style={styles.dashboardContent}>
+            <WelcomeCard
+              userName={displayName.split(" ")[0]}
+              style={styles.fullWidthCard}
+            />
 
-          {/* Row 1: AI Styling (tall) + right column */}
-          <View style={s.gridRow}>
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[s.cardTall, { backgroundColor: "#E8D5C4" }]}
-              onPress={() => router.push("/(tabs)/outfit-review" as any)}
-            >
-              <View style={s.badge}>
-                <Text style={s.badgeTxt}>AI</Text>
-              </View>
-              <Text style={[s.cardIcon, { color: themeColors.text }]}>✦</Text>
-              <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                AI Styling
-              </Text>
-              <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                Outfits{"\n"}made for you
-              </Text>
-            </TouchableOpacity>
+            <StatsCard />
 
-            <View style={s.colRight}>
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={[s.cardShort, { backgroundColor: "#D4C9E2" }]}
-                onPress={() => router.push("/(tabs)/colour-analysis" as any)}
-              >
-                <Text style={[s.cardIcon, { color: themeColors.text }]}>◈</Text>
-                <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                  Colour Season
-                </Text>
-                <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                  Discover your palette
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={[s.cardShort, { backgroundColor: "#C8D8C4" }]}
-                onPress={() => router.push("/(tabs)/saved-items" as any)}
-              >
-                <Text style={[s.cardIcon, { color: themeColors.text }]}>♡</Text>
-                <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                  Saved Looks
-                </Text>
-                <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                  Pieces you love
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <WardrobeCarousel />
           </View>
 
-          {/* Row 2: Look History full width */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[s.cardWide, { backgroundColor: "#2A3530" }]}
-            onPress={() => router.push("/(tabs)/history" as any)}
-          >
-            <View style={s.cardWideInner}>
-              <View>
-                <Text style={[s.cardLabel, { color: themeColors.white }]}>
-                  Look History
-                </Text>
-                <Text style={[s.cardSub, { color: "rgba(255,255,255,0.5)" }]}>
-                  Revisit your past outfits
-                </Text>
-              </View>
-              <Text
-                style={[
-                  s.cardIcon,
-                  { color: "rgba(255,255,255,0.6)", marginBottom: 0 },
-                ]}
-              >
-                ○
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Body Analysis */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[s.cardWide, { backgroundColor: "#E2D4EC" }]}
-            onPress={() => router.push("/(tabs)/body-analysis" as any)}
-          >
-            <View style={s.cardWideInner}>
-              <View>
-                <Text style={s.cardLabel}>Body Analysis</Text>
-                <Text style={s.cardSub}>Find your shape & style</Text>
-              </View>
-              <Text style={[s.cardIcon, { marginBottom: 0 }]}>🧍</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Row 3: Budget + Trip */}
-          <View style={s.gridRow}>
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[s.cardHalf, { backgroundColor: "#E2D9C8" }]}
-              onPress={() => router.push("/(tabs)/budgeting" as any)}
-            >
-              <Text style={[s.cardIcon, { color: themeColors.text }]}>◇</Text>
-              <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                Style Budget
-              </Text>
-              <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                Spend with purpose
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[s.cardHalf, { backgroundColor: "#F0D4CE" }]}
-              onPress={() => router.push("/(tabs)/trip-packing" as any)}
-            >
-              <Text style={[s.cardIcon, { color: themeColors.text }]}>◻</Text>
-              <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                Trip Edit
-              </Text>
-              <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                Pack with intention
-              </Text>
-            </TouchableOpacity>
+          {/* Feature cards */}
+          <View style={styles.featureSection}>
+            <FeatureGrid>
+              <OutfitReviewCard />
+              <BodyAnalysisCard />
+              <ColourSeasonCard />
+              <SavedLooksCard />
+              <LookHistoryCard />
+              <TripPackingCard />
+              <StyleBudgetCard />
+              <TrendsCard />
+            </FeatureGrid>
           </View>
-
-          {/* Row 4: Trends */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[s.cardWide, { backgroundColor: "#D4ECEB" }]}
-            onPress={() => router.push("/(tabs)/trends" as any)}
-          >
-            <View style={s.cardWideInner}>
-              <View>
-                <Text style={[s.cardLabel, { color: themeColors.text }]}>
-                  Trends
-                </Text>
-                <Text style={[s.cardSub, { color: themeColors.muted }]}>
-                  What's in style right now
-                </Text>
-              </View>
-              <Text
-                style={[
-                  s.cardIcon,
-                  { color: themeColors.text, marginBottom: 0 },
-                ]}
-              >
-                📈
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── QUICK ADD ── */}
-        <View style={s.section}>
-          <Text style={[s.sectionLabel, { color: themeColors.muted }]}>
-            ADD TO YOUR EDIT
-          </Text>
-          <View style={s.quickRow}>
-            <TouchableOpacity
-              style={[
-                s.quickBtnLight,
-                {
-                  backgroundColor: themeColors.card,
-                  borderColor: themeColors.input,
-                },
-              ]}
-              activeOpacity={0.8}
-              onPress={() => router.push("/(tabs)/upload-clothes" as any)}
-            >
-              <Text style={s.quickIco}>📷</Text>
-              <Text style={[s.quickTxt, { color: themeColors.text }]}>
-                Add Clothing
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={{ flex: 1 }}
-              onPress={() => router.push("/(tabs)/upload-outfit" as any)}
-            >
-              <LinearGradient
-                colors={["#2A3D35", "#1C2B25"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={s.quickBtnDark}
-              >
-                <Text style={s.quickIco}>✦</Text>
-                <Text style={[s.quickTxt, { color: themeColors.white }]}>
-                  Get Styled
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* ── BOTTOM NAV ── */}
-      <View
-        style={[
-          s.bnav,
-          {
-            backgroundColor: themeColors.card,
-            borderTopColor: themeColors.input,
-          },
-        ]}
-      >
-        {NAV.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={s.bni}
-            onPress={() => {
-              if (!item.active) router.push(item.route as any);
-            }}
-          >
-            {item.active ? (
-              <LinearGradient
-                colors={["#2A3D35", "#1C2B25"]}
-                style={s.bniPillActive}
-              >
-                <Text style={[s.bniIco, { color: themeColors.white }]}>
-                  {item.icon}
-                </Text>
-              </LinearGradient>
-            ) : (
-              <View style={s.bniPill}>
-                <Text style={[s.bniIco, { color: themeColors.text }]}>
-                  {item.icon}
-                </Text>
-              </View>
-            )}
-            <Text
-              style={[
-                s.bniLbl,
-                { color: themeColors.muted },
-                item.active && { color: themeColors.accent, fontWeight: "700" },
-              ]}
-            >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
 }
 
-const s = StyleSheet.create({
-  safe: { flex: 1 },
-  scroll: { paddingBottom: 32 },
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
 
-  // Admin
+  pageShell: {
+    flex: 1,
+    width: "100%",
+  },
+
+  scrollView: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    paddingBottom: 36,
+  },
+
   adminBanner: {
+    minHeight: 40,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+
     backgroundColor: "#1a3a5c",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
   },
-  adminBannerText: { color: "#fff", fontWeight: "600", fontSize: 13 },
-  adminBannerLink: { color: "#a8d0f0", fontWeight: "700", fontSize: 12 },
 
-  // Header
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 22,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    overflow: "hidden",
-    marginBottom: 20,
-  },
-  decCircle1: {
-    position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: "rgba(255,255,255,0.03)",
-    top: -60,
-    right: -40,
-  },
-  decCircle2: {
-    position: "absolute",
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    bottom: -20,
-    left: 60,
-  },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 16,
-  },
-  appName: { fontSize: 24, fontWeight: "800", color: "#fff", letterSpacing: 5 },
-  tagline: {
-    fontSize: 10,
-    letterSpacing: 1.5,
-    marginTop: 4,
-    fontStyle: "italic",
-  },
-  avatarBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarTxt: { fontSize: 15 },
-  searchBar: {
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
-  },
-  searchIcon: { fontSize: 13 },
-  searchTxt: {
+  adminBannerText: {
+    flexShrink: 1,
+    marginRight: 10,
+
+    color: "#FFFFFF",
     fontSize: 12,
-    color: "rgba(255,255,255,0.3)",
-    letterSpacing: 0.3,
-  },
-
-  // Section
-  section: { paddingHorizontal: 14, marginBottom: 20 },
-  sectionLabel: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 2.5,
-    marginBottom: 12,
-    textTransform: "uppercase",
-  },
-
-  // Hero card
-  heroCard: {
-    borderRadius: 24,
-    padding: 20,
-    overflow: "hidden",
-    shadowColor: "#1C2B25",
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
-  heroDecDot1: {
-    position: "absolute",
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    top: -30,
-    right: 20,
-  },
-  heroDecDot2: {
-    position: "absolute",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    bottom: 10,
-    right: 80,
-  },
-  heroContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  heroEyebrow: {
-    fontSize: 8,
-    letterSpacing: 2.5,
-    fontWeight: "700",
-    marginBottom: 6,
-  },
-  heroTitle: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: "#fff",
-    letterSpacing: 0.5,
-  },
-  heroSub: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.45)",
-    marginTop: 4,
-    letterSpacing: 0.2,
-  },
-  heroIconWrap: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-  },
-  heroIcon: { fontSize: 28 },
-  heroCta: {
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
-    paddingTop: 12,
-  },
-  heroCtaTxt: {
     fontWeight: "600",
-    fontSize: 13,
-    letterSpacing: 0.3,
   },
 
-  // Grid
-  gridRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
-  colRight: { flex: 1, gap: 10 },
-
-  // Card base
-  cardBase: {
-    borderRadius: 20,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
-  },
-  cardTall: {
-    flex: 1,
-    minHeight: 200,
-    borderRadius: 20,
-    padding: 16,
-    justifyContent: "flex-end",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
-  },
-  cardShort: {
-    flex: 1,
-    minHeight: 92,
-    borderRadius: 20,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
-  },
-  cardHalf: {
-    flex: 1,
-    borderRadius: 20,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
-  },
-  cardWide: {
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
-  },
-  cardWideInner: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  badge: {
-    position: "absolute",
-    top: 14,
-    right: 14,
-    backgroundColor: "rgba(0,0,0,0.12)",
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  badgeTxt: {
-    fontSize: 9,
-    fontWeight: "800",
-    color: "#5A3A2A",
-    letterSpacing: 1,
-  },
-  cardIcon: { fontSize: 22, marginBottom: 8 },
-  cardLabel: {
-    fontSize: 13,
+  adminBannerLink: {
+    color: "#A8D0F0",
+    fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 0.2,
-    marginBottom: 3,
-  },
-  cardSub: { fontSize: 11, lineHeight: 15 },
-
-  // Quick add
-  quickRow: { flexDirection: "row", gap: 10 },
-  quickBtnLight: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    paddingVertical: 15,
-    borderWidth: 1,
-    borderColor: "#E8E4DE",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  quickBtnDark: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    borderRadius: 16,
-    paddingVertical: 15,
-  },
-  quickIco: { fontSize: 16 },
-  quickTxt: {
-    fontSize: 13,
-    fontWeight: "600",
-    letterSpacing: 0.2,
   },
 
-  // Bottom nav
-  bnav: {
-    flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: "#E8EDE9",
-    paddingTop: 8,
-    paddingBottom: Platform.OS === "ios" ? 22 : 12,
-  },
-  bni: { flex: 1, alignItems: "center", gap: 2 },
-  bniPill: { paddingHorizontal: 12, paddingVertical: 3, borderRadius: 16 },
-  bniPillActive: {
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 16,
-    backgroundColor: "#DCE9D8",
-  },
-  bniIco: { fontSize: 19 },
-  bniLbl: { fontSize: 9, color: "#B0BCB4", fontWeight: "500" },
-  bniLblActive: { fontWeight: "700" },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+  dashboardContent: {
+    width: "100%",
+
+    paddingHorizontal: 16,
+    marginTop: 18,
+    marginBottom: 24,
+
+    gap: 16,
   },
 
-  themeToggle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
-    alignItems: "center",
-    justifyContent: "center",
+  fullWidthCard: {
+    width: "100%",
   },
 
-  themeToggleText: {
-    fontSize: 16,
+  featureSection: {
+    width: "100%",
   },
 });

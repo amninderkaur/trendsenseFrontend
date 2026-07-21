@@ -102,18 +102,20 @@ export default function StatsCard() {
 
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
-  const cardHeight = isWide ? 170 : isMedium ? 158 : 145;
-  const numberSize = isWide ? 38 : isMedium ? 34 : 30;
-  const titleSize = isWide ? 17 : isMedium ? 15 : 14;
-  const subtitleSize = isWide ? 15 : isMedium ? 14 : 13;
-  const iconSize = isWide ? 28 : 24;
-  const iconCircleSize = isWide ? 66 : 58;
-  const cellPadding = isWide ? 22 : 18;
+  const isMobile = width < 600;
+  const cardHeight = isMobile ? 320 : isWide ? 170 : isMedium ? 158 : 145;
+  const numberSize = isMobile ? 34 : isWide ? 38 : isMedium ? 34 : 30;
+  const titleSize = isMobile ? 17 : isWide ? 17 : isMedium ? 15 : 14;
+  const subtitleSize = isMobile ? 14 : isWide ? 15 : isMedium ? 14 : 13;
+  const iconSize = isMobile ? 21 : isWide ? 28 : 24;
+  const iconCircleSize = isMobile ? 48 : isWide ? 66 : 58;
+  const cellPadding = isMobile ? 0 : isWide ? 22 : 18;
 
   return (
     <View
       style={[
         styles.card,
+        isMobile && styles.cardMobile,
         {
           backgroundColor: themeColors.card,
           shadowColor: themeColors.shadow,
@@ -123,10 +125,11 @@ export default function StatsCard() {
     >
       {STAT_META.map((stat, index) => (
         <React.Fragment key={stat.title}>
-          <View style={styles.cell}>
+          <View style={[styles.cell, isMobile && styles.cellMobile]}>
             <View
               style={[
                 styles.iconCircle,
+                isMobile && styles.iconCircleMobile,
                 {
                   backgroundColor: themeColors[stat.colorKey],
                   width: iconCircleSize,
@@ -145,7 +148,13 @@ export default function StatsCard() {
               </Text>
             </View>
 
-            <View style={[styles.textContainer, { paddingRight: cellPadding }]}>
+            <View
+              style={[
+                styles.textContainer,
+                isMobile && styles.textContainerMobile,
+                { paddingRight: cellPadding },
+              ]}
+            >
               <Text
                 style={[
                   styles.number,
@@ -158,7 +167,11 @@ export default function StatsCard() {
               <Text
                 style={[
                   styles.title,
-                  { color: themeColors.text, fontSize: titleSize },
+                  {
+                    color: themeColors.text,
+                    fontSize: titleSize,
+                    lineHeight: isMobile ? 21 : undefined,
+                  },
                 ]}
               >
                 {stat.title}
@@ -167,7 +180,12 @@ export default function StatsCard() {
               <Text
                 style={[
                   styles.subtitle,
-                  { color: themeColors.muted, fontSize: subtitleSize },
+                  isMobile && styles.subtitleMobile,
+                  {
+                    color: themeColors.muted,
+                    fontSize: subtitleSize,
+                    lineHeight: isMobile ? 18 : undefined,
+                  },
                 ]}
               >
                 {stat.subtitle}
@@ -179,6 +197,7 @@ export default function StatsCard() {
             <View
               style={[
                 styles.divider,
+                isMobile && styles.dividerMobile,
                 { backgroundColor: themeColors.statsDivider },
               ]}
             />
@@ -205,6 +224,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 
+  cardMobile: {
+    borderRadius: 24,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    flexWrap: "wrap",
+  },
+
   cell: {
     flex: 1,
     flexDirection: "row",
@@ -212,9 +238,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
+  cellMobile: {
+    flexDirection: "column",
+    flex: 0,
+    width: "50%",
+    height: "50%",
+    paddingHorizontal: 8,
+  },
+
   divider: {
     width: 1,
     height: 72,
+  },
+
+  dividerMobile: {
+    display: "none",
   },
 
   iconCircle: {
@@ -223,10 +261,20 @@ const styles = StyleSheet.create({
     marginRight: 18,
   },
 
+  iconCircleMobile: {
+    marginRight: 0,
+    marginBottom: 6,
+  },
+
   icon: {},
 
   textContainer: {
     justifyContent: "center",
+  },
+
+  textContainerMobile: {
+    width: "100%",
+    alignItems: "center",
   },
 
   number: {
@@ -238,10 +286,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 4,
     fontFamily: "Cormorant Garamond",
+    textAlign: "center",
   },
 
   subtitle: {
     marginTop: 2,
     fontFamily: "Cormorant Garamond",
+    textAlign: "center",
+  },
+
+  subtitleMobile: {
+    fontWeight: "500",
   },
 });
