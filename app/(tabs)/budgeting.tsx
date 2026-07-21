@@ -1,4 +1,5 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { useAppTheme } from "@/context/ThemeContext";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -208,31 +209,13 @@ User question: ${question}
   const suggestions = result?.suggestions || [];
 
   return (
-    <ScrollView
-      style={[
-        styles.container,
-        { backgroundColor: themeColors.bg },
-      ]}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Pressable
-        style={[
-          styles.backButton,
-          { backgroundColor: themeColors.bgDark },
-        ]}
-        onPress={() => router.back()}
+    <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text
-          style={[
-            styles.backButtonText,
-            { color: themeColors.white },
-          ]}
-        >
-          ← Back
-        </Text>
-      </Pressable>
-
+      <PageHeader style={{ marginHorizontal: -20, marginTop: -20 }} />
       <Text
         style={[
           styles.title,
@@ -656,27 +639,21 @@ User question: ${question}
           )}
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
   content: {
     padding: 20,
     paddingBottom: 40,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 12,
-  },
-  backButtonText: {
-    fontWeight: "700",
   },
   title: {
     fontSize: 28,

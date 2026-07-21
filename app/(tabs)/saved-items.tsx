@@ -1,3 +1,4 @@
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -57,44 +58,27 @@ export default function SavedItems() {
     }
   };
 
+  const goBack = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)/mainMenu" as any);
+  };
+
   return (
-  <ScrollView
-    style={[
-      styles.container,
-      { backgroundColor: themeColors.bg },
-    ]}
-    contentContainerStyle={styles.content}
-    refreshControl={
-      <RefreshControl
-        refreshing={refreshing}
-        onRefresh={() => {
-          setRefreshing(true);
-          load();
-        }}
-      />
-    }
-  >
-    <Pressable
-      style={[
-        styles.backButton,
-        { backgroundColor: themeColors.bgDark },
-      ]}
-      onPress={() =>
-        router.canGoBack()
-          ? router.back()
-          : router.replace("/(tabs)/mainMenu" as any)
+  <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            load();
+          }}
+        />
       }
     >
-      <Text
-        style={[
-          styles.backButtonText,
-          { color: themeColors.white },
-        ]}
-      >
-        ← Back
-      </Text>
-    </Pressable>
-
+    <PageHeader onBack={goBack} style={{ marginHorizontal: -20, marginTop: -20 }} />
     <Text
       style={[
         styles.title,
@@ -253,11 +237,16 @@ export default function SavedItems() {
         )}
       </View>
     ))}
-  </ScrollView>
+    </ScrollView>
+  </View>
 );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+
   container: {
     flex: 1,
   },
@@ -265,18 +254,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 40,
-  },
-
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 12,
-  },
-
-  backButtonText: {
-    fontWeight: "700",
   },
 
   title: {

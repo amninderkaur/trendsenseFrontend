@@ -1,3 +1,4 @@
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -95,31 +96,13 @@ export default function TripPacking() {
     };
 
     return (
-    <ScrollView
-        style={[
-            styles.container,
-            { backgroundColor: themeColors.bg },
-        ]}
+    <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+      <ScrollView
+        style={styles.container}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
-    >
-        <Pressable
-            style={[
-                styles.backButton,
-                { backgroundColor: themeColors.bgDark },
-            ]}
-            onPress={() => router.back()}
-        >
-            <Text
-                style={[
-                    styles.backText,
-                    { color: themeColors.white },
-                ]}
-            >
-                ← Back
-            </Text>
-        </Pressable>
-
+      >
+        <PageHeader style={{ marginHorizontal: -20, marginTop: -20 }} />
         <Text
             style={[
                 styles.title,
@@ -378,11 +361,16 @@ export default function TripPacking() {
                 ) : null}
             </View>
         )}
-    </ScrollView>
+      </ScrollView>
+    </View>
 );
 }
 
 const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
     },
@@ -390,18 +378,6 @@ const styles = StyleSheet.create({
     content: {
         padding: 20,
         paddingBottom: 40,
-    },
-
-    backButton: {
-        alignSelf: "flex-start",
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 999,
-        marginBottom: 12,
-    },
-
-    backText: {
-        fontWeight: "700",
     },
 
     title: {

@@ -9,20 +9,19 @@
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
 import { MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 // ==============
 //     TYPES
 // ==============
 type Props = {
   isLargeScreen: boolean;
-  onBack: () => void;
 };
 
 // ================
 // COLOUR ANALYSIS HEADER COMPONENT
 // ================
-export default function ColourAnalysisHeader({ isLargeScreen, onBack }: Props) {
+export default function ColourAnalysisHeader({ isLargeScreen }: Props) {
 
     const { themeColors } = useAppTheme();
 
@@ -31,23 +30,6 @@ export default function ColourAnalysisHeader({ isLargeScreen, onBack }: Props) {
   // ================
   return (
   <>
-    <TouchableOpacity
-      style={[
-        styles.backButton,
-        { backgroundColor: themeColors.card },
-      ]}
-      onPress={onBack}
-    >
-      <Text
-        style={[
-          styles.backText,
-          { color: themeColors.text },
-        ]}
-      >
-        ← Back
-      </Text>
-    </TouchableOpacity>
-
     <View
       style={[
         globalStyles.card,
@@ -98,17 +80,6 @@ export default function ColourAnalysisHeader({ isLargeScreen, onBack }: Props) {
 //     STYLES
 // ================
 const styles = StyleSheet.create({
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-  },
-
-  backText: {
-    fontWeight: "700",
-  },
-
   heroCard: {
     borderRadius: 28,
     padding: 28,

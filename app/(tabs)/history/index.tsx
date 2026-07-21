@@ -1,4 +1,5 @@
 import { deleteOutfitHistory, getOutfitHistory } from "@/api/outfitHistory";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { getOutfitRatings, getTasteProfile, postOutfitRating } from "@/api/outfit";
 import StarRating from "@/components/StarRating";
 import { useAppTheme } from "@/context/ThemeContext";
@@ -199,16 +200,8 @@ export default function SavedOutfitsIndex() {
           />
         }
       >
+        <PageHeader onBack={goBack} style={{ marginHorizontal: -20, marginTop: -20 }} />
         <View style={responsiveWidth}>
-          <Pressable
-            style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
-            onPress={goBack}
-          >
-            <Text style={[styles.backButtonText, { color: themeColors.text }]}>
-              ← Back
-            </Text>
-          </Pressable>
-
           <Text style={[styles.title, { color: themeColors.text }]}>
             Saved Outfits
           </Text>
@@ -349,17 +342,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 40,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 12,
-  },
-  backButtonText: {
-    fontWeight: "600",
-    fontSize: 14,
   },
   title: {
     fontSize: 26,

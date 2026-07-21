@@ -17,6 +17,7 @@ import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { clearColourAnalysis, getProfile } from "@/api/profile";
 import ColourAnalysisForm from "@/components/ColourAnalysis/ColourAnalysisForm";
 import ColourAnalysisHeader from "@/components/ColourAnalysis/ColourAnalysisHeader";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import ColourAnalysisResult from "@/components/ColourAnalysis/ColourAnalysisResult";
 import ScannerOverlay from "@/components/ScannerOverlay";
 import { globalStyles } from "@/constants/globalStyles";
@@ -538,20 +539,18 @@ export default function ColourAnalysisScreen() {
     }
 
     return (
-    <ScrollView
-      style={[
-        globalStyles.screen,
-        { backgroundColor: themeColors.bg },
-      ]}
-      contentContainerStyle={[
-        styles.scrollContent,
-        isLargeScreen && styles.largeScrollContent,
-      ]}
-    >
+    <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+      <ScrollView
+        style={globalStyles.screen}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isLargeScreen && styles.largeScrollContent,
+        ]}
+      >
+      <PageHeader onBack={goBack} style={{ marginHorizontal: -24, marginTop: -24, alignSelf: "stretch" }} />
       <View style={styles.pageContainer}>
         <ColourAnalysisHeader
           isLargeScreen={isLargeScreen}
-          onBack={goBack}
         />
 
         {loadingSaved ? (
@@ -615,7 +614,8 @@ export default function ColourAnalysisScreen() {
           </Text>
         ) : null}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -623,6 +623,10 @@ export default function ColourAnalysisScreen() {
 //     STYLES
 // ================
 const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+    },
+
     scrollContent: {
         padding: 24,
         paddingBottom: 40,

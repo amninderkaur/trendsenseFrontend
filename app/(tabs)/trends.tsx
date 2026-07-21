@@ -1,4 +1,5 @@
 import { getTrends } from "@/api/trends";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { useAppTheme } from "@/context/ThemeContext";
 import { WEB_MAX_WIDTH, useResponsiveWidth } from "@/utils/platform";
 import { useRouter } from "expo-router";
@@ -57,7 +58,15 @@ const safeColor = (color: string, fallback = "#F5F5F5") => {
 const safeDotColor = (color: string) => safeColor(color, "#CCCCCC");
 
 // ── TrendCard ──────────────────────────────────────────────────
-function TrendCard({ trend, width, themeColors }: { trend: TrendItem; width: number; themeColors: any }) {
+function TrendCard({
+  trend,
+  width,
+  themeColors,
+}: {
+  trend: TrendItem;
+  width: number;
+  themeColors: any;
+}) {
   return (
     <View
       style={[
@@ -67,14 +76,18 @@ function TrendCard({ trend, width, themeColors }: { trend: TrendItem; width: num
           backgroundColor: themeColors.card,
           shadowColor: themeColors.text,
         },
-        Platform.OS === "web" && ({ boxShadow: "0 2px 8px rgba(0,0,0,0.08)" } as any),
+        Platform.OS === "web" &&
+          ({ boxShadow: "0 2px 8px rgba(0,0,0,0.08)" } as any),
       ]}
     >
       {/* Soft color tint strip at top */}
       <View
         style={[
           styles.trendCardTint,
-          { backgroundColor: safeColor(trend.colors?.[0], themeColors.blue) + "33" },
+          {
+            backgroundColor:
+              safeColor(trend.colors?.[0], themeColors.blue) + "33",
+          },
         ]}
       />
 
@@ -91,7 +104,9 @@ function TrendCard({ trend, width, themeColors }: { trend: TrendItem; width: num
 
       {trend.keyPieces?.length > 0 && (
         <View style={styles.trendSection}>
-          <Text style={[styles.trendSectionLabel, { color: themeColors.muted }]}>
+          <Text
+            style={[styles.trendSectionLabel, { color: themeColors.muted }]}
+          >
             Key pieces:
           </Text>
           <View style={styles.pillRow}>
@@ -111,7 +126,9 @@ function TrendCard({ trend, width, themeColors }: { trend: TrendItem; width: num
 
       {trend.colors?.length > 0 && (
         <View style={styles.trendSection}>
-          <Text style={[styles.trendSectionLabel, { color: themeColors.muted }]}>
+          <Text
+            style={[styles.trendSectionLabel, { color: themeColors.muted }]}
+          >
             Colors:
           </Text>
           <View style={styles.dotRow}>
@@ -127,7 +144,9 @@ function TrendCard({ trend, width, themeColors }: { trend: TrendItem; width: num
 
       {!!trend.wearItHow && (
         <View style={styles.trendSection}>
-          <Text style={[styles.trendSectionLabel, { color: themeColors.muted }]}>
+          <Text
+            style={[styles.trendSectionLabel, { color: themeColors.muted }]}
+          >
             How to wear it:
           </Text>
           <Text style={[styles.wearItHow, { color: themeColors.text }]}>
@@ -170,7 +189,11 @@ function WardrobeMatchCard({
         <View
           style={[
             styles.matchImagePlaceholder,
-            { width: cardWidth, height: cardWidth * 1.25, backgroundColor: themeColors.input },
+            {
+              width: cardWidth,
+              height: cardWidth * 1.25,
+              backgroundColor: themeColors.input,
+            },
           ]}
         >
           <Text style={{ fontSize: 28 }}>👗</Text>
@@ -260,11 +283,14 @@ export default function TrendsScreen() {
   // ── Loading ──
   if (loading) {
     return (
-      <View style={[styles.centeredScreen, { backgroundColor: themeColors.bg }]}>
-        <ActivityIndicator size="large" color={themeColors.blueDark} />
-        <Text style={[styles.loadingText, { color: themeColors.muted }]}>
-          Searching what's trending right now...
-        </Text>
+      <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+        <PageHeader onBack={goBack} />
+        <View style={styles.centeredScreen}>
+          <ActivityIndicator size="large" color={themeColors.blueDark} />
+          <Text style={[styles.loadingText, { color: themeColors.muted }]}>
+            Searching what's trending right now...
+          </Text>
+        </View>
       </View>
     );
   }
@@ -272,16 +298,21 @@ export default function TrendsScreen() {
   // ── Error ──
   if (error) {
     return (
-      <View style={[styles.centeredScreen, { backgroundColor: themeColors.bg }]}>
-        <Text style={[styles.errorMsg, { color: themeColors.text }]}>{error}</Text>
-        <TouchableOpacity
-          style={[styles.retryBtn, { backgroundColor: themeColors.blueDark }]}
-          onPress={fetchTrends}
-        >
-          <Text style={[styles.retryBtnText, { color: themeColors.white }]}>
-            Try Again
+      <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+        <PageHeader onBack={goBack} />
+        <View style={styles.centeredScreen}>
+          <Text style={[styles.errorMsg, { color: themeColors.text }]}>
+            {error}
           </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.retryBtn, { backgroundColor: themeColors.blueDark }]}
+            onPress={() => fetchTrends()}
+          >
+            <Text style={[styles.retryBtnText, { color: themeColors.white }]}>
+              Try Again
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -291,132 +322,144 @@ export default function TrendsScreen() {
   const trends = data?.trends ?? [];
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: themeColors.bg }]}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={responsiveWidth}>
-        {/* Back + Refresh row */}
-        <View style={styles.topRow}>
-          <TouchableOpacity
-            style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
-            onPress={goBack}
-          >
-            <Text style={[styles.backButtonText, { color: themeColors.white }]}>
-              ← Back
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.refreshButton, { backgroundColor: themeColors.bgDark }]}
-            onPress={() => fetchTrends(true)}
-            disabled={refreshing}
-          >
-            {refreshing ? (
-              <ActivityIndicator size="small" color={themeColors.white} />
-            ) : (
-              <Text style={[styles.backButtonText, { color: themeColors.white }]}>
-                ↻ Refresh
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Header */}
-        <Text style={[styles.pageTitle, { color: themeColors.text }]}>
-          {data?.season ? `${data.season} Trends` : "Latest Trends"}
-        </Text>
-        {!!data?.summary && (
-          <Text style={[styles.pageSummary, { color: themeColors.muted }]}>
-            {data.summary}
-          </Text>
-        )}
-        <Text style={[styles.pageCaption, { color: themeColors.muted }]}>
-          Updated just now
-        </Text>
-
-        {/* ── Trend Cards ── */}
-        {trends.length > 0 && (
-          <View style={styles.trendsSection}>
-            {isWeb ? (
-              // Web: vertical stack
-              <View>
-                {trends.map((trend, i) => (
-                  <TrendCard
-                    key={i}
-                    trend={trend}
-                    width={trendCardWidth}
-                    themeColors={themeColors}
-                  />
-                ))}
-              </View>
-            ) : (
-              // iOS: horizontal paginated FlatList
-              <FlatList
-                data={trends}
-                keyExtractor={(_, i) => String(i)}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                snapToInterval={trendCardWidth + 16}
-                decelerationRate="fast"
-                contentContainerStyle={{ gap: 16, paddingRight: 24 }}
-                renderItem={({ item }) => (
-                  <TrendCard
-                    trend={item}
-                    width={trendCardWidth}
-                    themeColors={themeColors}
-                  />
-                )}
-              />
-            )}
-          </View>
-        )}
-
-        {/* ── Already In Your Wardrobe ── */}
-        <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-          Already In Your Wardrobe
-        </Text>
-
-        {wardrobeMatches.length === 0 ? (
-          <View style={styles.emptyMatches}>
-            <Text style={[styles.emptyMatchesText, { color: themeColors.muted }]}>
-              None of your current items match these trends
-            </Text>
+    <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <PageHeader
+          onBack={goBack}
+          style={{ marginHorizontal: -20, marginTop: -20 }}
+        />
+        <View style={responsiveWidth}>
+          {/* Refresh row */}
+          <View style={styles.topRow}>
             <TouchableOpacity
-              style={[styles.shopBtn, { backgroundColor: themeColors.accent }]}
-              onPress={() => router.push("/(tabs)/saved-items" as any)}
+              style={[
+                styles.refreshButton,
+                { backgroundColor: themeColors.bgDark },
+              ]}
+              onPress={() => fetchTrends(true)}
+              disabled={refreshing}
             >
-              <Text style={[styles.shopBtnText, { color: themeColors.white }]}>
-                Shop Missing Pieces
-              </Text>
+              {refreshing ? (
+                <ActivityIndicator size="small" color={themeColors.white} />
+              ) : (
+                <Text
+                  style={[styles.backButtonText, { color: themeColors.white }]}
+                >
+                  ↻ Refresh
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
-        ) : (
-          <View style={styles.matchGrid}>
-            {wardrobeMatches.map((match, i) => (
-              <WardrobeMatchCard
-                key={i}
-                match={match}
-                cardWidth={matchCardWidth}
-                themeColors={themeColors}
-                onPress={() =>
-                  router.push(
-                    `/(tabs)/outfit-review?trendContext=${encodeURIComponent(match.matchingTrends?.[0] ?? "")}` as any
-                  )
-                }
-              />
-            ))}
-          </View>
-        )}
-      </View>
-    </ScrollView>
+
+          {/* Header */}
+          <Text style={[styles.pageTitle, { color: themeColors.text }]}>
+            {data?.season ? `${data.season} Trends` : "Latest Trends"}
+          </Text>
+          {!!data?.summary && (
+            <Text style={[styles.pageSummary, { color: themeColors.muted }]}>
+              {data.summary}
+            </Text>
+          )}
+          <Text style={[styles.pageCaption, { color: themeColors.muted }]}>
+            Updated just now
+          </Text>
+
+          {/* ── Trend Cards ── */}
+          {trends.length > 0 && (
+            <View style={styles.trendsSection}>
+              {isWeb ? (
+                // Web: vertical stack
+                <View>
+                  {trends.map((trend, i) => (
+                    <TrendCard
+                      key={i}
+                      trend={trend}
+                      width={trendCardWidth}
+                      themeColors={themeColors}
+                    />
+                  ))}
+                </View>
+              ) : (
+                // iOS: horizontal paginated FlatList
+                <FlatList
+                  data={trends}
+                  keyExtractor={(_, i) => String(i)}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={trendCardWidth + 16}
+                  decelerationRate="fast"
+                  contentContainerStyle={{ gap: 16, paddingRight: 24 }}
+                  renderItem={({ item }) => (
+                    <TrendCard
+                      trend={item}
+                      width={trendCardWidth}
+                      themeColors={themeColors}
+                    />
+                  )}
+                />
+              )}
+            </View>
+          )}
+
+          {/* ── Already In Your Wardrobe ── */}
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
+            Already In Your Wardrobe
+          </Text>
+
+          {wardrobeMatches.length === 0 ? (
+            <View style={styles.emptyMatches}>
+              <Text
+                style={[styles.emptyMatchesText, { color: themeColors.muted }]}
+              >
+                None of your current items match these trends
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.shopBtn,
+                  { backgroundColor: themeColors.accent },
+                ]}
+                onPress={() => router.push("/(tabs)/saved-items" as any)}
+              >
+                <Text
+                  style={[styles.shopBtnText, { color: themeColors.white }]}
+                >
+                  Shop Missing Pieces
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.matchGrid}>
+              {wardrobeMatches.map((match, i) => (
+                <WardrobeMatchCard
+                  key={i}
+                  match={match}
+                  cardWidth={matchCardWidth}
+                  themeColors={themeColors}
+                  onPress={() =>
+                    router.push(
+                      `/(tabs)/outfit-review?trendContext=${encodeURIComponent(match.matchingTrends?.[0] ?? "")}` as any,
+                    )
+                  }
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 // ── Styles ─────────────────────────────────────────────────────
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
@@ -453,14 +496,9 @@ const styles = StyleSheet.create({
   },
   topRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     marginBottom: 12,
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
   },
   refreshButton: {
     paddingVertical: 8,

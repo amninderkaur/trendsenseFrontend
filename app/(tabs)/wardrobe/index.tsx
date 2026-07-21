@@ -1,4 +1,5 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
 import { useFocusEffect } from "@react-navigation/native";
@@ -243,14 +244,7 @@ export default function WardrobeIndex() {
         style={{ flex: 1, backgroundColor: themeColors.bg }}
         contentContainerStyle={styles.content}
       >
-        <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
-          onPress={goBack}
-        >
-          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
-            ← Back
-          </Text>
-        </TouchableOpacity>
+        <PageHeader onBack={goBack} style={{ marginHorizontal: -20, marginTop: -20 }} />
 
         <Text style={[styles.title, { color: themeColors.text }]}>
           My Wardrobe
@@ -282,21 +276,13 @@ export default function WardrobeIndex() {
   // ── Error state ─────────────────────────────────────────────────────────
   if (error) {
     return (
-      <View style={[styles.centered, { backgroundColor: themeColors.bg }]}>
-        <TouchableOpacity
-          style={[
-            styles.backButton,
-            { backgroundColor: themeColors.bgDark, marginBottom: 24 },
-          ]}
-          onPress={goBack}
-        >
-          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
-            ← Back
+      <View style={[styles.flex, { backgroundColor: themeColors.bg }]}>
+        <PageHeader onBack={goBack} />
+        <View style={styles.centered}>
+          <Text style={[styles.errorText, { color: themeColors.accent }]}>
+            {error}
           </Text>
-        </TouchableOpacity>
-        <Text style={[styles.errorText, { color: themeColors.accent }]}>
-          {error}
-        </Text>
+        </View>
       </View>
     );
   }
@@ -352,14 +338,7 @@ export default function WardrobeIndex() {
         style={{ flex: 1, backgroundColor: themeColors.bg }}
         contentContainerStyle={styles.content}
       >
-        <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
-          onPress={goBack}
-        >
-          <Text style={[styles.backButtonText, { color: themeColors.text }]}>
-            ← Back
-          </Text>
-        </TouchableOpacity>
+        <PageHeader onBack={goBack} style={{ marginHorizontal: -20, marginTop: -20 }} />
 
         <View style={styles.headerRow}>
           <Text style={[styles.title, { color: themeColors.text }]}>
@@ -525,6 +504,9 @@ export default function WardrobeIndex() {
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   content: {
     padding: 20,
     paddingBottom: 40,
@@ -647,19 +629,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     opacity: 0.7,
     textAlign: "center",
-  },
-
-  // ── Back button ──
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 12,
-  },
-  backButtonText: {
-    fontWeight: "600",
-    fontSize: 14,
   },
 
   // ── Error ──

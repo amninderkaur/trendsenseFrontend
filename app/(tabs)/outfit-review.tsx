@@ -1,6 +1,7 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { getTasteProfile } from "@/api/outfit";
 import LocationAutocomplete from "@/components/LocationAutocomplete";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import ScannerOverlay from "@/components/ScannerOverlay";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
@@ -289,11 +290,13 @@ User question: ${question}
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: themeColors.bg }]}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
+    <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+      <PageHeader onBack={goBack} style={{ marginHorizontal: -20, marginTop: -20 }} />
       {/* Trending now banner (from TrendsScreen) */}
       {!!trendBanner && (
         <TouchableOpacity
@@ -306,15 +309,6 @@ User question: ${question}
           </Text>
         </TouchableOpacity>
       )}
-
-      <TouchableOpacity
-        style={[styles.backButton, { backgroundColor: themeColors.bgDark }]}
-        onPress={goBack}
-      >
-        <Text style={[styles.backButtonText, { color: themeColors.white }]}>
-          ← Back
-        </Text>
-      </TouchableOpacity>
 
       <Text style={[styles.title, { color: themeColors.text }]}>
         Outfit Review
@@ -693,10 +687,15 @@ User question: ${question}
           </Pressable>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+
   container: {
     flex: 1,
   },
@@ -704,18 +703,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 40,
-  },
-
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 12,
-  },
-
-  backButtonText: {
-    fontWeight: "700",
   },
 
   title: {

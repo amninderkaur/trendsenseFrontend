@@ -1,5 +1,6 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { saveOutfitHistory } from "@/api/outfitHistory";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { globalStyles } from "@/constants/globalStyles";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
@@ -256,41 +257,24 @@ ${question}
     }
   };
 
-return (
-  <ScrollView
-    style={[
-      globalStyles.screen,
-      { backgroundColor: themeColors.bg },
-    ]}
-    contentContainerStyle={
-      isLargeScreen
-        ? [styles.scrollContent, styles.largeScrollContent]
-        : styles.scrollContent
-    }
-    keyboardShouldPersistTaps="handled"
-  >
-    <View style={isLargeScreen ? globalStyles.dashboardContent : undefined}>
-      <TouchableOpacity
-        style={[
-          styles.backButton,
-          { backgroundColor: themeColors.bgDark },
-        ]}
-        onPress={() =>
-          router.canGoBack()
-            ? router.back()
-            : router.replace("/(tabs)/mainMenu" as any)
-        }
-      >
-        <Text
-          style={[
-            styles.backButtonText,
-            { color: themeColors.text },
-          ]}
-        >
-          ← Back
-        </Text>
-      </TouchableOpacity>
+const goBack = () => {
+  if (router.canGoBack()) router.back();
+  else router.replace("/(tabs)/mainMenu" as any);
+};
 
+return (
+  <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
+    <ScrollView
+      style={globalStyles.screen}
+      contentContainerStyle={
+        isLargeScreen
+          ? [styles.scrollContent, styles.largeScrollContent]
+          : styles.scrollContent
+      }
+      keyboardShouldPersistTaps="handled"
+    >
+    <PageHeader onBack={goBack} style={{ marginHorizontal: -20, marginTop: -24 }} />
+    <View style={isLargeScreen ? globalStyles.dashboardContent : undefined}>
       <Text
         style={[
           isLargeScreen
@@ -772,11 +756,16 @@ return (
         </View>
       )}
     </View>
-  </ScrollView>
+    </ScrollView>
+  </View>
 );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
@@ -985,16 +974,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  backButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 4,
-  },
-
-  backButtonText: {
-    fontWeight: "600",
-    fontSize: 14,
-  },
 });

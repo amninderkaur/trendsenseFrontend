@@ -92,7 +92,6 @@ export default function ChatbotScreen() {
             Authorization: `Bearer ${token}`,
           },
         },
-        console.log(response.data),
       );
 
       console.log(response.data);

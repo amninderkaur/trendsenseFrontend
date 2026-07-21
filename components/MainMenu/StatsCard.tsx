@@ -1,41 +1,105 @@
+import {
+  getLoginStreak,
+  getOutfitsCount,
+  getSavedLooksCount,
+  getWardrobeCount,
+} from "@/api/user";
 import { useAppTheme } from "@/context/ThemeContext";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
-const STATS = [
+const STAT_META = [
   {
     icon: "⌁",
-    number: 28,
     title: "Items",
     subtitle: "in wardrobe",
     colorKey: "statsGreen",
+    key: "wardrobeCount",
   },
   {
     icon: "✧",
-    number: 12,
     title: "Outfits",
     subtitle: "created",
     colorKey: "statsPurple",
+    key: "outfitsCount",
   },
   {
     icon: "♡",
-    number: 7,
     title: "Saved",
     subtitle: "looks",
     colorKey: "statsPink",
+    key: "savedLooksCount",
   },
   {
     icon: "♨",
-    number: 4,
     title: "Days in",
     subtitle: "a row",
     colorKey: "statsBlue",
+    key: "loginStreak",
   },
 ] as const;
+
+type StatsState = {
+  wardrobeCount: number;
+  outfitsCount: number;
+  savedLooksCount: number;
+  loginStreak: number;
+};
 
 export default function StatsCard() {
   const { themeColors } = useAppTheme();
   const { width } = useWindowDimensions();
+
+  const [stats, setStats] = useState<StatsState>({
+    wardrobeCount: 0,
+    outfitsCount: 0,
+    savedLooksCount: 0,
+    loginStreak: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchStats = async () => {
+      try {
+        const [wardrobe, outfits, saved, streak] = await Promise.allSettled([
+          getWardrobeCount(),
+          getOutfitsCount(),
+          getSavedLooksCount(),
+          getLoginStreak(),
+        ]);
+
+        if (cancelled) return;
+
+        setStats({
+          wardrobeCount:
+            wardrobe.status === "fulfilled"
+              ? wardrobe.value.wardrobeCount ?? 0
+              : 0,
+          outfitsCount:
+            outfits.status === "fulfilled"
+              ? outfits.value.outfitsCount ?? 0
+              : 0,
+          savedLooksCount:
+            saved.status === "fulfilled"
+              ? saved.value.savedLooksCount ?? 0
+              : 0,
+          loginStreak:
+            streak.status === "fulfilled"
+              ? streak.value.loginStreak ?? 0
+              : 0,
+        });
+      } catch {
+        // silently fail — numbers stay 0
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchStats();
+    return () => { cancelled = true; };
+  }, []);
+
   const isWide = width >= 1500;
   const isMedium = width >= 1100 && width < 1500;
   const cardHeight = isWide ? 170 : isMedium ? 158 : 145;
@@ -57,23 +121,61 @@ export default function StatsCard() {
         },
       ]}
     >
-      {STATS.map((stat, index) => (
+      {STAT_META.map((stat, index) => (
         <React.Fragment key={stat.title}>
           <View style={styles.cell}>
-            <View style={[styles.iconCircle, { backgroundColor: themeColors[stat.colorKey], width: iconCircleSize, height: iconCircleSize, borderRadius: iconCircleSize / 2 }]}>
-              <Text style={[styles.icon, { color: themeColors.text, fontSize: iconSize }]}>{stat.icon}</Text>
+            <View
+              style={[
+                styles.iconCircle,
+                {
+                  backgroundColor: themeColors[stat.colorKey],
+                  width: iconCircleSize,
+                  height: iconCircleSize,
+                  borderRadius: iconCircleSize / 2,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.icon,
+                  { color: themeColors.text, fontSize: iconSize },
+                ]}
+              >
+                {stat.icon}
+              </Text>
             </View>
 
             <View style={[styles.textContainer, { paddingRight: cellPadding }]}>
-              <Text style={[styles.number, { color: themeColors.text, fontSize: numberSize, lineHeight: numberSize + 2 }]}>{stat.number}</Text>
+              <Text
+                style={[
+                  styles.number,
+                  { color: themeColors.text, fontSize: numberSize, lineHeight: numberSize + 2 },
+                ]}
+              >
+                {loading ? "—" : stats[stat.key]}
+              </Text>
 
-              <Text style={[styles.title, { color: themeColors.text, fontSize: titleSize }]}>{stat.title}</Text>
+              <Text
+                style={[
+                  styles.title,
+                  { color: themeColors.text, fontSize: titleSize },
+                ]}
+              >
+                {stat.title}
+              </Text>
 
-              <Text style={[styles.subtitle, { color: themeColors.muted, fontSize: subtitleSize }]}>{stat.subtitle}</Text>
+              <Text
+                style={[
+                  styles.subtitle,
+                  { color: themeColors.muted, fontSize: subtitleSize },
+                ]}
+              >
+                {stat.subtitle}
+              </Text>
             </View>
           </View>
 
-          {index !== STATS.length - 1 && (
+          {index !== STAT_META.length - 1 && (
             <View
               style={[
                 styles.divider,
@@ -121,8 +223,7 @@ const styles = StyleSheet.create({
     marginRight: 18,
   },
 
-  icon: {
-  },
+  icon: {},
 
   textContainer: {
     justifyContent: "center",

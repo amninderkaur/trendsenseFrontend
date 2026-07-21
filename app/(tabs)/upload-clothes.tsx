@@ -6,7 +6,9 @@ import { useFocusEffect } from "@react-navigation/native";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Haptics from "expo-haptics";
 import { pickImageFromCamera, pickImageFromGallery } from "@/utils/imagePicker";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useCallback, useState } from "react";
 import {
   Image,
@@ -15,7 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 
@@ -180,16 +181,9 @@ const handlePickImage = async () => {
   if (uploading && imageUri) return <ScannerOverlay imageUri={imageUri} />;
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: themeColors.bg }]}>
+    <View style={[styles.root, { backgroundColor: themeColors.bg }]}>
 
-      {/* ── Header ── */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={[styles.backArrow, { color: themeColors.text }]}>←</Text>
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: themeColors.text }]}>Add Clothing</Text>
-        <View style={styles.backBtn} />
-      </View>
+      <PageHeader />
 
       {/* ── Body ── */}
       <View style={styles.body}>
@@ -260,37 +254,13 @@ const handlePickImage = async () => {
         </TouchableOpacity>
       </View>
 
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-
-  // ── Header ──
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  backBtn: {
-    width: 40,
-    alignItems: "flex-start",
-    justifyContent: "center",
-  },
-  backArrow: {
-    fontSize: 22,
-    fontWeight: "600",
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    letterSpacing: 0.3,
   },
 
   // ── Body ──

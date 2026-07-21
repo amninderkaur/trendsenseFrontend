@@ -96,6 +96,35 @@ export const resetPassword = async (email, otp, newPassword) => {
   return response.data;
 };
 
+// Stats endpoints
+export const getWardrobeCount = async () => {
+  const response = await api.get("/api/v1/user/me/wardrobe-count", {
+    headers: authHeader(),
+  });
+  return response.data; // { wardrobeCount: N }
+};
+
+export const getOutfitsCount = async () => {
+  const response = await api.get("/api/v1/user/me/outfits-count", {
+    headers: authHeader(),
+  });
+  return response.data; // { outfitsCount: N }
+};
+
+export const getSavedLooksCount = async () => {
+  const response = await api.get("/api/v1/user/me/saved-looks-count", {
+    headers: authHeader(),
+  });
+  return response.data; // { savedLooksCount: N }
+};
+
+export const getLoginStreak = async () => {
+  const response = await api.get("/api/v1/user/me/login-streak", {
+    headers: authHeader(),
+  });
+  return response.data; // { loginStreak: N }
+};
+
 // Delete account
 export const deleteAccount = async () => {
   const response = await api.delete("/api/v1/user/me", {

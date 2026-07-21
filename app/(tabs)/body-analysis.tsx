@@ -1,5 +1,6 @@
 import { BASE_URL as API_BASE_URL } from "@/api/axios";
 import { getProfile } from "@/api/profile";
+import PageHeader from "@/components/MainMenu/PageHeader";
 import ScannerOverlay from "@/components/ScannerOverlay";
 import { useAppTheme } from "@/context/ThemeContext";
 import { getToken } from "@/utils/token";
@@ -23,7 +24,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type BodyAnalysisResult = {
@@ -178,37 +178,27 @@ export default function BodyAnalysisScreen() {
 
   const shapeColor = result ? (SHAPE_COLORS[result.bodyShape] ?? "#C9A96E") : "#C9A96E";
 
-  const Header = () => (
-    <View style={s.header}>
-      <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
-        <Text style={[s.backArrow, { color: themeColors.text }]}>←</Text>
-      </TouchableOpacity>
-      <Text style={[s.headerTitle, { color: themeColors.text }]}>Body Analysis</Text>
-      <View style={s.backBtn} />
-    </View>
-  );
-
   // Loading saved result
   if (loadingSaved) {
     return (
-      <SafeAreaView style={[s.root, { backgroundColor: themeColors.bg }]}>
-        <Header />
+      <View style={[s.root, { backgroundColor: themeColors.bg }]}>
+        <PageHeader />
         <View style={s.centerWrap}>
           <ActivityIndicator size="large" color={themeColors.blueDark} />
           <Text style={[s.loadingText, { color: themeColors.muted }]}>
             Loading your saved analysis...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // Saved / fresh result view
   if (hasResult && result) {
     return (
-      <SafeAreaView style={[s.root, { backgroundColor: themeColors.bg }]}>
-        <Header />
+      <View style={[s.root, { backgroundColor: themeColors.bg }]}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+          <PageHeader style={{ marginHorizontal: -20 }} />
 
           {isSavedResult && (
             <View style={[s.savedBanner, { backgroundColor: themeColors.bgDark }]}>
@@ -286,20 +276,19 @@ export default function BodyAnalysisScreen() {
             )}
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // Form view
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: themeColors.bg }]}>
+    <View style={[s.root, { backgroundColor: themeColors.bg }]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Header />
-
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+          <PageHeader style={{ marginHorizontal: -20 }} />
 
           <Text style={[s.intro, { color: themeColors.muted }]}>
             Upload a full body photo in fitted clothes (head to toe) to discover your body shape and get personalised style tips.
@@ -387,19 +376,12 @@ export default function BodyAnalysisScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
   root: { flex: 1 },
-  header: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12,
-  },
-  backBtn: { width: 40, alignItems: "flex-start", justifyContent: "center" },
-  backArrow: { fontSize: 22, fontWeight: "600" },
-  headerTitle: { fontSize: 17, fontWeight: "700", letterSpacing: 0.3 },
 
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
 
