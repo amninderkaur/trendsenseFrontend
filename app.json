@@ -16,7 +16,7 @@
     "android": {
       "package": "com.trendsense.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/trendsense-logo.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -48,7 +48,8 @@
           "microphonePermission": false
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

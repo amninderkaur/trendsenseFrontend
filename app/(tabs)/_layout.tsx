@@ -1,9 +1,17 @@
+import { useAppTheme } from '@/context/ThemeContext';
 import { Stack } from 'expo-router';
 import React from 'react';
 
 export default function TabLayout() {
+  const { themeColors } = useAppTheme();
+
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: themeColors.bg },
+      }}
+    >
       <Stack.Screen name="mainMenu" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="trends" />

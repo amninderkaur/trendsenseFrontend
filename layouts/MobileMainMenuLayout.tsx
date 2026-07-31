@@ -66,10 +66,11 @@ export default function MobileMainMenuLayout() {
 
   return (
     <SafeAreaView
+      edges={["left", "right"]}
       style={[
         styles.safeArea,
         {
-          backgroundColor: themeColors.headerGradientStart,
+          backgroundColor: themeColors.bg,
         },
       ]}
     >

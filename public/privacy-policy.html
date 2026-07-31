@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy Policy — TrendSense</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #fafafa;
+  }
+  .page { max-width: 820px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: 1.9rem; margin-bottom: 0.25em; }
+  h2 { font-size: 1.3rem; margin-top: 2.2em; margin-bottom: 0.5em; border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
+  h3 { font-size: 1.05rem; margin-top: 1.6em; margin-bottom: 0.4em; }
+  p { margin: 0.8em 0; }
+  ul, ol { margin: 0.8em 0; padding-left: 1.4em; }
+  li { margin: 0.3em 0; }
+  .table-wrap { overflow-x: auto; margin: 1em 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 480px; }
+  th, td { text-align: left; padding: 8px 10px; border: 1px solid #ddd; vertical-align: top; }
+  th { background: #f0f0f0; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 2.2em 0; }
+  .meta { color: #666; font-size: 0.9rem; margin: 0.2em 0; }
+  a { color: #2952cc; }
+  strong { font-weight: 700; }
+  blockquote {
+    margin: 1em 0;
+    padding: 0.6em 1em;
+    border-left: 3px solid #ccc;
+    background: #f2f2f2;
+    font-size: 0.92rem;
+  }
+  footer { margin-top: 3em; padding-top: 1.5em; border-top: 1px solid #ddd; font-size: 0.85rem; color: #777; font-style: italic; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #121212; color: #e8e8e8; }
+    h2 { border-bottom-color: #333; }
+    th, td { border-color: #333; }
+    th { background: #1e1e1e; }
+    blockquote { background: #1a1a1a; border-left-color: #444; }
+    hr { border-top-color: #333; }
+    .meta, footer { color: #999; }
+    a { color: #7da3ff; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Privacy Policy — TrendSense</h1>
+  <p class="meta"><strong>Effective Date:</strong> July 31, 2026</p>
+  <p class="meta"><strong>Last Updated:</strong> July 31, 2026</p>
+  <p class="meta"><strong>App Version:</strong> 1.0.0</p>
+  <p class="meta"><strong>Platform:</strong> iOS · Android · Web</p>
+
+  <hr />
+
+  <h2>1. Introduction</h2>
+  <p>TrendSense ("we", "us", or "our") is an AI-powered personal styling application. This Privacy Policy explains what information we collect from users of the TrendSense mobile and web application, how we use it, with whom we share it, and what rights you have over it.</p>
+  <p>By using TrendSense you agree to the practices described in this policy. If you do not agree, please stop using the app.</p>
+
+  <h2>2. What Data We Collect and How</h2>
+
+  <h3>2.1 Account &amp; Identity Data</h3>
+  <p>Collected when you register or update your profile:</p>
+  <ul>
+    <li><strong>Full name</strong> and <strong>display name</strong></li>
+    <li><strong>Email address</strong></li>
+    <li><strong>Password</strong> (transmitted over HTTPS; stored on our servers in hashed, salted form — we never store your plaintext password)</li>
+    <li><strong>Phone number</strong> (optional; only if you choose SMS as your OTP delivery method)</li>
+    <li><strong>Profile photo</strong> (optional; uploaded by you from your camera or photo library)</li>
+    <li><strong>Authentication token</strong> (JWT issued on login, stored locally on your device to maintain your session)</li>
+  </ul>
+
+  <h3>2.2 Style Preferences &amp; Personalization Data</h3>
+  <p>Collected once during onboarding via the Personalization Questionnaire, and editable at any time:</p>
+  <ul>
+    <li>Age group, gender identity</li>
+    <li>Style preferences (e.g. minimalist, streetwear, classic)</li>
+    <li>Favourite and avoided colours</li>
+    <li>Shopping categories, preferred fit and fabrics, fit concerns</li>
+    <li>Lifestyle occasions you dress for (e.g. work, date night, casual)</li>
+    <li>Climate setting, budget range per item, shopping frequency</li>
+    <li>Favourite and avoided brands</li>
+    <li>Recommendation preferences and notification opt-in (boolean only; no push tokens are collected — see §2.7)</li>
+  </ul>
+
+  <h3>2.3 Body &amp; Biometric-Adjacent Data</h3>
+  <p>Provided voluntarily for AI analysis features:</p>
+  <ul>
+    <li><strong>Full-body photographs</strong> uploaded from your camera or photo library for body-shape analysis</li>
+    <li><strong>Optional measurements</strong>: height, weight, chest, waist, and hip circumference (entered as text; all optional)</li>
+  </ul>
+  <p>These inputs are sent to our backend, processed by an AI model to classify body shape, and the result is stored in your profile. The original images are not stored permanently beyond what is necessary for processing.</p>
+
+  <h3>2.4 Facial / Appearance Data</h3>
+  <p>Provided voluntarily for the Colour Analysis feature:</p>
+  <ul>
+    <li><strong>Selfie photograph(s)</strong> of your face</li>
+    <li><strong>Self-reported appearance attributes</strong>: natural hair colour, current hair colour, eye colour, jewellery undertone preference, vein colour, sun reaction</li>
+  </ul>
+  <p>This data is sent to our backend for AI colour-season classification. Results are stored in your profile.</p>
+  <blockquote><strong>Note:</strong> Photos containing your face or body are <strong>biometric-adjacent sensitive data</strong>. You are never required to provide them; all features that request them can be declined without affecting core app functionality.</blockquote>
+
+  <h3>2.5 Wardrobe &amp; Clothing Images</h3>
+  <ul>
+    <li>Clothing item photos you upload from your camera or photo library</li>
+    <li>AI-detected clothing tags and categories attached to each item</li>
+    <li>Upload timestamps</li>
+  </ul>
+
+  <h3>2.6 Location Data (City-Level, User-Typed Only)</h3>
+  <ul>
+    <li>City names you type into search fields for outfit suggestions, outfit reviews, shopping suggestions, and trip-packing lists</li>
+    <li>Partial city-name keystrokes sent to a location autocomplete endpoint (debounced at 300 ms) to show suggestions</li>
+  </ul>
+  <p><strong>We do not collect GPS coordinates, precise device location, or any location data that you have not explicitly typed yourself.</strong></p>
+
+  <h3>2.7 Behavioural &amp; Usage Data</h3>
+  <ul>
+    <li>Outfit generation history (occasion, city, weather summary, selected wardrobe items, AI reasoning)</li>
+    <li>Outfit ratings you submit (thumbs up / thumbs down)</li>
+    <li>Free-text chat messages sent to the AI fashion assistant, including conversation history</li>
+    <li>Moodboard names, descriptions, and inspiration images</li>
+    <li>Shopping items you save (store name, estimated price, category, links)</li>
+    <li>Trip packing list inputs (destination, length, activities, season, packing preference)</li>
+    <li>Budget and shopping preference inputs</li>
+    <li>App review messages and ratings you submit</li>
+    <li>Login timestamps (used to enforce a 24-hour session expiry)</li>
+  </ul>
+
+  <h3>2.8 User-Generated Content</h3>
+  <p>Any free-text content you create in the app — chat messages, moodboard names and descriptions, review messages — is stored on our servers and associated with your account.</p>
+
+  <h3>2.9 Data We Do NOT Collect</h3>
+  <ul>
+    <li>GPS or precise device location</li>
+    <li>Contacts</li>
+    <li>Microphone audio</li>
+    <li>Push notification tokens (the app does not request notification permissions)</li>
+    <li>Advertising identifiers (IDFA / GAID)</li>
+    <li>Any data via third-party analytics, advertising, or crash-reporting SDKs (none are installed)</li>
+  </ul>
+
+  <h2>3. Why We Collect This Data (Legal Basis &amp; Purpose)</h2>
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Data Category</th><th>Purpose</th><th>Legal Basis (GDPR)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Account &amp; identity data</td><td>Create and manage your account; authenticate you; recover your account</td><td>Performance of a contract (Art. 6(1)(b))</td></tr>
+      <tr><td>Style preferences</td><td>Personalise AI outfit and shopping recommendations</td><td>Performance of a contract; legitimate interest</td></tr>
+      <tr><td>Body &amp; facial data</td><td>AI body-shape and colour-season analysis you explicitly request</td><td>Explicit consent (Art. 9(2)(a)); you initiate each upload</td></tr>
+      <tr><td>Wardrobe images</td><td>Build your digital wardrobe for outfit generation</td><td>Performance of a contract</td></tr>
+      <tr><td>Location (city-level)</td><td>Provide weather-appropriate outfit and packing suggestions</td><td>Performance of a contract</td></tr>
+      <tr><td>Behavioural &amp; usage data</td><td>Improve recommendation quality; maintain outfit history; calculate AI taste profile</td><td>Legitimate interest; performance of a contract</td></tr>
+      <tr><td>Chat messages</td><td>Provide AI fashion assistant responses</td><td>Performance of a contract</td></tr>
+      <tr><td>Reviews and ratings</td><td>Improve the service; display aggregate feedback</td><td>Legitimate interest</td></tr>
+      <tr><td>Login timestamps</td><td>Enforce session expiry and account security</td><td>Legitimate interest</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>4. Third Parties and SDKs We Share Data With</h2>
+  <p>TrendSense does <strong>not</strong> use any third-party analytics, advertising, or crash-reporting SDKs. We do <strong>not</strong> sell, rent, or trade your personal data with any third party for commercial purposes.</p>
+  <p>Your data is shared with the following external parties, solely to operate the App's features:</p>
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Party</th><th>Role</th><th>Data Involved</th><th>Location</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Microsoft Azure</strong></td>
+        <td>Cloud hosting for our backend API and database</td>
+        <td>All data you send to the app (stored and processed on Azure servers in the Canada Central region)</td>
+        <td>Canada</td>
+      </tr>
+      <tr>
+        <td><strong>Google (Gemini API)</strong></td>
+        <td>AI processing for body-shape analysis and colour-season analysis</td>
+        <td>Photos you upload for body/colour analysis and self-reported appearance attributes. Our backend calls the Gemini API on your behalf — your device never sends data to Google directly.</td>
+        <td>Processed per Google's API data handling terms — see <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener">Google's Gemini API Additional Terms of Service</a></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Google acts as a data processor for the specific images/text our backend submits to AI-powered features. We do not control Google's infrastructure directly; Google's own privacy and data-handling terms govern how they process this data on our behalf. <strong>We recommend reviewing Google's Gemini API terms directly, as they may differ from a standard consumer Google product.</strong></p>
+  <p><strong>No other third party receives your data.</strong> In particular:</p>
+  <ul>
+    <li>No analytics vendors (no Firebase Analytics, Mixpanel, Amplitude, Segment, PostHog, etc.)</li>
+    <li>No advertising networks (no AdMob, Facebook Audience Network, etc.)</li>
+    <li>No crash-reporting services (no Sentry, Crashlytics, Bugsnag, etc.)</li>
+    <li>No social sign-in providers (no Google, Apple, or Facebook login)</li>
+  </ul>
+  <p>We may disclose your information if required by law, court order, or to protect the rights, property, or safety of TrendSense, our users, or the public.</p>
+
+  <h2>5. Local Storage on Your Device</h2>
+  <p>The app stores a small amount of data locally on your device:</p>
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Data</th><th>Storage Mechanism</th><th>Purpose</th><th>Expiry</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>JWT authentication token</td>
+        <td>Secure device storage (<code>expo-secure-store</code> on native; <code>localStorage</code> on web)</td>
+        <td>Maintain your login session across app restarts</td>
+        <td>Cleared after 24 hours of inactivity, or on logout</td>
+      </tr>
+      <tr>
+        <td>User ID, email, name, role</td>
+        <td>Secure device storage (native) / <code>localStorage</code> (web)</td>
+        <td>Populate UI without repeated API calls</td>
+        <td>Cleared on logout</td>
+      </tr>
+      <tr>
+        <td>Trends cache (fashion trends data)</td>
+        <td>Device file system (native) / <code>localStorage</code> (web)</td>
+        <td>Avoid redundant network requests</td>
+        <td>Cleared automatically when cache expires or you log out</td>
+      </tr>
+      <tr>
+        <td>Temporary upload images</td>
+        <td>Device cache directory (native)</td>
+        <td>Stage images before upload</td>
+        <td>Deleted immediately after upload completes</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p>No biometric or sensitive data is stored permanently on your device. Authentication tokens on native platforms are stored using the device's secure storage system (iOS Keychain / Android Keystore via <code>expo-secure-store</code>), which encrypts stored values at the OS level.</p>
+
+  <h2>6. Data Retention</h2>
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Data Category</th><th>Retention Period</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Account data (name, email, password hash)</td><td>Until you delete your account</td></tr>
+      <tr><td>Style profile and preferences</td><td>Until you delete your account or reset your profile</td></tr>
+      <tr><td>Wardrobe images and clothing items</td><td>Until you delete individual items or your account</td></tr>
+      <tr><td>Body analysis and colour analysis results</td><td>Until you clear them in-app or delete your account</td></tr>
+      <tr><td>Outfit history</td><td>Until you delete individual entries or your account</td></tr>
+      <tr><td>Chat conversation history</td><td>Until you clear chat history or delete your account</td></tr>
+      <tr><td>Moodboards</td><td>Until you delete individual boards or your account</td></tr>
+      <tr><td>Login timestamps and session tokens</td><td>24 hours from creation</td></tr>
+      <tr><td>Anonymised/aggregated data</td><td>May be retained indefinitely (cannot identify you)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>When you delete your account via the app's <strong>Settings → Delete Account</strong> option, we will delete or anonymise all personal data associated with your account within <strong>30 days</strong>, except where retention is required by law.</p>
+
+  <h2>7. Data Security</h2>
+  <p>We take the following measures to protect your data:</p>
+  <ul>
+    <li>All data is transmitted over <strong>HTTPS (TLS 1.2+)</strong> between the app and our servers.</li>
+    <li>Passwords are <strong>hashed and salted</strong> before storage; we cannot recover your plaintext password.</li>
+    <li>Access to our backend and database is restricted to authorised personnel using role-based access controls.</li>
+    <li>Our backend is hosted on <strong>Microsoft Azure</strong> with industry-standard physical and network security controls.</li>
+    <li>Authentication tokens expire after 24 hours of inactivity.</li>
+  </ul>
+  <p>No method of transmission or storage is 100% secure. If you believe your account has been compromised, please contact us immediately at <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a>.</p>
+
+  <h2>8. Your Rights</h2>
+
+  <h3>8.1 All Users</h3>
+  <p>Regardless of where you live, you may at any time:</p>
+  <ul>
+    <li><strong>Access</strong> your data — view your profile, preferences, wardrobe, outfit history, moodboards, and saved items from within the app</li>
+    <li><strong>Correct</strong> your data — edit your name, email, phone number, profile photo, and all preferences from within the app</li>
+    <li><strong>Delete your account</strong> — go to <strong>Profile → Settings → Delete Account</strong>; this removes your personal data from our active systems within 30 days</li>
+    <li><strong>Export / portability</strong> — contact us at <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a> to request a copy of your data in a portable format</li>
+    <li><strong>Withdraw consent</strong> for body/facial analysis — simply do not use those features; any previously submitted images can be cleared in-app</li>
+  </ul>
+
+  <h3>8.2 GDPR Rights (EEA, UK, Switzerland)</h3>
+  <p>If you are located in the European Economic Area, United Kingdom, or Switzerland, you additionally have the right to:</p>
+  <ul>
+    <li><strong>Object</strong> to processing based on legitimate interest (Art. 21 GDPR)</li>
+    <li><strong>Restrict</strong> processing while a dispute is resolved (Art. 18 GDPR)</li>
+    <li><strong>Lodge a complaint</strong> with your national data protection authority</li>
+  </ul>
+  <p>Our legal bases for processing are set out in §3. Where we rely on <strong>legitimate interest</strong>, you may object at any time by contacting us at <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a>. Where we rely on <strong>consent</strong> (body and facial image uploads), you may withdraw consent at any time without affecting the lawfulness of prior processing.</p>
+  <p><strong>Data Controller:</strong> Amninder Kaur, 127 Hazelton Ave, Hamilton, ON, Canada, L9B 0G1<br />
+  Contact for GDPR requests: <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a></p>
+  <p>We will respond to verifiable GDPR data-subject requests within <strong>30 days</strong>.</p>
+
+  <h3>8.3 CCPA/CPRA Rights (California Residents)</h3>
+  <p>If you are a California resident, you have the right to:</p>
+  <ul>
+    <li><strong>Know</strong> what personal information we collect, use, and disclose</li>
+    <li><strong>Delete</strong> your personal information (submit via the in-app delete-account flow or email <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a>)</li>
+    <li><strong>Correct</strong> inaccurate personal information</li>
+    <li><strong>Limit the use of sensitive personal information</strong> — you may request that we limit our use of sensitive personal information (such as body or facial images) to what is necessary to provide the App's features, by contacting us at <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a></li>
+    <li><strong>Opt out of sale or sharing</strong> of personal information — <strong>we do not sell or share personal information</strong> with third parties for commercial purposes, so no opt-out mechanism is required</li>
+    <li><strong>Non-discrimination</strong> — we will not discriminate against you for exercising your privacy rights</li>
+  </ul>
+  <p><strong>Categories of personal information collected</strong> (CCPA categories): Identifiers (A); Customer records information (B); Characteristics of protected classifications — age group, gender (C); Internet or other electronic network activity — chat history, outfit history (F); Geolocation data — city level, user-typed (G); Inferences — AI style profile and taste profile (K); Sensitive personal information — body images, facial images, health-adjacent measurements (§1798.140(ae)).</p>
+  <p>To submit a CCPA request, contact us at <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a> with the subject line "California Privacy Request".</p>
+  <p>We will respond within <strong>45 days</strong> (extendable by an additional 45 days where necessary).</p>
+
+  <h2>9. Children's Privacy (COPPA)</h2>
+  <p>TrendSense is <strong>not directed at children under the age of 13</strong>, and we do not knowingly collect personal information from children under 13. The personalization questionnaire asks users to select an age group; users who select an age group indicating they are under 13 are not permitted to complete account registration.</p>
+  <p>If you believe we have inadvertently collected information from a child under 13, please contact us immediately at <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a> and we will delete it promptly.</p>
+  <p>For users between 13 and 17 (or the applicable age of digital consent in their jurisdiction), we recommend that a parent or guardian review this policy. Parental consent may be required in certain jurisdictions.</p>
+
+  <h2>10. International Data Transfers</h2>
+  <p>Our servers are located in <strong>Canada Central</strong> (Microsoft Azure). If you access TrendSense from outside Canada, your data will be transferred to and processed in Canada. Canada is recognised by the European Commission as providing an adequate level of data protection for commercial organisations under PIPEDA.</p>
+  <p>For EEA/UK users, where we process data outside an adequate-protection country, we rely on Standard Contractual Clauses (SCCs) as the transfer mechanism with our sub-processors.</p>
+
+  <h2>11. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. If we make material changes — particularly to how we collect or use sensitive data — we will notify you via an in-app notice and/or email before the changes take effect. The "Last Updated" date at the top of this policy will always reflect the most recent revision. Continued use of the app after changes take effect constitutes acceptance of the revised policy.</p>
+
+  <h2>12. Contact Us</h2>
+  <p>If you have any questions, concerns, or requests about this Privacy Policy or your personal data, please contact:</p>
+  <p>
+    <strong>TrendSense Privacy Team</strong><br />
+    📧 <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a><br />
+    📬 127 Hazelton Ave, Hamilton, ON, Canada, L9B 0G1
+  </p>
+  <p>For GDPR-specific inquiries or to reach our Data Protection Officer (if applicable):<br />
+  📧 <a href="mailto:amninder.ak11@gmail.com">amninder.ak11@gmail.com</a></p>
+  <p>We aim to respond to all privacy-related inquiries within <strong>5 business days</strong>.</p>
+
+  <footer>This Privacy Policy was last generated based on a full audit of TrendSense v1.0.0 (Expo SDK 54, React Native 0.81.5). Read together with our <a href="/terms.html">Terms and Conditions</a>.</footer>
+
+</div>
+</body>
+</html>

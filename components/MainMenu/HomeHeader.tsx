@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import HeaderSvg from "./HeaderSvg";
 
 type Props = {
@@ -27,6 +28,7 @@ export default function HomeHeader({
   const router = useRouter();
   const { themeColors, isDarkMode } = useAppTheme();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const [svgKey, setSvgKey] = useState(0);
 
@@ -59,7 +61,7 @@ export default function HomeHeader({
         ]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={s.mobileHeader}
+        style={[s.mobileHeader, { paddingTop: 22 + insets.top }]}
       >
         <View>
           <Text style={[s.mobileAppName, { color: themeColors.headerText }]}>
