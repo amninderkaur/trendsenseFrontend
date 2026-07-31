@@ -59,7 +59,11 @@ export default function AdminUsers() {
   if (getRole() !== "ADMIN") {
     return (
       <View style={styles.center}>
-        <Text style={styles.accessDenied}>Access denied.</Text>
+        <View style={styles.emptyStateIcon}>
+          <Text style={styles.emptyStateIconText}>🔒</Text>
+        </View>
+        <Text style={styles.deniedTitle}>Access Denied</Text>
+        <Text style={styles.deniedText}>Admin access required to view this page.</Text>
       </View>
     );
   }
@@ -112,8 +116,8 @@ export default function AdminUsers() {
 
   const confirmDelete = (id: string, email?: string) => {
     Alert.alert(
-      "Delete user",
-      `Permanently delete ${email ?? "this user"} and all their data?`,
+      "Delete User",
+      `Permanently delete ${email ?? "this user"} and all their data?\n\nThis action cannot be undone.`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -148,8 +152,9 @@ export default function AdminUsers() {
     setSending(true);
     try {
       await sendEmailToUser(id, emailForm.subject.trim(), emailForm.content.trim());
-      Alert.alert("Sent", "Email sent successfully.");
+      Alert.alert("Success", "Email sent successfully! ✓");
       setEmailingId(null);
+      setEmailForm({ subject: "", content: "" });
     } catch {
       Alert.alert("Error", "Could not send email. Please try again.");
     } finally {
@@ -159,97 +164,159 @@ export default function AdminUsers() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header */}
       <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>← Back</Text>
+        <Text style={styles.backButtonText}>← Dashboard</Text>
       </Pressable>
 
-      <Text style={styles.title}>Manage Users</Text>
-      <Text style={styles.subtitle}>{users.length} user{users.length !== 1 ? "s" : ""} total</Text>
+      <View style={styles.headerSection}>
+        <View>
+          <Text style={styles.title}>Manage Users</Text>
+          <Text style={styles.subtitle}>Control and manage all user accounts</Text>
+        </View>
+        <View style={styles.userCountBadge}>
+          <Text style={styles.userCountIcon}>👥</Text>
+          <Text style={styles.userCountText}>{users.length}</Text>
+        </View>
+      </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color={colors.blueDark} style={{ marginTop: 40 }} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.blueDark} />
+          <Text style={styles.loadingText}>Loading users...</Text>
+        </View>
       ) : users.length === 0 ? (
-        <Text style={styles.empty}>No users found.</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>📭</Text>
+          <Text style={styles.emptyTitle}>No Users Found</Text>
+          <Text style={styles.emptyText}>There are no users to manage at the moment.</Text>
+        </View>
       ) : (
-        users.map((user) => {
+        users.map((user, index) => {
           const id = user.id;
           const isEditing = editingId === id;
           const isEmailing = emailingId === id;
 
           return (
             <View key={id} style={styles.card}>
-              {/* User info */}
+              {/* User Header */}
               <View style={styles.cardHeader}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>
-                    {(user.name || user.email || "?").charAt(0).toUpperCase()}
-                  </Text>
+                <View style={styles.userInfo}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {(user.name || user.email || "?").charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.userDetails}>
+                    <Text style={styles.userName}>{user.name ?? "No Name"}</Text>
+                    <Text style={styles.userEmail}>{user.email}</Text>
+                    <View style={[styles.roleBadge, user.role === "ADMIN" && styles.roleBadgeAdmin]}>
+                      <Text style={styles.roleBadgeText}>
+                        {user.role === "ADMIN" ? "🔑 Admin" : "👤 User"}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-                <View style={styles.cardMeta}>
-                  <Text style={styles.userName}>{user.name ?? "—"}</Text>
-                  <Text style={styles.userEmail}>{user.email}</Text>
-                  <View style={[styles.roleBadge, user.role === "ADMIN" && styles.roleBadgeAdmin]}>
-                    <Text style={styles.roleBadgeText}>{user.role ?? "USER"}</Text>
+                <Text style={styles.userIndex}>#{index + 1}</Text>
+              </View>
+
+              {/* User Stats */}
+              <View style={styles.statsContainer}>
+                {user.phoneNumber && (
+                  <View style={styles.statItem}>
+                    <Text style={styles.statIcon}>📞</Text>
+                    <View style={styles.statContent}>
+                      <Text style={styles.statLabel}>Phone</Text>
+                      <Text style={styles.statValue}>{user.phoneNumber}</Text>
+                    </View>
+                  </View>
+                )}
+                <View style={styles.statItem}>
+                  <Text style={styles.statIcon}>👕</Text>
+                  <View style={styles.statContent}>
+                    <Text style={styles.statLabel}>Clothes</Text>
+                    <Text style={styles.statValue}>{user.clothesCount ?? 0}</Text>
+                  </View>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statIcon}>📊</Text>
+                  <View style={styles.statContent}>
+                    <Text style={styles.statLabel}>Uses</Text>
+                    <Text style={styles.statValue}>{user.usageCount ?? 0}</Text>
                   </View>
                 </View>
               </View>
 
-              <View style={styles.statsRow}>
-                {user.phoneNumber ? (
-                  <Text style={styles.statText}>📞 {user.phoneNumber}</Text>
-                ) : null}
-                <Text style={styles.statText}>👕 {user.clothesCount ?? 0} clothes</Text>
-                <Text style={styles.statText}>📊 {user.usageCount ?? 0} uses</Text>
-              </View>
-
-              {/* Edit form */}
+              {/* Edit Form */}
               {isEditing && (
                 <View style={styles.form}>
-                  <Text style={styles.formTitle}>Edit user</Text>
+                  <View style={styles.formHeader}>
+                    <Text style={styles.formIcon}>✏️</Text>
+                    <Text style={styles.formTitle}>Edit User Profile</Text>
+                  </View>
 
-                  <Text style={styles.fieldLabel}>Name</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={editForm.name}
-                    onChangeText={(v) => setEditForm((p) => ({ ...p, name: v }))}
-                    placeholder="Display name"
-                    placeholderTextColor={colors.muted}
-                  />
+                  <View style={styles.formGroup}>
+                    <Text style={styles.fieldLabel}>Full Name</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={editForm.name}
+                      onChangeText={(v) => setEditForm((p) => ({ ...p, name: v }))}
+                      placeholder="Enter user's display name"
+                      placeholderTextColor={colors.muted}
+                    />
+                  </View>
 
-                  <Text style={styles.fieldLabel}>Email</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={editForm.email}
-                    onChangeText={(v) => setEditForm((p) => ({ ...p, email: v }))}
-                    placeholder="Email address"
-                    placeholderTextColor={colors.muted}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
+                  <View style={styles.formGroup}>
+                    <Text style={styles.fieldLabel}>Email Address</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={editForm.email}
+                      onChangeText={(v) => setEditForm((p) => ({ ...p, email: v }))}
+                      placeholder="user@example.com"
+                      placeholderTextColor={colors.muted}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  </View>
 
-                  <Text style={styles.fieldLabel}>Phone number</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={editForm.phoneNumber}
-                    onChangeText={(v) => setEditForm((p) => ({ ...p, phoneNumber: v }))}
-                    placeholder="e.g. +1 416 555 0100"
-                    placeholderTextColor={colors.muted}
-                    keyboardType="phone-pad"
-                  />
+                  <View style={styles.formGroup}>
+                    <Text style={styles.fieldLabel}>Phone Number</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={editForm.phoneNumber}
+                      onChangeText={(v) => setEditForm((p) => ({ ...p, phoneNumber: v }))}
+                      placeholder="e.g. +1 416 555 0100"
+                      placeholderTextColor={colors.muted}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
 
-                  <Text style={styles.fieldLabel}>Role</Text>
-                  <View style={styles.roleToggleRow}>
-                    {["USER", "ADMIN"].map((r) => (
-                      <Pressable
-                        key={r}
-                        style={[styles.roleToggle, editForm.role === r && styles.roleToggleActive]}
-                        onPress={() => setEditForm((p) => ({ ...p, role: r }))}
-                      >
-                        <Text style={[styles.roleToggleText, editForm.role === r && styles.roleToggleTextActive]}>
-                          {r}
-                        </Text>
-                      </Pressable>
-                    ))}
+                  <View style={styles.formGroup}>
+                    <Text style={styles.fieldLabel}>User Role</Text>
+                    <View style={styles.roleToggleRow}>
+                      {["USER", "ADMIN"].map((r) => (
+                        <Pressable
+                          key={r}
+                          style={[
+                            styles.roleToggle,
+                            editForm.role === r && styles.roleToggleActive,
+                          ]}
+                          onPress={() => setEditForm((p) => ({ ...p, role: r }))}
+                        >
+                          <Text style={styles.roleToggleIcon}>
+                            {r === "ADMIN" ? "🔑" : "👤"}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.roleToggleText,
+                              editForm.role === r && styles.roleToggleTextActive,
+                            ]}
+                          >
+                            {r}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
                   </View>
 
                   <View style={styles.formActions}>
@@ -261,39 +328,48 @@ export default function AdminUsers() {
                       onPress={() => saveEdit(id)}
                       disabled={saving}
                     >
-                      {saving
-                        ? <ActivityIndicator color={colors.white} />
-                        : <Text style={styles.saveButtonText}>Save changes</Text>}
+                      {saving ? (
+                        <ActivityIndicator color={colors.white} />
+                      ) : (
+                        <Text style={styles.saveButtonText}>Save Changes</Text>
+                      )}
                     </Pressable>
                   </View>
                 </View>
               )}
 
-              {/* Email form */}
+              {/* Email Form */}
               {isEmailing && (
                 <View style={styles.form}>
-                  <Text style={styles.formTitle}>Send email to {user.name ?? user.email}</Text>
+                  <View style={styles.formHeader}>
+                    <Text style={styles.formIcon}>✉️</Text>
+                    <Text style={styles.formTitle}>Send Email to {user.name ?? "User"}</Text>
+                  </View>
 
-                  <Text style={styles.fieldLabel}>Subject</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={emailForm.subject}
-                    onChangeText={(v) => setEmailForm((p) => ({ ...p, subject: v }))}
-                    placeholder="Email subject"
-                    placeholderTextColor={colors.muted}
-                  />
+                  <View style={styles.formGroup}>
+                    <Text style={styles.fieldLabel}>Subject</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={emailForm.subject}
+                      onChangeText={(v) => setEmailForm((p) => ({ ...p, subject: v }))}
+                      placeholder="Email subject"
+                      placeholderTextColor={colors.muted}
+                    />
+                  </View>
 
-                  <Text style={styles.fieldLabel}>Message</Text>
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    value={emailForm.content}
-                    onChangeText={(v) => setEmailForm((p) => ({ ...p, content: v }))}
-                    placeholder="Write your message..."
-                    placeholderTextColor={colors.muted}
-                    multiline
-                    numberOfLines={5}
-                    textAlignVertical="top"
-                  />
+                  <View style={styles.formGroup}>
+                    <Text style={styles.fieldLabel}>Message</Text>
+                    <TextInput
+                      style={[styles.input, styles.textArea]}
+                      value={emailForm.content}
+                      onChangeText={(v) => setEmailForm((p) => ({ ...p, content: v }))}
+                      placeholder="Write your message here..."
+                      placeholderTextColor={colors.muted}
+                      multiline
+                      numberOfLines={5}
+                      textAlignVertical="top"
+                    />
+                  </View>
 
                   <View style={styles.formActions}>
                     <Pressable style={styles.cancelButton} onPress={cancelEmail}>
@@ -304,28 +380,39 @@ export default function AdminUsers() {
                       onPress={() => sendEmail(id)}
                       disabled={sending}
                     >
-                      {sending
-                        ? <ActivityIndicator color={colors.white} />
-                        : <Text style={styles.saveButtonText}>Send email</Text>}
+                      {sending ? (
+                        <ActivityIndicator color={colors.white} />
+                      ) : (
+                        <Text style={styles.saveButtonText}>Send Email</Text>
+                      )}
                     </Pressable>
                   </View>
                 </View>
               )}
 
-              {/* Action buttons (hide while a form is open for this card) */}
+              {/* Action Buttons */}
               {!isEditing && !isEmailing && (
                 <View style={styles.actionRow}>
-                  <Pressable style={styles.actionButton} onPress={() => openEdit(user)}>
+                  <Pressable
+                    style={[styles.actionButton, styles.editButton]}
+                    onPress={() => openEdit(user)}
+                  >
+                    <Text style={styles.actionButtonIcon}>✏️</Text>
                     <Text style={styles.actionButtonText}>Edit</Text>
                   </Pressable>
-                  <Pressable style={styles.actionButton} onPress={() => openEmail(user)}>
+                  <Pressable
+                    style={[styles.actionButton, styles.emailButton]}
+                    onPress={() => openEmail(user)}
+                  >
+                    <Text style={styles.actionButtonIcon}>✉️</Text>
                     <Text style={styles.actionButtonText}>Email</Text>
                   </Pressable>
                   <Pressable
                     style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => confirmDelete(id, user.email)}
                   >
-                    <Text style={[styles.actionButtonText, styles.deleteButtonText]}>Delete</Text>
+                    <Text style={styles.actionButtonIcon}>🗑️</Text>
+                    <Text style={styles.actionButtonText}>Delete</Text>
                   </Pressable>
                 </View>
               )}
@@ -339,120 +426,383 @@ export default function AdminUsers() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 20, paddingBottom: 40 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg },
-  accessDenied: { fontSize: 18, color: colors.muted },
+  content: { padding: 16, paddingBottom: 40 },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.bg,
+  },
+
+  // Empty/Access States
+  emptyStateIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.card,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  emptyStateIconText: { fontSize: 40 },
+  deniedTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: colors.text,
+    marginBottom: 8,
+  },
+  deniedText: {
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+
+  // Back Button
   backButton: {
     alignSelf: "flex-start",
-    backgroundColor: colors.bgDark,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    marginBottom: 12,
+    backgroundColor: colors.card,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.input,
   },
-  backButtonText: { color: colors.white, fontWeight: "700" },
-  title: { fontSize: 28, fontWeight: "800", color: colors.text, marginBottom: 2 },
-  subtitle: { fontSize: 14, color: colors.muted, marginBottom: 16 },
-  empty: { color: colors.muted, marginTop: 40, textAlign: "center" },
+  backButtonText: {
+    color: colors.text,
+    fontWeight: "700",
+    fontSize: 14,
+  },
 
+  // Header Section
+  headerSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "900",
+    color: colors.text,
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.muted,
+    fontWeight: "500",
+  },
+  userCountBadge: {
+    backgroundColor: colors.blueDark + "20",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    gap: 4,
+  },
+  userCountIcon: {
+    fontSize: 20,
+  },
+  userCountText: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: colors.blueDark,
+  },
+
+  // Loading
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+  },
+  loadingText: {
+    color: colors.muted,
+    marginTop: 16,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  // Empty State
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.text,
+    marginBottom: 6,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: "center",
+  },
+
+  // Card
   card: {
     backgroundColor: colors.card,
     borderRadius: 18,
     padding: 16,
     marginBottom: 14,
     gap: 12,
+    shadowColor: colors.text,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-  cardHeader: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+
+  // Card Header
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.input,
+  },
+  userInfo: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 12,
+  },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.blueDark,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: colors.white, fontWeight: "800", fontSize: 18 },
-  cardMeta: { flex: 1, gap: 2 },
-  userName: { fontSize: 15, fontWeight: "700", color: colors.text },
-  userEmail: { fontSize: 13, color: colors.muted },
+  avatarText: {
+    color: colors.white,
+    fontWeight: "900",
+    fontSize: 22,
+  },
+  userDetails: {
+    flex: 1,
+    gap: 4,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  userEmail: {
+    fontSize: 13,
+    color: colors.muted,
+    fontWeight: "500",
+  },
   roleBadge: {
     alignSelf: "flex-start",
-    backgroundColor: colors.input,
-    paddingVertical: 2,
+    backgroundColor: colors.blue + "20",
+    paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 999,
     marginTop: 4,
   },
-  roleBadgeAdmin: { backgroundColor: colors.bgDark },
-  roleBadgeText: { fontSize: 11, fontWeight: "700", color: colors.text },
+  roleBadgeAdmin: {
+    backgroundColor: colors.bgDark + "20",
+  },
+  roleBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  userIndex: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.muted,
+  },
 
-  statsRow: { flexDirection: "row", gap: 14, flexWrap: "wrap" },
-  statText: { fontSize: 13, color: colors.muted },
+  // Stats Container
+  statsContainer: {
+    flexDirection: "row",
+    gap: 8,
+    paddingVertical: 8,
+  },
+  statItem: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.bg,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+  },
+  statIcon: {
+    fontSize: 18,
+  },
+  statContent: {
+    flex: 1,
+    gap: 2,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: colors.muted,
+    fontWeight: "600",
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.text,
+  },
 
+  // Form
   form: {
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    padding: 14,
-    gap: 4,
+    backgroundColor: colors.input + "30",
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
     borderWidth: 1,
     borderColor: colors.input,
   },
-  formTitle: { fontSize: 14, fontWeight: "700", color: colors.text, marginBottom: 6 },
-  fieldLabel: { fontSize: 12, fontWeight: "600", color: colors.muted, marginTop: 6, marginBottom: 2 },
+  formHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 4,
+  },
+  formIcon: {
+    fontSize: 20,
+  },
+  formTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  formGroup: {
+    gap: 6,
+  },
+  fieldLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.muted,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
   input: {
-    backgroundColor: colors.bg,
-    borderRadius: 10,
+    backgroundColor: colors.card,
+    borderRadius: 12,
     padding: 12,
     borderWidth: 1,
     borderColor: colors.input,
     color: colors.text,
     fontSize: 14,
+    fontWeight: "500",
   },
-  textArea: { minHeight: 100 },
+  textArea: {
+    minHeight: 100,
+  },
 
-  roleToggleRow: { flexDirection: "row", gap: 10, marginTop: 4 },
+  // Role Toggle
+  roleToggleRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
   roleToggle: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 2,
     borderColor: colors.input,
     alignItems: "center",
-    backgroundColor: colors.bg,
+    gap: 6,
+    backgroundColor: colors.card,
   },
-  roleToggleActive: { backgroundColor: colors.bgDark, borderColor: colors.bgDark },
-  roleToggleText: { fontWeight: "700", color: colors.muted },
-  roleToggleTextActive: { color: colors.white },
+  roleToggleActive: {
+    backgroundColor: colors.bgDark,
+    borderColor: colors.bgDark,
+  },
+  roleToggleIcon: {
+    fontSize: 16,
+  },
+  roleToggleText: {
+    fontWeight: "700",
+    color: colors.muted,
+    fontSize: 13,
+  },
+  roleToggleTextActive: {
+    color: colors.white,
+  },
 
-  formActions: { flexDirection: "row", gap: 10, marginTop: 12 },
+  // Form Actions
+  formActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 8,
+  },
   cancelButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 999,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 2,
     borderColor: colors.input,
     alignItems: "center",
+    backgroundColor: colors.card,
   },
-  cancelButtonText: { color: colors.muted, fontWeight: "600" },
+  cancelButtonText: {
+    color: colors.muted,
+    fontWeight: "700",
+    fontSize: 14,
+  },
   saveButton: {
-    flex: 2,
+    flex: 1,
     paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: colors.bgDark,
+    borderRadius: 12,
+    backgroundColor: colors.blueDark,
     alignItems: "center",
   },
-  saveButtonText: { color: colors.white, fontWeight: "700" },
+  saveButtonText: {
+    color: colors.white,
+    fontWeight: "700",
+    fontSize: 14,
+  },
 
-  actionRow: { flexDirection: "row", gap: 8 },
+  // Action Row
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+    paddingTop: 4,
+  },
   actionButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.bgDark,
+    paddingVertical: 11,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    borderWidth: 2,
     alignItems: "center",
+    gap: 4,
+    flexDirection: "row",
+    justifyContent: "center",
   },
-  actionButtonText: { color: colors.text, fontWeight: "600", fontSize: 13 },
-  deleteButton: { borderColor: "#d9534f" },
-  deleteButtonText: { color: "#d9534f" },
+  editButton: {
+    borderColor: colors.blue,
+    backgroundColor: colors.blue + "10",
+  },
+  emailButton: {
+    borderColor: colors.blueDark,
+    backgroundColor: colors.blueDark + "10",
+  },
+  deleteButton: {
+    borderColor: "#ef5350",
+    backgroundColor: "#ef5350" + "10",
+  },
+  actionButtonIcon: {
+    fontSize: 14,
+  },
+  actionButtonText: {
+    fontWeight: "700",
+    fontSize: 12,
+    color: colors.text,
+  },
 });
