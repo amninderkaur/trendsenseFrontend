@@ -11,6 +11,7 @@ import { Platform, View, useWindowDimensions } from "react-native";
 
 import "react-native-reanimated";
 
+import ErrorBoundary from "@/components/ErrorBoundary";
 import FloatingChatButton from "@/components/floating-chat-button";
 import MobileBottomNav from "@/components/MainMenu/MobileBottomNav";
 import { AppThemeProvider } from "@/context/ThemeContext";
@@ -36,6 +37,7 @@ export default function RootLayout() {
     ["/mainMenu", "/chatbot", "/profile"].includes(pathname);
 
   return (
+    <ErrorBoundary>
     <AppThemeProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <View style={{ flex: 1, position: "relative" }}>
@@ -60,5 +62,6 @@ export default function RootLayout() {
       <StatusBar style="auto" />
     </ThemeProvider>
     </AppThemeProvider>
+    </ErrorBoundary>
   );
 }

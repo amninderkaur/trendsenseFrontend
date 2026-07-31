@@ -1,4 +1,16 @@
-// Lightweight auth/preference store with web localStorage fallback and in-memory fallback.
+// Lightweight auth/preference store.
+//
+// Reads (getToken, getUserId, ...) stay synchronous and read from an
+// in-memory cache, so none of the existing call sites need to change.
+// Writes (saveToken, ...) update the in-memory cache immediately *and*
+// persist to secure/async storage in the background (native) or
+// localStorage (web).
+//
+// On cold start the in-memory cache is empty until `hydrateSession()` is
+// awaited — this must happen before any auth-gated screen reads the token
+// (see app/index.tsx).
+import { plainStorage, secureStorage } from "./storage";
+
 let _token = null;
 let _userId = null;
 let _email = null;
@@ -7,91 +19,78 @@ let _name = null;
 let _preferences = null;
 let _preferencesCompleted = false;
 
-const canUseLocalStorage = () => typeof window !== "undefined" && !!window.localStorage;
-
-const setItem = (key, value) => {
-  if (canUseLocalStorage()) window.localStorage.setItem(key, value);
-};
-
-const getItem = (key) => {
-  if (canUseLocalStorage()) return window.localStorage.getItem(key);
-  return null;
-};
-
-const removeItem = (key) => {
-  if (canUseLocalStorage()) window.localStorage.removeItem(key);
-};
-
 export const saveToken = (token) => {
   _token = token;
-  setItem("token", token);
+  secureStorage.setItem("token", token);
 };
 
-export const getToken = () => _token || getItem("token");
+export const getToken = () => _token;
 
 export const removeToken = () => {
   _token = null;
-  removeItem("token");
+  secureStorage.removeItem("token");
 };
 
 export const saveUserId = (userId) => {
   _userId = userId;
-  setItem("userId", userId);
+  secureStorage.setItem("userId", userId);
 };
 
-export const getUserId = () => _userId || getItem("userId");
+export const getUserId = () => _userId;
 
 export const removeUserId = () => {
   _userId = null;
-  removeItem("userId");
+  secureStorage.removeItem("userId");
 };
 
 export const saveRole = (role) => {
   _role = role;
-  setItem("role", role);
+  secureStorage.setItem("role", role);
 };
 
-export const getRole = () => _role || getItem("role");
+export const getRole = () => _role;
 
 export const removeRole = () => {
   _role = null;
-  removeItem("role");
+  secureStorage.removeItem("role");
 };
 
 export const saveEmail = (email) => {
   _email = email;
-  setItem("email", email);
+  plainStorage.setItem("email", email);
 };
 
-export const getEmail = () => _email || getItem("email");
+export const getEmail = () => _email;
 
 export const removeEmail = () => {
   _email = null;
-  removeItem("email");
+  plainStorage.removeItem("email");
 };
 
 export const saveName = (name) => {
   _name = name;
-  setItem("name", name);
+  plainStorage.setItem("name", name);
 };
 
-export const getName = () => _name || getItem("name");
+export const getName = () => _name;
 
 export const removeName = () => {
   _name = null;
-  removeItem("name");
+  plainStorage.removeItem("name");
 };
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+let _loginTime = null;
+
 export const saveLoginTime = () => {
-  setItem("loginTime", Date.now().toString());
+  _loginTime = Date.now().toString();
+  plainStorage.setItem("loginTime", _loginTime);
 };
 
 export const isSessionExpired = () => {
-  const loginTime = getItem("loginTime");
-  if (!loginTime) return true;
-  return Date.now() - parseInt(loginTime, 10) > SESSION_TTL_MS;
+  if (!_loginTime) return true;
+  return Date.now() - parseInt(_loginTime, 10) > SESSION_TTL_MS;
 };
 
 export const clearSession = () => {
@@ -100,35 +99,62 @@ export const clearSession = () => {
   _email = null;
   _role = null;
   _name = null;
-  removeItem("token");
-  removeItem("userId");
-  removeItem("email");
-  removeItem("role");
-  removeItem("name");
-  removeItem("loginTime");
+  _loginTime = null;
+  secureStorage.removeItem("token");
+  secureStorage.removeItem("userId");
+  secureStorage.removeItem("role");
+  plainStorage.removeItem("email");
+  plainStorage.removeItem("name");
+  plainStorage.removeItem("loginTime");
 };
 
 export const savePreferences = async (preferences) => {
   _preferences = preferences;
   _preferencesCompleted = true;
-  setItem("preferences", JSON.stringify(preferences));
-  setItem("preferencesCompleted", "true");
+  await plainStorage.setItem("preferences", JSON.stringify(preferences));
+  await plainStorage.setItem("preferencesCompleted", "true");
 };
 
 export const getPreferences = async () => {
   if (_preferences) return _preferences;
-  const saved = getItem("preferences");
+  const saved = await plainStorage.getItem("preferences");
   return saved ? JSON.parse(saved) : null;
 };
 
 export const getPreferencesCompleted = async () => {
   if (_preferencesCompleted) return true;
-  return getItem("preferencesCompleted") === "true";
+  return (await plainStorage.getItem("preferencesCompleted")) === "true";
 };
 
 export const resetPreferences = async () => {
   _preferences = null;
   _preferencesCompleted = false;
-  removeItem("preferences");
-  removeItem("preferencesCompleted");
+  await plainStorage.removeItem("preferences");
+  await plainStorage.removeItem("preferencesCompleted");
+};
+
+// Loads any persisted session back into the in-memory cache. Must be
+// awaited once at app startup, before any auth-gated screen reads
+// getToken()/getUserId()/etc — see app/index.tsx.
+let _hydrated = false;
+
+export const hydrateSession = async () => {
+  if (_hydrated) return;
+  _hydrated = true;
+
+  const [token, userId, role, email, name, loginTime] = await Promise.all([
+    secureStorage.getItem("token"),
+    secureStorage.getItem("userId"),
+    secureStorage.getItem("role"),
+    plainStorage.getItem("email"),
+    plainStorage.getItem("name"),
+    plainStorage.getItem("loginTime"),
+  ]);
+
+  _token = token;
+  _userId = userId;
+  _role = role;
+  _email = email;
+  _name = name;
+  _loginTime = loginTime;
 };

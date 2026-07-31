@@ -465,18 +465,24 @@ export default function ColourAnalysisScreen() {
                 xhr.send(formData);
             });
 
-            console.log("RAW AI RESPONSE TEXT:", rawResult);
+            if (__DEV__) {
+                console.log("RAW AI RESPONSE TEXT:", rawResult);
+            }
 
             const data: BackendColourResponse = JSON.parse(rawResult);
 
-            console.log("PARSED AI RESPONSE:", JSON.stringify(data, null, 2));
+            if (__DEV__) {
+                console.log("PARSED AI RESPONSE:", JSON.stringify(data, null, 2));
+            }
 
             const formattedResult = normalizeAnalysisResult(data);
 
-            console.log(
-                "NORMALIZED AI RESULT:",
-                JSON.stringify(formattedResult, null, 2)
-            );
+            if (__DEV__) {
+                console.log(
+                    "NORMALIZED AI RESULT:",
+                    JSON.stringify(formattedResult, null, 2)
+                );
+            }
 
             setAnalysisResult(formattedResult);
             setHasAnalysis(true);

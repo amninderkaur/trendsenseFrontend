@@ -4,16 +4,17 @@
     "slug": "TrendSense",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/trendsense-logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.trendsense.app",
+      "buildNumber": "1"
     },
-
     "android": {
+      "package": "com.trendsense.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/trendsense-logo.png",
         "backgroundColor": "#ffffff"
@@ -21,12 +22,10 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
-
     "web": {
       "output": "static",
       "favicon": "./assets/images/trendsense-logo.png"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -40,9 +39,17 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TrendSense needs access to your photo library so you can upload photos of your clothing and outfits for AI style analysis.",
+          "cameraPermission": "TrendSense needs camera access so you can photograph clothing items and outfits directly for AI style analysis.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-secure-store"
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true

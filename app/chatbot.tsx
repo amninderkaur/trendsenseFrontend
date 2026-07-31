@@ -95,7 +95,9 @@ export default function ChatbotScreen() {
         },
       );
 
-      console.log(response.data);
+      if (__DEV__) {
+        console.log(response.data);
+      }
 
       const assistantMessage: ChatMessage = {
         id: `${Date.now()}-assistant`,
