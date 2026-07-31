@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -391,6 +392,31 @@ export default function RegisterScreen() {
             )}
           </TouchableOpacity>
 
+          <Text style={[styles.legalText, { color: themeColors.muted }]}>
+            By signing up, you agree to our{" "}
+            <Text
+              style={[styles.legalLink, { color: themeColors.accent }]}
+              onPress={() =>
+                Linking.openURL(
+                  "https://calm-bay-05c532b1e.7.azurestaticapps.net/privacy-policy.html"
+                )
+              }
+            >
+              Privacy Policy
+            </Text>{" "}
+            and{" "}
+            <Text
+              style={[styles.legalLink, { color: themeColors.accent }]}
+              onPress={() =>
+                Linking.openURL(
+                  "https://calm-bay-05c532b1e.7.azurestaticapps.net/terms.html"
+                )
+              }
+            >
+              Terms & Conditions
+            </Text>
+          </Text>
+
           <TouchableOpacity
             style={globalStyles.centeredLink}
             onPress={() => router.push("/(auth)/login")}
@@ -454,5 +480,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
     fontSize: 15,
+  },
+  legalText: {
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: "center",
+    marginTop: 14,
+    paddingHorizontal: 8,
+  },
+  legalLink: {
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
 });

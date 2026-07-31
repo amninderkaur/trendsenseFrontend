@@ -29,6 +29,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -424,6 +425,41 @@ export default function Profile() {
             )}
           </View>
         )}
+
+        {/* Footer credits */}
+        <View style={styles.footer}>
+          <Text style={[styles.footerCredits, { color: themeColors.muted }]}>
+            TrendSense made by HackstreetGirls{"\n"}Amninder, Cayla, Nabia & Jasleen
+          </Text>
+
+          <View style={styles.footerLinks}>
+            <TouchableOpacity
+              onPress={() =>
+                Linking.openURL(
+                  "https://calm-bay-05c532b1e.7.azurestaticapps.net/privacy-policy.html"
+                )
+              }
+            >
+              <Text style={[styles.footerLink, { color: themeColors.muted }]}>
+                Privacy Policy
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={[styles.footerDot, { color: themeColors.muted }]}>·</Text>
+
+            <TouchableOpacity
+              onPress={() =>
+                Linking.openURL(
+                  "https://calm-bay-05c532b1e.7.azurestaticapps.net/terms.html"
+                )
+              }
+            >
+              <Text style={[styles.footerLink, { color: themeColors.muted }]}>
+                Terms & Conditions
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </ScrollView>
 
@@ -683,5 +719,31 @@ const styles = StyleSheet.create({
   tasteLockedBtnText: {
     fontWeight: "700",
     fontSize: 14,
+  },
+
+  // Footer
+  footer: {
+    width: "100%",
+    marginTop: 28,
+    paddingTop: 16,
+    alignItems: "center",
+    gap: 8,
+  },
+  footerCredits: {
+    fontSize: 11,
+    textAlign: "center",
+    lineHeight: 16,
+  },
+  footerLinks: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  footerLink: {
+    fontSize: 11,
+    textDecorationLine: "underline",
+  },
+  footerDot: {
+    fontSize: 11,
   },
 });
