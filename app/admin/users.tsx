@@ -3,6 +3,7 @@ import React from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -115,25 +116,34 @@ export default function AdminUsers() {
   };
 
   const confirmDelete = (id: string, email?: string) => {
-    Alert.alert(
-      "Delete User",
-      `Permanently delete ${email ?? "this user"} and all their data?\n\nThis action cannot be undone.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteAdminUser(id);
-              await loadUsers();
-            } catch {
-              Alert.alert("Error", "Could not delete user.");
-            }
-          },
-        },
-      ]
-    );
+    const message = `Permanently delete ${email ?? "this user"} and all their data?\n\nThis action cannot be undone.`;
+
+    const runDelete = async () => {
+      try {
+        await deleteAdminUser(id);
+        await loadUsers();
+      } catch {
+        if (Platform.OS === "web") {
+          window.alert("Could not delete user.");
+        } else {
+          Alert.alert("Error", "Could not delete user.");
+        }
+      }
+    };
+
+    // react-native-web's Alert.alert does not render real buttons, so
+    // the "Delete" callback never fires there — use window.confirm instead.
+    if (Platform.OS === "web") {
+      if (window.confirm(`Delete User\n\n${message}`)) {
+        runDelete();
+      }
+      return;
+    }
+
+    Alert.alert("Delete User", message, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: runDelete },
+    ]);
   };
 
   const openEmail = (user: User) => {
