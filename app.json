@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trendsense.app",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -63,6 +63,12 @@
       "eas": {
         "projectId": "113712ce-6935-4390-8cd3-1482d9f4c412"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/113712ce-6935-4390-8cd3-1482d9f4c412"
     }
   }
 }

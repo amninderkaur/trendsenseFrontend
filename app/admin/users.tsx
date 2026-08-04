@@ -3,7 +3,7 @@ import React from "react";
 import {
   ActivityIndicator,
   Alert,
-  Platform,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -56,6 +56,10 @@ export default function AdminUsers() {
   const [emailingId, setEmailingId] = React.useState<string | null>(null);
   const [emailForm, setEmailForm] = React.useState<EmailState>({ subject: "", content: "" });
   const [sending, setSending] = React.useState(false);
+
+  const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; email?: string } | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
 
   if (getRole() !== "ADMIN") {
     return (
@@ -116,34 +120,29 @@ export default function AdminUsers() {
   };
 
   const confirmDelete = (id: string, email?: string) => {
-    const message = `Permanently delete ${email ?? "this user"} and all their data?\n\nThis action cannot be undone.`;
+    setDeleteError(null);
+    setDeleteTarget({ id, email });
+  };
 
-    const runDelete = async () => {
-      try {
-        await deleteAdminUser(id);
-        await loadUsers();
-      } catch {
-        if (Platform.OS === "web") {
-          window.alert("Could not delete user.");
-        } else {
-          Alert.alert("Error", "Could not delete user.");
-        }
-      }
-    };
+  const cancelDelete = () => {
+    if (deleting) return;
+    setDeleteTarget(null);
+    setDeleteError(null);
+  };
 
-    // react-native-web's Alert.alert does not render real buttons, so
-    // the "Delete" callback never fires there — use window.confirm instead.
-    if (Platform.OS === "web") {
-      if (window.confirm(`Delete User\n\n${message}`)) {
-        runDelete();
-      }
-      return;
+  const runDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteAdminUser(deleteTarget.id);
+      setDeleteTarget(null);
+      await loadUsers();
+    } catch {
+      setDeleteError("Could not delete user. Please try again.");
+    } finally {
+      setDeleting(false);
     }
-
-    Alert.alert("Delete User", message, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: runDelete },
-    ]);
   };
 
   const openEmail = (user: User) => {
@@ -430,6 +429,43 @@ export default function AdminUsers() {
           );
         })
       )}
+
+      <Modal
+        visible={!!deleteTarget}
+        transparent
+        animationType="fade"
+        onRequestClose={cancelDelete}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconWrap}>
+              <Text style={styles.modalIcon}>🗑️</Text>
+            </View>
+            <Text style={styles.modalTitle}>Delete User</Text>
+            <Text style={styles.modalMessage}>
+              Permanently delete {deleteTarget?.email ?? "this user"} and all their data?{"\n\n"}
+              This action cannot be undone.
+            </Text>
+            {deleteError && <Text style={styles.modalErrorText}>{deleteError}</Text>}
+            <View style={styles.formActions}>
+              <Pressable style={styles.cancelButton} onPress={cancelDelete} disabled={deleting}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.deleteConfirmButton, deleting && { opacity: 0.6 }]}
+                onPress={runDelete}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <ActivityIndicator color={colors.white} />
+                ) : (
+                  <Text style={styles.saveButtonText}>Delete</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -814,5 +850,64 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 12,
     color: colors.text,
+  },
+
+  // Delete Confirm Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: colors.card,
+    borderRadius: 18,
+    padding: 20,
+    gap: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  modalIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#ef5350" + "20",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  modalIcon: {
+    fontSize: 26,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: colors.text,
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: colors.muted,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  modalErrorText: {
+    fontSize: 13,
+    color: "#ef5350",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  deleteConfirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "#ef5350",
+    alignItems: "center",
   },
 });
